@@ -2,7 +2,7 @@ import web
 import time
 
 
-from Database.SQLiteInterface import *
+from DBInterface.SQLiteInterface import *
 from sensors.tempSensor.tempSensorSimulator import *
 from sensors.tempSensor.DS18B20Interface import *
 from devices.heater.heaterSimulator import *
@@ -15,6 +15,7 @@ class heaterSimulator:
 		print 'turning heater on'
 		self.heaterState = 1
 		return self.heaterState
+		
 	
 	def turnHeaterOff(self):
 		print 'turning heater off'

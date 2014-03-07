@@ -2,7 +2,7 @@ import web
 import time
 
 
-from Database.SQLiteInterface import *
+from DBInterface.SQLiteInterface import *
 from sensors.tempSensor.tempSensorSimulator import *
 from sensors.tempSensor.DS18B20Interface import *
 from devices.heater.heaterSimulator import *
@@ -70,7 +70,7 @@ def processTempProbes(tempProbes):
 	
 	for tempProbe in tempProbes:
 		temp = tempProbe.getTemp()
-		DB.insertTemperature(tempProbe.getProbeID(), temp)
+		DB.insertSensorReading(tempProbe.getProbeID(), temp)
 		print 'Probe:' + tempProbe.getProbeID() + ' current temp is:' + str(temp)
 		
 		if(temp < tempProbe.getMinTemp()):

@@ -10,7 +10,7 @@ class SQLiteInterface:
 			cur.execute("DROP TABLE IF EXISTS commands")
 			cur.execute("DROP TABLE IF EXISTS devices")
 			#TODO: the probeID should be FK to the sensor table
-			cur.execute("CREATE TABLE senosrReading(Id INTEGER PRIMARY KEY NOT NULL, timeStamp DATETIME , probeID VARCHAR(1024), reading NUMERIC)")
+			cur.execute("CREATE TABLE sensorReading(Id INTEGER PRIMARY KEY NOT NULL, timeStamp DATETIME , probeID VARCHAR(1024), reading NUMERIC)")
 			cur.execute("CREATE TABLE sensors(Id INTEGER PRIMARY KEY NOT NULL, SensorID  VARCHAR(1024), Type VARCHAR(255), address VARCHAR(255), lowerlimit FLOAT, upperlimit FLOAT, device VARCHAR(255))")
 			cur.execute("CREATE TABLE commands(Id INTEGER PRIMARY KEY NOT NULL, commandID INT, parameterList VARCHAR(255))")
 			cur.execute("CREATE TABLE devices(Id INTEGER PRIMARY KEY NOT NULL, deviceID  VARCHAR(1024), Type VARCHAR(255), address VARCHAR(255))")
