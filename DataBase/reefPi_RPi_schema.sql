@@ -8,17 +8,16 @@ SHOW WARNINGS;
 USE `reefPi_RPi_schema` ;
 
 -- -----------------------------------------------------
--- Table `reefPi_RPi_schema`.`sensorReadings`
+-- Table `reefPi_RPi_schema`.`deviceType`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `reefPi_RPi_schema`.`sensorReadings` ;
+DROP TABLE IF EXISTS `reefPi_RPi_schema`.`deviceType` ;
 
 SHOW WARNINGS;
-CREATE TABLE IF NOT EXISTS `reefPi_RPi_schema`.`sensorReadings` (
-  `idSensorReadings` INT NOT NULL AUTO_INCREMENT,
-  `timeStamp` TIMESTAMP NOT NULL,
-  `probeId` VARCHAR(45) NOT NULL,
-  `reading` DOUBLE NOT NULL,
-  PRIMARY KEY (`idSensorReadings`))
+CREATE TABLE IF NOT EXISTS `reefPi_RPi_schema`.`deviceType` (
+  `iddeviceType` INT NOT NULL AUTO_INCREMENT,
+  `deviceName` VARCHAR(45) NOT NULL,
+  `busType` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`iddeviceType`))
 ENGINE = InnoDB;
 
 SHOW WARNINGS;
@@ -32,10 +31,33 @@ SHOW WARNINGS;
 CREATE TABLE IF NOT EXISTS `reefPi_RPi_schema`.`devices` (
   `iddevices` INT NOT NULL AUTO_INCREMENT,
   `deviceId` VARCHAR(45) NULL,
-  `type` VARCHAR(45) NULL,
+  `iddeviceType` INT NULL,
   `address` VARCHAR(45) NULL,
   `status` TINYINT(1) NULL,
-  PRIMARY KEY (`iddevices`))
+  PRIMARY KEY (`iddevices`),
+  CONSTRAINT `deviceType`
+    FOREIGN KEY (`iddeviceType`)
+    REFERENCES `reefPi_RPi_schema`.`deviceType` (`iddeviceType`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+SHOW WARNINGS;
+CREATE INDEX `deviceType_idx` ON `reefPi_RPi_schema`.`devices` (`iddeviceType` ASC);
+
+SHOW WARNINGS;
+
+-- -----------------------------------------------------
+-- Table `reefPi_RPi_schema`.`sensorType`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `reefPi_RPi_schema`.`sensorType` ;
+
+SHOW WARNINGS;
+CREATE TABLE IF NOT EXISTS `reefPi_RPi_schema`.`sensorType` (
+  `idSensorType` INT NOT NULL AUTO_INCREMENT,
+  `sensorName` VARCHAR(45) NOT NULL,
+  `busType` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`idSensorType`))
 ENGINE = InnoDB;
 
 SHOW WARNINGS;
@@ -49,7 +71,7 @@ SHOW WARNINGS;
 CREATE TABLE IF NOT EXISTS `reefPi_RPi_schema`.`sensors` (
   `Idsensors` INT NOT NULL AUTO_INCREMENT,
   `sensorId` VARCHAR(45) NOT NULL,
-  `type` VARCHAR(45) NOT NULL,
+  `idsensorType` INT NOT NULL,
   `address` VARCHAR(45) NULL,
   `lowerlimit` DOUBLE NULL,
   `upper;Limit` DOUBLE NULL,
@@ -60,11 +82,43 @@ CREATE TABLE IF NOT EXISTS `reefPi_RPi_schema`.`sensors` (
     FOREIGN KEY (`device`)
     REFERENCES `reefPi_RPi_schema`.`devices` (`iddevices`)
     ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `type`
+    FOREIGN KEY (`idsensorType`)
+    REFERENCES `reefPi_RPi_schema`.`sensorType` (`idSensorType`)
+    ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 SHOW WARNINGS;
 CREATE INDEX `devieID_idx` ON `reefPi_RPi_schema`.`sensors` (`device` ASC);
+
+SHOW WARNINGS;
+CREATE INDEX `type_idx` ON `reefPi_RPi_schema`.`sensors` (`idsensorType` ASC);
+
+SHOW WARNINGS;
+
+-- -----------------------------------------------------
+-- Table `reefPi_RPi_schema`.`sensorReadings`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `reefPi_RPi_schema`.`sensorReadings` ;
+
+SHOW WARNINGS;
+CREATE TABLE IF NOT EXISTS `reefPi_RPi_schema`.`sensorReadings` (
+  `idSensorReadings` INT NOT NULL AUTO_INCREMENT,
+  `timeStamp` TIMESTAMP NOT NULL,
+  `sensorId` INT NOT NULL,
+  `reading` DOUBLE NOT NULL,
+  PRIMARY KEY (`idSensorReadings`),
+  CONSTRAINT `sensor`
+    FOREIGN KEY (`sensorId`)
+    REFERENCES `reefPi_RPi_schema`.`sensors` (`Idsensors`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+SHOW WARNINGS;
+CREATE INDEX `sensor_idx` ON `reefPi_RPi_schema`.`sensorReadings` (`sensorId` ASC);
 
 SHOW WARNINGS;
 

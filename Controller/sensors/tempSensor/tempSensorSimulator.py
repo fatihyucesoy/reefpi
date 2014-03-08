@@ -2,15 +2,17 @@ import random
 from DBInterface.SQLInterface import *
 
 class tempSimulator:
-	_probeId = 'NONE'
+	_probeId = 0
+	_probeName = 'None'
 	_reading = 25.5
 	_minReading = 0
 	_maxReading = 100
 	_deviceId = None
 	_period = 0
 	
-	def __init__(self, probeId, minReading, maxReading, deviceId, period):
+	def __init__(self, probeId, probeName, minReading, maxReading, deviceId, period):
 		self._probeId = probeId
+		self._probeName = probeName
 		self._minReading = minReading
 		self._maxReading = maxReading
 		self._deviceId = deviceId
