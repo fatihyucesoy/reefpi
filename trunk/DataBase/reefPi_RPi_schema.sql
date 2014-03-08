@@ -24,6 +24,22 @@ ENGINE = InnoDB;
 SHOW WARNINGS;
 
 -- -----------------------------------------------------
+-- Table `reefPi_RPi_schema`.`devices`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `reefPi_RPi_schema`.`devices` ;
+
+SHOW WARNINGS;
+CREATE TABLE IF NOT EXISTS `reefPi_RPi_schema`.`devices` (
+  `iddevices` INT NOT NULL AUTO_INCREMENT,
+  `deviceId` VARCHAR(45) NULL,
+  `type` VARCHAR(45) NULL,
+  `address` VARCHAR(45) NULL,
+  PRIMARY KEY (`iddevices`))
+ENGINE = InnoDB;
+
+SHOW WARNINGS;
+
+-- -----------------------------------------------------
 -- Table `reefPi_RPi_schema`.`sensors`
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `reefPi_RPi_schema`.`sensors` ;
@@ -37,24 +53,17 @@ CREATE TABLE IF NOT EXISTS `reefPi_RPi_schema`.`sensors` (
   `lowerlimit` DOUBLE NULL,
   `upper;Limit` DOUBLE NULL,
   `device` INT NULL,
-  PRIMARY KEY (`Idsensors`))
+  `period` MEDIUMTEXT NULL,
+  PRIMARY KEY (`Idsensors`),
+  CONSTRAINT `devieID`
+    FOREIGN KEY (`device`)
+    REFERENCES `reefPi_RPi_schema`.`devices` (`iddevices`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 SHOW WARNINGS;
-
--- -----------------------------------------------------
--- Table `reefPi_RPi_schema`.`devices`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `reefPi_RPi_schema`.`devices` ;
-
-SHOW WARNINGS;
-CREATE TABLE IF NOT EXISTS `reefPi_RPi_schema`.`devices` (
-  `iddevices` INT NOT NULL AUTO_INCREMENT,
-  `deviceId` VARCHAR(45) NULL,
-  `type` VARCHAR(45) NULL,
-  `address` VARCHAR(45) NULL,
-  PRIMARY KEY (`iddevices`))
-ENGINE = InnoDB;
+CREATE INDEX `devieID_idx` ON `reefPi_RPi_schema`.`sensors` (`device` ASC);
 
 SHOW WARNINGS;
 

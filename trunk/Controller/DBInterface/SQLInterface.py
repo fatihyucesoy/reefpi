@@ -11,11 +11,11 @@ class SQLInterface:
 		os.system('mysql -u root < ../DataBase/reefPi_RPi_schema.sql')	
 		
 		
-	def addSensor(self, sensorID, type, address, minTemp, maxTemp, device):
+	def addSensor(self, sensorID, type, address, minTemp, maxTemp, device, period):
 		con = self._connect()
 		with con:
 			cur = con.cursor() 
-			cur.execute("""INSERT INTO sensors VALUES(DEFAULT, %s, %s, %s, %s, %s, %s)""", (sensorID, type, address, minTemp, maxTemp, device))
+			cur.execute("""INSERT INTO sensors VALUES(DEFAULT, %s, %s, %s, %s, %s, %s, %s)""", (sensorID, type, address, minTemp, maxTemp, device, period))
 			con.commit()
 			
 	def addDevice(self, deviceID, type, address):
@@ -54,34 +54,36 @@ class SQLInterface:
     		cur.execute("SELECT * FROM sensorReadings")
     		return cur.fetchall()
     		
-	def turnHeaterOn(self, commandId):
+	def turnDeviceOn(self, commandId, deviceId):
 		con = self._connect()
 		with con:
 			cur = con.cursor() 
-			cur.execute("""INSERT INTO commands VALUES(NULL, %s, 1)""", (commandId,))
+			cur.execute("""INSERT INTO commands VALUES(NULL, %s, %s)""", (commandId, deviceId))
 			con.commit() 
 			
-	def turnHeateroff(self, commandId):
+	def turnDeviceOff(self, commandId, deviceId):
 		con = self._connect()
 		with con:
 			cur = con.cursor() 
-			cur.execute("""INSERT INTO commands VALUES(NULL, %s, 0)""", (commandId,))
+			cur.execute("""INSERT INTO commands VALUES(NULL, %s, %s)""", (commandId, deviceId))
 			con.commit() 
 			
 	def getNextCommand(self):
 		command = None
 		commandId = None
+		param = None
 		con = self._connect()
 		with con:
 			cur = con.cursor()    
-    		cur.execute("SELECT * FROM commands ORDER BY ROWID ASC LIMIT 1")
+    		cur.execute("SELECT * FROM commands LIMIT 1")
     		command = cur.fetchone()
     		if(command != None):
     			commandId = command[1]
-    			cur.execute("DELETE FROM commands where Id = ?", (command[0],))
+    			param = command[2]
+    			cur.execute("""DELETE FROM commands where IdCommands = %s""", (command[0],))
     			con.commit()
 		
-		return commandId
+		return (commandId, param)
 			
 			
 	
