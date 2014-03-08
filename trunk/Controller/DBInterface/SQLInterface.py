@@ -10,6 +10,21 @@ class SQLInterface:
 		import os
 		os.system('mysql -u root < ../DataBase/reefPi_RPi_schema.sql')	
 		
+	def addDeviceType(self, type, busType):
+		con = self._connect()
+		with con:
+			cur = con.cursor() 
+			cur.execute("""INSERT INTO deviceType VALUES(DEFAULT, %s, %s)""", \
+			(type, busType))
+			con.commit()
+	
+	def addSensorType(self, type, busType):
+		con = self._connect()
+		with con:
+			cur = con.cursor() 
+			cur.execute("""INSERT INTO sensorType VALUES(DEFAULT, %s, %s)""", \
+			(type, busType))
+			con.commit()
 		
 	def addSensor(self, sensorID, type, address, minTemp, maxTemp, device, period):
 		con = self._connect()
@@ -32,7 +47,18 @@ class SQLInterface:
 			cur = con.cursor() 
 			cur.execute("""INSERT INTO sensorReadings VALUES(NULL, CURRENT_TIMESTAMP, %s, %s)""", (probeId, temp,))
 			con.commit()
-			
+	
+	
+	def setDeviceStatus(self, deviceId, status):
+		con = self._connect()
+		with con:
+			cur = con.cursor()    
+    		cur.execute("""UPDATE Devices SET Status=%s
+							WHERE idDevices=%s """
+							,(status, deviceId))
+
+    		con.commit()
+    					
 	def getAllDevices(self):
 		con = self._connect()
 		with con:
@@ -54,21 +80,7 @@ class SQLInterface:
 			cur = con.cursor()    
     		cur.execute("SELECT * FROM sensorReadings")
     		return cur.fetchall()
-    		
-	def turnDeviceOn(self, commandId, deviceId):
-		con = self._connect()
-		with con:
-			cur = con.cursor() 
-			cur.execute("""INSERT INTO commands VALUES(NULL, %s, %s)""", (commandId, deviceId))
-			con.commit() 
-			
-	def turnDeviceOff(self, commandId, deviceId):
-		con = self._connect()
-		with con:
-			cur = con.cursor() 
-			cur.execute("""INSERT INTO commands VALUES(NULL, %s, %s)""", (commandId, deviceId))
-			con.commit() 
-			
+    			
 	def getNextCommand(self):
 		command = None
 		commandId = None
@@ -86,16 +98,41 @@ class SQLInterface:
 		
 		return (commandId, param)
 		
-	def setDeviceStatus(self, deviceId, status):
+	def getSensorType(self, sensorTypeId):	
+		type = None
 		con = self._connect()
 		with con:
 			cur = con.cursor()    
-    		cur.execute("""UPDATE Devices SET Status=%s
-							WHERE idDevices=%s """
-							,(status, deviceId))
-
-    		con.commit()
+    		cur.execute("""SELECT sensorName FROM sensorType where idsensorType = %s""", (sensorTypeId, ))
+    		type = cur.fetchone()
+    		print type
+    		
+		return type[0]
 	
+	def getDeviceType(self, deviceTypeId):	
+		device = None
+		con = self._connect()
+		with con:
+			cur = con.cursor()    
+    		cur.execute("""SELECT deviceName FROM deviceType where iddeviceType = %s""", (deviceTypeId, ))
+    		device = cur.fetchone()
+    		print device
+    		
+		return device[0]
+		
 			
+	def turnDeviceOn(self, commandId, deviceId):
+		con = self._connect()
+		with con:
+			cur = con.cursor() 
+			cur.execute("""INSERT INTO commands VALUES(NULL, %s, %s)""", (commandId, deviceId))
+			con.commit() 
+			
+	def turnDeviceOff(self, commandId, deviceId):
+		con = self._connect()
+		with con:
+			cur = con.cursor() 
+			cur.execute("""INSERT INTO commands VALUES(NULL, %s, %s)""", (commandId, deviceId))
+			con.commit() 		
 			
 	

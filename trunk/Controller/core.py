@@ -29,24 +29,26 @@ def init(sensors, devices):
 	configureDB()
 	DBSensors = DB.getAllSensors()
 	for sensor in DBSensors:
-		if(sensor[2] == 'tempSimulator'):
-			sensors.append(tempSimulator(sensor[1], sensor[4], sensor[5], sensor[6], sensor[7]))
+		if(DB.getSensorType(sensor[2]) == 'tempSimulator'):
+			sensors.append(tempSimulator(sensor[0], sensor[1], sensor[4], sensor[5], sensor[6], sensor[7]))
 		elif(sensor[2] == 'DS18B20'):
 			sensors.append(DS1882Interface(sensor[1]))
 
 	dbDevices = DB.getAllDevices()
 	for device in dbDevices:
-		if(device[2] == 'heaterSimulator'):
+		if(DB.getDeviceType(device[2]) == 'heaterSimulator'):
 			devices.append(heaterSimulator(device[0], device[1], device[2], device[3]))
 
 def configureDB():
 	DB     = SQLInterface()
 	DB.config();
 	#DB.createDateBase()
-	DB.addDevice('heater1', 'heaterSimulator', 'sw', 0)
-	DB.addDevice('heater2', 'heaterSimulator', 'sw', 0)
-	DB.addSensor('tempSensor1', 'tempSimulator', 'sw', 25.5, 25.5, 1, 3)
-	DB.addSensor('tempSensor2', 'tempSimulator', 'sw', 25.5, 25.5, 2, 4)	
+	DB.addDeviceType('heaterSimulator', 'I2C')
+	DB.addDevice('heater1', 1, '0x40', 0)
+	DB.addDevice('heater2', 1, '0x48', 0)
+	DB.addSensorType('tempSimulator', 'SW')
+	DB.addSensor('tempSensor1', 1, '4', 25.5, 25.5, 1, 3)
+	DB.addSensor('tempSensor2', 1, '5', 25.5, 25.5, 2, 4)	
 
 	
 	
@@ -76,7 +78,7 @@ def processCommand(devices):
 def processSensor(sensor):
 	while(1):
 		reading = sensor.takeNewReading()
-		print 'Probe:' + sensor.getProbeId() + ' current temp is:' + str(reading)	 	
+		print 'Probe:' + str(sensor.getProbeId()) + ' current temp is:' + str(reading)	 	
 		time.sleep(int(sensor.getPeriod()))
 			
 def main():
