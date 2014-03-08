@@ -43,8 +43,8 @@ def configureDB():
 	DB     = SQLInterface()
 	DB.config();
 	#DB.createDateBase()
-	DB.addDevice('heater1', 'heaterSimulator', 'sw')
-	DB.addDevice('heater2', 'heaterSimulator', 'sw')
+	DB.addDevice('heater1', 'heaterSimulator', 'sw', 0)
+	DB.addDevice('heater2', 'heaterSimulator', 'sw', 0)
 	DB.addSensor('tempSensor1', 'tempSimulator', 'sw', 25.5, 25.5, 1, 3)
 	DB.addSensor('tempSensor2', 'tempSimulator', 'sw', 25.5, 25.5, 2, 4)	
 
