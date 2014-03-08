@@ -15,14 +15,15 @@ class SQLInterface:
 		con = self._connect()
 		with con:
 			cur = con.cursor() 
-			cur.execute("""INSERT INTO sensors VALUES(DEFAULT, %s, %s, %s, %s, %s, %s, %s)""", (sensorID, type, address, minTemp, maxTemp, device, period))
+			cur.execute("""INSERT INTO sensors VALUES(DEFAULT, %s, %s, %s, %s, %s, %s, %s)""", \
+			(sensorID, type, address, minTemp, maxTemp, device, period))
 			con.commit()
 			
-	def addDevice(self, deviceID, type, address):
+	def addDevice(self, deviceID, type, address, defaultState):
 		con = self._connect()
 		with con:
 			cur = con.cursor() 
-			cur.execute("""INSERT INTO devices VALUES(NULL, %s, %s, %s)""", (deviceID, type, address))
+			cur.execute("""INSERT INTO devices VALUES(NULL, %s, %s, %s, %s)""", (deviceID, type, address, defaultState))
 			con.commit()		
 			
 	def insertSensorReading(self, probeId, temp):
@@ -84,6 +85,17 @@ class SQLInterface:
     			con.commit()
 		
 		return (commandId, param)
+		
+	def setDeviceStatus(self, deviceId, status):
+		con = self._connect()
+		with con:
+			cur = con.cursor()    
+    		cur.execute("""UPDATE Devices SET Status=%s
+							WHERE idDevices=%s """
+							,(status, deviceId))
+
+    		con.commit()
+	
 			
 			
 	

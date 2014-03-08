@@ -34,6 +34,7 @@ CREATE TABLE IF NOT EXISTS `reefPi_RPi_schema`.`devices` (
   `deviceId` VARCHAR(45) NULL,
   `type` VARCHAR(45) NULL,
   `address` VARCHAR(45) NULL,
+  `status` TINYINT(1) NULL,
   PRIMARY KEY (`iddevices`))
 ENGINE = InnoDB;
 
