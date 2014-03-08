@@ -1,5 +1,6 @@
 import web
 import time
+import datetime
 from multiprocessing import Process
 
 
@@ -23,124 +24,86 @@ from devices.heater.heaterSimulator import *
 #	return returnValue
 	
 		
-def init(tempProbes, devices):
+def init(sensors, devices):
 	DB     = SQLInterface()
 	configureDB()
-	sensors = DB.getAllSensors()
-	for sensor in sensors:
+	DBSensors = DB.getAllSensors()
+	for sensor in DBSensors:
 		if(sensor[2] == 'tempSimulator'):
-			tempProbes.append(tempSimulator(sensor[1], sensor[4], sensor[5], sensor[6]))
+			sensors.append(tempSimulator(sensor[1], sensor[4], sensor[5], sensor[6], sensor[7]))
 		elif(sensor[2] == 'DS18B20'):
-			tempProbes.append(DS1882Interface(sensor[1]))
+			sensors.append(DS1882Interface(sensor[1]))
 
 	dbDevices = DB.getAllDevices()
 	for device in dbDevices:
 		if(device[2] == 'heaterSimulator'):
-			devices.append(heaterSimulator())
+			devices.append(heaterSimulator(device[0], device[1], device[2], device[3]))
 
 def configureDB():
 	DB     = SQLInterface()
 	DB.config();
 	#DB.createDateBase()
-	DB.addSensor('tempSensor1', 'tempSimulator', 'sw', 25.5, 25.5, 1)
-	DB.addSensor('tempSensor2', 'tempSimulator', 'sw', 25.5, 25.5, 2)	
 	DB.addDevice('heater1', 'heaterSimulator', 'sw')
+	DB.addDevice('heater2', 'heaterSimulator', 'sw')
+	DB.addSensor('tempSensor1', 'tempSimulator', 'sw', 25.5, 25.5, 1, 3)
+	DB.addSensor('tempSensor2', 'tempSimulator', 'sw', 25.5, 25.5, 2, 4)	
+
+	
 	
 def processCommand(devices):
 	result = None
 	DB     = SQLInterface()
-	commandId = DB.getNextCommand()
+	command = DB.getNextCommand()
+	if(command[0] != None):
+	#result = commandDict[commandId]()
 	
-	#if(commandId != None):
-	#	result = commandDict[commandId]()
-
-	if(commandId == 1):
-		#this is turn heater on.  The parameter tells us
-		#which heater to switch
-		result = devices[0].turnHeaterOn()
-		#TODO write the heater state to the DB.
-	elif(commandId == 2):
-		#this is turn heater on.  The parameter tells us
-		#which heater to switch
-		result = devices[0].turnHeaterOff()	
+		for device in devices:
+			if(device.getId() == command[1]):
+				break
+			
+		if(command[0] == 1):
+			result = device.turnDeviceOn()
+		elif(command[0] == 2):
+			result = device.turnDeviceOff()	
 		
 	return result
-	
-def processTempProbes(tempProbes):
-	DB     = SQLInterface()
-	
-	for tempProbe in tempProbes:
-		temp = tempProbe.getTemp()
-		DB.insertSensorReading(tempProbe.getProbeID(), temp)
-		print 'Probe:' + tempProbe.getProbeID() + ' current temp is:' + str(temp)
 		
-		if(temp < tempProbe.getMinTemp()):
-			#DB.turnHeaterOn(_getCommandID(turnHeaterOn))
-			DB.turnHeaterOn(1)
-		else:
-			#DB.turnHeateroff(_getCommandID(turnHeaterOff))
-			DB.turnHeateroff(2)		
 
-def processSensor(sensor, period):
-	DB     = SQLInterface()
-	print 'running function - ' + sensor.getProbeID() + ' with period ' + str(period)
+# Function loops until killed by the calling process.
+# Intended to be launched as a separate process.  Takes
+# the sensor object as requests get reading. Then sleeps for 
+# the defined period
+def processSensor(sensor):
 	while(1):
-		time.sleep(period)
-		reading = sensor.getTemp()
-		DB.insertSensorReading(sensor.getProbeID(), reading)
-		print 'Probe:' + sensor.getProbeID() + ' current temp is:' + str(reading)
-		
-		if(reading < sensor.getMinTemp()):
-			#DB.turnHeaterOn(_getCommandID(turnHeaterOn))
-			DB.turnHeaterOn(1)
-		else:
-			#DB.turnHeateroff(_getCommandID(turnHeaterOff))
-		 	DB.turnHeateroff(2)	
+		reading = sensor.takeNewReading()
+		print 'Probe:' + sensor.getProbeId() + ' current temp is:' + str(reading)	 	
+		time.sleep(int(sensor.getPeriod()))
 			
 def main():
 	sensors = []
 	devices = []
 	sensorPool = []
 		
-	configureDB()
 	init(sensors, devices)
 		
-	print "Waiting for result..."
-	i = 1
-	for sensor in sensors: # then kill them all off
-		process = Process(target=processSensor, args=(sensor, i))
+	# creates a separate process for each sensor to run it
+	# this allows them to be independent.
+	for sensor in sensors: 
+		process = Process(target=processSensor, args=(sensor,))
 		process.start()
-		sensorPool.append(process)
-		i+=1
-		
-		
-		
-	time.sleep(10)
+		sensorPool.append(process)		
 	
-	
-	print 'DIE god damn you'
-	
+	#Main loop.  When happy this will be switched to a while(1) or similar
+	# for now its easier to limit number of loops
+	for loop in range(1,100):
+		processCommand(devices)
+		print datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ': and all is well'
+		time.sleep(1)
+		
+	print 'Going to sleep'	
 	for process in sensorPool:
 		process.terminate()
-		
-	#mainloop
-	#for i in range(1,100):
-		#process the next command in the DB
-	#	processCommand(devices)
-	#	processTempProbes(tempProbes)
-	#	time.sleep(1)
-		
-		
-	#DB     = SQLiteInterface()	
-	#rows = DB.getAllTemperatures()	
-	#for row in rows:
-		#print row
 
-	
-	
-
-	
-	
 
 if __name__ == "__main__":
     main()

@@ -9,15 +9,28 @@ from devices.heater.heaterSimulator import *
 
 
 class heaterSimulator:
-	heaterState = 0
+	_heaterState = 0
+	_Id = 0
+	_name = None
+	_type = None
+	_address = None
 	
-	def turnHeaterOn(self):
-		print 'turning heater on'
-		self.heaterState = 1
-		return self.heaterState
+	def __init__(self, Id, name, type, address):
+		self._Id = Id
+		self._name = name
+		self._type = type
+		self._address = address
+	
+	def turnDeviceOn(self):
+		print self._name +': Turning heater on'
+		self._heaterState = 1
+		return self._heaterState
 		
 	
-	def turnHeaterOff(self):
-		print 'turning heater off'
-		self.heaterState = 0
-		return self.heaterState
+	def turnDeviceOff(self):
+		print self._name + ': Turning heater off'
+		self._heaterState = 0
+		return self._heaterState
+		
+	def getId(self):
+		return self._Id
