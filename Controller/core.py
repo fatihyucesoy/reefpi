@@ -9,6 +9,8 @@ from sensors.tempSensor.tempSensorSimulator import *
 from sensors.tempSensor.DS18B20Interface import *
 from devices.heater.heaterSimulator import *
 
+from scheduler.reefPI_Scheduler import *
+
 
 
 #commandDict={1:turnHeaterOn, 2:turnHeaterOff}
@@ -80,14 +82,23 @@ def processSensor(sensor):
 		reading = sensor.takeNewReading()
 		print 'Probe:' + str(sensor.getProbeId()) + ' current temp is:' + str(reading)	 	
 		time.sleep(int(sensor.getPeriod()))
-			
+		
+def schedulertest(text):
+	print "Scheduled event running: " + text	
+	
+	
 def main():
 	sensors = []
 	devices = []
 	sensorPool = []
 		
 	init(sensors, devices)
-		
+
+	scheduler = ReefPI_Scheduler()
+	scheduler.AddIntervalTaskMinutes(schedulertest, min=0, sec=5, hrs=0, startDate= datetime.date.today().strftime("%Y-%m-%d %H:%M:%S"))
+	scheduler.Run()
+	
+	
 	# creates a separate process for each sensor to run it
 	# this allows them to be independent.
 	for sensor in sensors: 
