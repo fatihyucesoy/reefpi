@@ -5,7 +5,8 @@ class SQLInterface:
 	def _connect(self):
 		return sql.connect(host="localhost", # your host, usually localhost
                      user="root",
-                      db="reefPi_RPi_schema")
+                     db="reefPi_RPi_schema")
+                     
 	def config(self):
 		import os
 		os.system('mysql -u root < ../DataBase/reefPi_RPi_schema.sql')	
