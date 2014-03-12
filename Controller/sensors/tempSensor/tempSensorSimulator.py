@@ -24,10 +24,10 @@ class tempSimulator:
 		DB.insertSensorReading(self._probeId, self._reading)
 		if(self._reading < self._minReading):
 			#DB.turnHeaterOn(_getCommandID(turnHeaterOn))
-			DB.turnDeviceOn(1, self._deviceId)
+			DB.addCommand(1, self._deviceId)
 		else:
 			#DB.turnHeateroff(_getCommandID(turnHeaterOff))
-		 	DB.turnDeviceOff(2, self._deviceId)	
+		 	DB.addCommand(2, self._deviceId)	
 		
 	def getProbeId(self):
 		return self._probeId

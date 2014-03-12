@@ -1,12 +1,4 @@
-import web
-import time
-
-
-from DBInterface.SQLiteInterface import *
-from sensors.tempSensor.tempSensorSimulator import *
-from sensors.tempSensor.DS18B20Interface import *
-from devices.heater.heaterSimulator import *
-
+from DBInterface.SQLInterface import *
 
 class heaterSimulator:
 	_heaterState = 0
