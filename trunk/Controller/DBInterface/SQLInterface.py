@@ -122,18 +122,12 @@ class SQLInterface:
 		return device[0]
 		
 			
-	def turnDeviceOn(self, commandId, deviceId):
+	def addCommand(self, commandId, deviceId):
 		con = self._connect()
 		with con:
 			cur = con.cursor() 
 			cur.execute("""INSERT INTO commands VALUES(NULL, %s, %s)""", (commandId, deviceId))
 			con.commit() 
-			
-	def turnDeviceOff(self, commandId, deviceId):
-		con = self._connect()
-		with con:
-			cur = con.cursor() 
-			cur.execute("""INSERT INTO commands VALUES(NULL, %s, %s)""", (commandId, deviceId))
-			con.commit() 		
+					
 			
 	

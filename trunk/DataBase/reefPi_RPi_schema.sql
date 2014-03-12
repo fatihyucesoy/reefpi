@@ -23,6 +23,45 @@ ENGINE = InnoDB;
 SHOW WARNINGS;
 
 -- -----------------------------------------------------
+-- Table `reefPi_RPi_schema`.`controllerType`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `reefPi_RPi_schema`.`controllerType` ;
+
+SHOW WARNINGS;
+CREATE TABLE IF NOT EXISTS `reefPi_RPi_schema`.`controllerType` (
+  `idcontrollerType` INT NOT NULL,
+  `name` VARCHAR(45) NOT NULL,
+  `description` BLOB NULL,
+  PRIMARY KEY (`idcontrollerType`))
+ENGINE = InnoDB;
+
+SHOW WARNINGS;
+
+-- -----------------------------------------------------
+-- Table `reefPi_RPi_schema`.`controller`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `reefPi_RPi_schema`.`controller` ;
+
+SHOW WARNINGS;
+CREATE TABLE IF NOT EXISTS `reefPi_RPi_schema`.`controller` (
+  `idcontroller` INT NOT NULL,
+  `Name` VARCHAR(45) NOT NULL,
+  `description` BLOB NULL,
+  `idcontrollerType` INT NOT NULL,
+  PRIMARY KEY (`idcontroller`),
+  CONSTRAINT `FK_controllerType`
+    FOREIGN KEY (`idcontrollerType`)
+    REFERENCES `reefPi_RPi_schema`.`controllerType` (`idcontrollerType`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+SHOW WARNINGS;
+CREATE INDEX `FK_controllerType_idx` ON `reefPi_RPi_schema`.`controller` (`idcontrollerType` ASC);
+
+SHOW WARNINGS;
+
+-- -----------------------------------------------------
 -- Table `reefPi_RPi_schema`.`devices`
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `reefPi_RPi_schema`.`devices` ;
@@ -34,16 +73,25 @@ CREATE TABLE IF NOT EXISTS `reefPi_RPi_schema`.`devices` (
   `iddeviceType` INT NULL,
   `address` VARCHAR(45) NULL,
   `status` TINYINT(1) NULL,
+  `idcontoller` INT NULL,
   PRIMARY KEY (`iddevices`),
-  CONSTRAINT `deviceType`
+  CONSTRAINT `FK_deviceType`
     FOREIGN KEY (`iddeviceType`)
     REFERENCES `reefPi_RPi_schema`.`deviceType` (`iddeviceType`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_contoller`
+    FOREIGN KEY (`idcontoller`)
+    REFERENCES `reefPi_RPi_schema`.`controller` (`idcontroller`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 SHOW WARNINGS;
 CREATE INDEX `deviceType_idx` ON `reefPi_RPi_schema`.`devices` (`iddeviceType` ASC);
+
+SHOW WARNINGS;
+CREATE INDEX `FK_contoller_idx` ON `reefPi_RPi_schema`.`devices` (`idcontoller` ASC);
 
 SHOW WARNINGS;
 
@@ -133,6 +181,52 @@ CREATE TABLE IF NOT EXISTS `reefPi_RPi_schema`.`commands` (
   `commandId` INT NOT NULL,
   `parameterList` VARCHAR(255) NULL,
   PRIMARY KEY (`idcommands`))
+ENGINE = InnoDB;
+
+SHOW WARNINGS;
+
+-- -----------------------------------------------------
+-- Table `reefPi_RPi_schema`.`link_controller_controllerType`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `reefPi_RPi_schema`.`link_controller_controllerType` ;
+
+SHOW WARNINGS;
+CREATE TABLE IF NOT EXISTS `reefPi_RPi_schema`.`link_controller_controllerType` (
+  `idlink_controller_controllerType` INT NOT NULL,
+  `idcontroller` INT NULL,
+  `idcontrollerType` INT NULL,
+  PRIMARY KEY (`idlink_controller_controllerType`),
+  CONSTRAINT `FK_controller`
+    FOREIGN KEY (`idcontroller`)
+    REFERENCES `reefPi_RPi_schema`.`controller` (`idcontroller`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_controllerType`
+    FOREIGN KEY (`idcontrollerType`)
+    REFERENCES `reefPi_RPi_schema`.`controllerType` (`idcontrollerType`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+SHOW WARNINGS;
+CREATE INDEX `controller_idx` ON `reefPi_RPi_schema`.`link_controller_controllerType` (`idcontroller` ASC);
+
+SHOW WARNINGS;
+CREATE INDEX `FK_controllerType_idx` ON `reefPi_RPi_schema`.`link_controller_controllerType` (`idcontrollerType` ASC);
+
+SHOW WARNINGS;
+
+-- -----------------------------------------------------
+-- Table `reefPi_RPi_schema`.`scheduleType`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `reefPi_RPi_schema`.`scheduleType` ;
+
+SHOW WARNINGS;
+CREATE TABLE IF NOT EXISTS `reefPi_RPi_schema`.`scheduleType` (
+  `idscheduleType` INT NOT NULL,
+  `Name` VARCHAR(45) NOT NULL,
+  `Description` VARCHAR(255) NULL,
+  PRIMARY KEY (`idscheduleType`))
 ENGINE = InnoDB;
 
 SHOW WARNINGS;
