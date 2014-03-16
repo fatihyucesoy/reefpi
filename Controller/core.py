@@ -68,25 +68,22 @@ def configureDB():
 	DB     = SQLInterface()
 	DB.config();
 	#DB.createDateBase()
+	DB.addControllerType('PCA thingy', 'this is the type to represnt the PCA I2C type controller')
+	DB.addController('PCA', 'this is the type to represnt the PCA I2C type controller', 1)
 	DB.addDeviceType('heaterSimulator', 'I2C')
 	DB.addDeviceType('LEDSimulator', 'I2C')
-	DB.addDevice('heater1', 1, '0x40', 0)
-	DB.addDevice('heater2', 1, '0x48', 0)
-	DB.addDevice('LEDChannel1', 2, '0x4A', 0)
-	DB.addDevice('LEDChannel2', 2, '0x4F', 0)
-	DB.addDevice('LEDChannel3', 2, '0x50', 0)
+	DB.addDevice('heater1', 1, '0x40', 0, 1, 0)
+	DB.addDevice('heater2', 1, '0x48', 0, 1, 0)
+	DB.addDevice('LEDChannel1', 2, '0x4A', 0, 1, 0)
+	DB.addDevice('LEDChannel2', 2, '0x4F', 0, 1, 0)
+	DB.addDevice('LEDChannel3', 2, '0x50', 0, 1, 0)
 	DB.addSensorType('tempSimulator', 'SW')
 	DB.addSensor('tempSensor1', 1, '4', 25.5, 25.5, 1, 3)
 	DB.addSensor('tempSensor2', 1, '5', 25.5, 25.5, 2, 4)	
 
 def getLEDIntensity():
 	return calculateSunLight(BluePWMHigh[0], BluePWMLow[0], BlueFull[0], \
-						datetime.datetime.now().year, \
-						datetime.datetime.now().month, \
-						datetime.datetime.now().day, \
-						datetime.datetime.now().hour, \
-						datetime.datetime.now().minute, \
-						datetime.datetime.now().second, \
+						datetime.datetime.now(), \
 						latitude, longitude, \
 						TimeZone)	
 	
@@ -95,20 +92,20 @@ def processCommand(devices):
 	DB     = SQLInterface()
 	command = DB.getNextCommand()
 	if(command[0] != None):
-		#result = commandDict[commandId]()
+	
+		#get the device with the correct device ID
 		for device in devices:
-			if(device.getId() == command[0]):
-
+			if(device.getId() == int(command[1])):
+				print 'storing'
 				cmdDevice = device
 				break
-							
+					
 		if(command[0] == 1):
 			result = cmdDevice.turnDeviceOn()
 		elif(command[0] == 2):
 			result = cmdDevice.turnDeviceOff()
 		elif(command[0] == 3):
-			print 'command 3 seen'
-			result = cmdDevice.setIntensity(getLEDIntensity())	
+			result = cmdDevice.setIntensity(command[2])	
 		
 	return result
 		
@@ -123,7 +120,7 @@ def processSensor(sensor):
 		print 'Probe:' + str(sensor.getProbeId()) + ' current temp is:' + str(reading)	 	
 		time.sleep(int(sensor.getPeriod()))
 		
-def decodeSchedulerEvent(commandId, probeID, deviceId, intensity):
+def decodeSchedulerEvent(commandId, probeID, deviceId, level):
 	print datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ":Scheduled event running: " + str(commandId) +' ' + str(deviceId)	
 	DB     = SQLInterface()
 
@@ -132,7 +129,7 @@ def decodeSchedulerEvent(commandId, probeID, deviceId, intensity):
 	elif(commandId=='2'):
 		DB.addCommand(commandId, deviceId)
 	elif(commandId=='3'):
-		DB.addCommand(commandId, deviceId)
+		DB.addCommand(commandId, deviceId, level)
 
 	
 def main():
@@ -150,7 +147,7 @@ def main():
 	scheduler.AddIntervalTask(decodeSchedulerEvent, \
 										min=0, sec=5, hrs=0, \
 										startDate= datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), \
-										argList=['3', None,'3', 10,])
+										argList=['3',None, '3', 10,])
 										
 	#scheduler a task to run at 5 seconds past every minute
 	scheduler.AddCroneTask(decodeSchedulerEvent, \
@@ -173,12 +170,8 @@ def main():
 	for loop in range(1,100):
 		processCommand(devices)
 		lightlevel = calculateSunLight(BluePWMHigh[0], BluePWMLow[0], BlueFull[0], \
-										datetime.datetime.now().year, \
-										datetime.datetime.now().month, \
-										datetime.datetime.now().day, \
-										7, \
-										datetime.datetime.now().minute, \
-										datetime.datetime.now().second, latitude, longitude, TimeZone)
+										datetime.datetime.now(), \
+										latitude, longitude, TimeZone)
 		print datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ': and all is well :' + str(lightlevel)
 		time.sleep(1)
 		
