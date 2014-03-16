@@ -4,13 +4,30 @@ class SQLInterface:
 
 	def _connect(self):
 		return sql.connect(host="localhost", # your host, usually localhost
-                     user="root",
-                     db="reefPi_RPi_schema")
-                     
+							user="root",
+							db="reefPi_RPi_schema")
+	
 	def config(self):
 		import os
 		os.system('mysql -u root < ../DataBase/reefPi_RPi_schema.sql')	
-		
+	
+	def addControllerType(self, type, desc):
+		con = self._connect()
+		with con:
+			cur = con.cursor() 
+			test = cur.execute("""INSERT INTO controllerType VALUES(DEFAULT, %s, %s)""", \
+			(type, desc))
+			print '*****************************' + str(test)
+			con.commit()
+			
+	def addController(self, name, desc, type):
+		con = self._connect()
+		with con:
+			cur = con.cursor() 
+			cur.execute("""INSERT INTO controller VALUES(DEFAULT, %s, %s, %s)""", \
+			(name, desc, type))
+			con.commit()
+			
 	def addDeviceType(self, type, busType):
 		con = self._connect()
 		with con:
@@ -35,11 +52,12 @@ class SQLInterface:
 			(sensorID, type, address, minTemp, maxTemp, device, period))
 			con.commit()
 			
-	def addDevice(self, deviceID, type, address, defaultState):
+	def addDevice(self, deviceID, type, address, defaultState, idController, level):
 		con = self._connect()
 		with con:
 			cur = con.cursor() 
-			cur.execute("""INSERT INTO devices VALUES(NULL, %s, %s, %s, %s)""", (deviceID, type, address, defaultState))
+			cur.execute("""INSERT INTO devices VALUES(NULL, %s, %s, %s, %s, %s, %s)""", \
+			(deviceID, type, address, defaultState, idController, level))
 			con.commit()		
 			
 	def insertSensorReading(self, probeId, temp):
@@ -54,19 +72,28 @@ class SQLInterface:
 		con = self._connect()
 		with con:
 			cur = con.cursor()    
-    		cur.execute("""UPDATE Devices SET Status=%s
+			cur.execute("""UPDATE Devices SET Status=%s
 							WHERE idDevices=%s """
 							,(status, deviceId))
+			con.commit()
+			
+	def setDeviceLevel(self, deviceId, level):
+		con = self._connect()
+		with con:
+			cur = con.cursor()    
+			cur.execute("""UPDATE devices SET level=%s
+							WHERE idDevices=%s """
+							,(level, deviceId))
 
-    		con.commit()
-    					
+			con.commit()
+								
 	def getAllDevices(self):
 		con = self._connect()
 		with con:
 			cur = con.cursor()    
-    		cur.execute("SELECT * FROM devices")
-    		return cur.fetchall()
-    		
+			cur.execute("SELECT * FROM devices")
+			return cur.fetchall()
+			
 	def getAllSensors(self):
 		con = self._connect()
 		with con:

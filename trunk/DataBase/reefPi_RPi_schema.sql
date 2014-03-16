@@ -29,7 +29,7 @@ DROP TABLE IF EXISTS `reefPi_RPi_schema`.`controllerType` ;
 
 SHOW WARNINGS;
 CREATE TABLE IF NOT EXISTS `reefPi_RPi_schema`.`controllerType` (
-  `idcontrollerType` INT NOT NULL,
+  `idcontrollerType` INT NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(45) NOT NULL,
   `description` BLOB NULL,
   PRIMARY KEY (`idcontrollerType`))
@@ -44,12 +44,12 @@ DROP TABLE IF EXISTS `reefPi_RPi_schema`.`controller` ;
 
 SHOW WARNINGS;
 CREATE TABLE IF NOT EXISTS `reefPi_RPi_schema`.`controller` (
-  `idcontroller` INT NOT NULL,
+  `idcontroller` INT NOT NULL AUTO_INCREMENT,
   `Name` VARCHAR(45) NOT NULL,
   `description` BLOB NULL,
   `idcontrollerType` INT NOT NULL,
   PRIMARY KEY (`idcontroller`),
-  CONSTRAINT `FK_controllerType`
+  CONSTRAINT `FK_controller_controllerType`
     FOREIGN KEY (`idcontrollerType`)
     REFERENCES `reefPi_RPi_schema`.`controllerType` (`idcontrollerType`)
     ON DELETE NO ACTION
@@ -69,11 +69,12 @@ DROP TABLE IF EXISTS `reefPi_RPi_schema`.`devices` ;
 SHOW WARNINGS;
 CREATE TABLE IF NOT EXISTS `reefPi_RPi_schema`.`devices` (
   `iddevices` INT NOT NULL AUTO_INCREMENT,
-  `deviceId` VARCHAR(45) NULL,
+  `Name` VARCHAR(45) NULL,
   `iddeviceType` INT NULL,
   `address` VARCHAR(45) NULL,
   `status` TINYINT(1) NULL,
   `idcontoller` INT NULL,
+  `level` INT NULL,
   PRIMARY KEY (`iddevices`),
   CONSTRAINT `FK_deviceType`
     FOREIGN KEY (`iddeviceType`)
@@ -192,7 +193,7 @@ DROP TABLE IF EXISTS `reefPi_RPi_schema`.`link_controller_controllerType` ;
 
 SHOW WARNINGS;
 CREATE TABLE IF NOT EXISTS `reefPi_RPi_schema`.`link_controller_controllerType` (
-  `idlink_controller_controllerType` INT NOT NULL,
+  `idlink_controller_controllerType` INT NOT NULL AUTO_INCREMENT,
   `idcontroller` INT NULL,
   `idcontrollerType` INT NULL,
   PRIMARY KEY (`idlink_controller_controllerType`),
@@ -223,7 +224,7 @@ DROP TABLE IF EXISTS `reefPi_RPi_schema`.`scheduleType` ;
 
 SHOW WARNINGS;
 CREATE TABLE IF NOT EXISTS `reefPi_RPi_schema`.`scheduleType` (
-  `idscheduleType` INT NOT NULL,
+  `idscheduleType` INT NOT NULL AUTO_INCREMENT,
   `Name` VARCHAR(45) NOT NULL,
   `Description` VARCHAR(255) NULL,
   PRIMARY KEY (`idscheduleType`))
