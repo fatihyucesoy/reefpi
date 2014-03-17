@@ -129,7 +129,7 @@ def decodeSchedulerEvent(commandId, probeID, deviceId, level):
 	elif(commandId=='2'):
 		DB.addCommand(commandId, deviceId)
 	elif(commandId=='3'):
-		DB.addCommand(commandId, deviceId, level)
+		DB.addCommand(commandId, deviceIdawfqWF)
 
 	
 def main():
