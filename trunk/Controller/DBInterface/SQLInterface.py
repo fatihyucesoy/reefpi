@@ -58,7 +58,24 @@ class SQLInterface:
 			cur = con.cursor() 
 			cur.execute("""INSERT INTO devices VALUES(NULL, %s, %s, %s, %s, %s, %s)""", \
 			(deviceID, type, address, defaultState, idController, level))
-			con.commit()		
+			con.commit()
+			
+			
+	def addScheduledEvent(self, name, type, deviceId=None, state=None, value=None, startDate=None, \
+							year=None, month=None, day=None, week=None, day_of_week=None, 				\
+							hour=None, minute=None, second=None):
+		con = self._connect()
+		with con:
+			cur = con.cursor() 
+			#"""insert into scheduledEvent values (default, "test", "crone", 1, 1, 100,
+			#				now(), null, null, null, null, null, null, null, 6)"""
+			cur.execute("""insert into scheduledEvent values (default, %s, %s, %s, %s, %s, %s, %s, 
+							%s, %s, %s, %s, %s, %s,%s)""",
+							(name, type, deviceId, state, value, startDate,			\
+							year, month, day, week, day_of_week, 					\
+							hour, minute, second))
+			con.commit()
+				
 			
 	def insertSensorReading(self, probeId, temp):
 		con = self._connect()
@@ -137,6 +154,14 @@ class SQLInterface:
     		
 		return type[0]
 	
+	def getAllScheduledEvents(self):
+		con = self._connect()
+		with con:
+			cur = con.cursor()    
+    		cur.execute("select * from scheduledEvent")
+    		return cur.fetchall()
+		
+	
 	def getDeviceType(self, deviceTypeId):	
 		device = None
 		con = self._connect()
@@ -155,6 +180,7 @@ class SQLInterface:
 			cur = con.cursor() 
 			cur.execute("""INSERT INTO commands VALUES(NULL, %s, %s)""", (commandId, deviceId))
 			con.commit() 
+			
 					
 			
 	

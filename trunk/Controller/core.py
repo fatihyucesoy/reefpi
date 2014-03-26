@@ -14,79 +14,10 @@ from devices.lighting.LEDSimulator import *
 from scheduler.reefPI_Scheduler import *
 
 from lib.LEDIntensityCalculator import *
+from lib.scheduledEvent import *
 
-BluePWMHigh = [ 255, 255 ]        # High value for Blue PWM each vale is for each string - if your values are noraml this is 255, if your values are inverted this is 0
-BluePWMLow = [ 0, 0 ]            # Low value for Blue PWM - if your values are noraml this is 0, if your values are inverted this is 255
-BlueFull = [ 25, 25 ]          # Value in degrees (sun angle) that each Blue string will be at max output (Larger = more sunlight)
-WhitePWMHigh = [ 255, 255 ]        # High value for White PWM - if your values are noraml this is 255, if your values are inverted this is 0
-WhitePWMLow = [ 0, 0 ]            # Low value for White PWM - if your values are noraml this is 0, if your values are inverted this is 255
-WhiteFull = [ 37.5, 37.5 ]      # Value in degrees (sun angle) that each White string will be at max output (Larger = more sunlight)
-UVPWMHigh = [ 255 ]             # High value for UV PWM - if your values are noraml this is 255, if your values are inverted this is 0
-UVPWMLow = [ 0 ]               # Low value for UV PWM - if your values are noraml this is 0, if your values are inverted this is 255
-UVFull = [ 30 ]              # Value in degrees (sun angle) that each UV string will be at max output (Larger = more sunlight)
-MoonPWMHigh = [ 255 ]             # High value for Moon PWM - if your values are noraml this is 255, if your values are inverted this is 0
-MoonPWMLow = [ 0 ]               # Low value for Moon PWM - if your values are noraml this is 0, if your values are inverted this is 255
-
-# Set for the location of the world you want to replicate.
-
-latitude = -19.770621   # + to N  Defualt - (-19.770621) Heart Reef, Great Barrier Reef, QLD, Australia 
-longitude = 149.238532  # + to E  Defualt - (149.238532)
-TimeZone = 10             # + to E  Defulat - (10)
-
-
-#commandDict={1:turnHeaterOn, 2:turnHeaterOff}
-
-#def _getCommandID(searchCommand):
-#	returnValue = 0
-		
-#	for Id, command in commandDict.items():
-#		if command == searchCommand:
-#			returnValue = Id
-#			breakimport web
-import time
-
-
-from DBInterface.SQLiteInterface import *
-from apscheduler.scheduler import Scheduler
-from apscheduler.jobstores.sqlalchemy_store import SQLAlchemyJobStore
-import logging
-logging.basicConfig()
-
-#set standalone to false to allow the scheduler to launch in another thread
-_g_aps_default_config = {
-    'apscheduler.standalone' : False,
-    'apscheduler.jobstore.default.class' : 'apscheduler.jobstores.sqlalchemy_store:SQLAlchemyJobStore',
-    'apscheduler.jobstore.default.url' : 'mysql://root@localhost/reefPi_RPi_schema',
-    'apscheduler.jobstore.default.tablename' : 'reefPiSchedulerJobStore'
-}
-
-
-class ReefPI_Scheduler:
-	_sched = None
 	
-	def __init__(self):
-		self._sched = Scheduler(_g_aps_default_config)
-		  
-		
-	def AddIntervalTask(self, methodPointer, min=0, sec=0, hrs=0, startDate='2013-08-06 00:09:12', argList=['Interval task running']):
-		print argList
-		return self._sched.add_interval_job(methodPointer, minutes=min, seconds=sec, hours=hrs, start_date=startDate, args=argList)
-
-	def AddCroneTask(self, methodPointer, min=None, sec=None, hrs=None, startDate='2013-08-06 00:09:12', argList=['crone task running']):
-		return self._sched.add_cron_job(methodPointer, year=None, month=None, day=None, week=None, day_of_week=None, hour=hrs, minute=min, second=sec, args=argList)
-			
-	def RemoveTask(self, job):
-		self._sched.unschedule_job(job)
-		
-	def Run(self):
-		self._sched.start()  
-		
-
-#		
-#	return returnValue
-	
-		
-def init(sensors, devices):
+def init(sensors, devices, scheduledEvents):
 	DB     = SQLInterface()
 	configureDB()
 	DBSensors = DB.getAllSensors()
@@ -102,11 +33,18 @@ def init(sensors, devices):
 			devices.append(heaterSimulator(device[0], device[1], device[2], device[3]))
 		elif(DB.getDeviceType(device[2]) == 'LEDSimulator'):
 			devices.append(LEDSimulator(device[0], device[1], device[2], device[3]))
+			
+	dbEvents = DB.getAllScheduledEvents()
+	for event in dbEvents:
+		scheduledEvents.append(scheduledEvent(event[0], event[1], event[2], event[3], \
+											event[4], event[5], event[6], event[7], \
+											event[8], event[9], event[10], event[11], \
+											event[12], event[13], event[14]))
+			
 
 def configureDB():
 	DB     = SQLInterface()
 	DB.config();
-	#DB.createDateBase()
 	DB.addControllerType('PCA thingy', 'this is the type to represnt the PCA I2C type controller')
 	DB.addController('PCA', 'this is the type to represnt the PCA I2C type controller', 1)
 	DB.addDeviceType('heaterSimulator', 'I2C')
@@ -118,7 +56,11 @@ def configureDB():
 	DB.addDevice('LEDChannel3', 2, '0x50', 0, 1, 0)
 	DB.addSensorType('tempSimulator', 'SW')
 	DB.addSensor('tempSensor1', 1, '4', 25.5, 25.5, 1, 3)
-	DB.addSensor('tempSensor2', 1, '5', 25.5, 25.5, 2, 4)	
+	DB.addSensor('tempSensor2', 1, '5', 25.5, 25.5, 2, 4)
+	DB.addScheduledEvent("croneEvent", "crone", 1, 1, 100, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), \
+						 None, None, None, None, None, None, None, 6)
+	DB.addScheduledEvent("intervalEvent", "interval", 2, 0, 0, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), \
+						 None, None, None, None, None, None, None, 3)	
 
 def getLEDIntensity():
 	return calculateSunLight(BluePWMHigh[0], BluePWMLow[0], BlueFull[0], \
@@ -159,6 +101,8 @@ def processSensor(sensor):
 		print 'Probe:' + str(sensor.getProbeId()) + ' current temp is:' + str(reading)	 	
 		time.sleep(int(sensor.getPeriod()))
 		
+		
+		
 def decodeSchedulerEvent(commandId, probeID, deviceId, level):
 	print datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ":Scheduled event running: " + str(commandId) +' ' + str(deviceId)	
 	DB     = SQLInterface()
@@ -175,23 +119,22 @@ def main():
 	sensors = []
 	devices = []
 	sensorPool = []
+	scheduledEvents = []
 		
-	init(sensors, devices)
-
+	init(sensors, devices, scheduledEvents)
 	scheduler = ReefPI_Scheduler()
-	scheduler.AddIntervalTask(decodeSchedulerEvent, \
-										min=0, sec=5, hrs=0, \
-										startDate= datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), \
-										argList=['1', None,'1', None])
-	scheduler.AddIntervalTask(decodeSchedulerEvent, \
-										min=0, sec=5, hrs=0, \
-										startDate= datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), \
-										argList=['3',None, '3', 10,])
-										
-	#scheduler a task to run at 5 seconds past every minute
-	scheduler.AddCroneTask(decodeSchedulerEvent, \
-										sec=5,\
-										startDate= datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), \
+	
+	for event in scheduledEvents:
+		if(event.type == 'crone'):
+			scheduler.AddCroneTask(decodeSchedulerEvent, \
+										sec=event.second,\
+										startDate= event.startDate, \
+										argList=['2', None,'1', None])
+		elif(event.type == 'interval'):
+			print type(event.startDate)
+			scheduler.AddIntervalTask(decodeSchedulerEvent, \
+										sec=event.second,\
+										startDate= event.startDate, \
 										argList=['2', None,'1', None])
 	scheduler.Run()
 	
