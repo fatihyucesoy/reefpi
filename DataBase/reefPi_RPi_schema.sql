@@ -232,6 +232,33 @@ ENGINE = InnoDB;
 
 SHOW WARNINGS;
 
+-- -----------------------------------------------------
+-- Table `reefPi_RPi_schema`.`scheduledEvent`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `reefPi_RPi_schema`.`scheduledEvent` ;
+
+SHOW WARNINGS;
+CREATE TABLE IF NOT EXISTS `reefPi_RPi_schema`.`scheduledEvent` (
+  `idscheduledEvent` INT NOT NULL AUTO_INCREMENT,
+  `JobName` VARCHAR(45) NULL,
+  `type` VARCHAR(45) NULL,
+  `idDevices` INT NULL,
+  `state` TINYINT(1) NULL,
+  `value` INT NULL,
+  `startDate` DATETIME NULL,
+  `year` INT NULL,
+  `month` INT NULL,
+  `day` INT NULL,
+  `week` INT NULL,
+  `day_of_week` INT NULL,
+  `hour` INT NULL,
+  `minute` INT NULL,
+  `second` INT NULL,
+  PRIMARY KEY (`idscheduledEvent`))
+ENGINE = InnoDB;
+
+SHOW WARNINGS;
+
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
