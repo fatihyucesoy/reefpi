@@ -100,32 +100,13 @@
 <?PHP
 if(isset($_POST['add']))
 {
-$db_found = mysql_select_db($con);
-
 $deviceName = ($_POST['deviceName']);
 $busType = ($_POST['busType']);
 
-if ($db_found) {
-
-$SQL = "INSERT INTO devicetype ".
-"(deviceName, busType)". 
-"VALUES ('$deviceName', '$busType')";
+$addDevice = mysqli_query($con, "INSERT INTO devicetype ". "(deviceName, busType)". "VALUES ('$deviceName', '$busType')");
 	
-	$result = mysql_query($SQL);
-
-print "The device has been added to the database";
-mysql_close( $db_handle );
-
+	$result = mysql_query($addDevice);
 }
-else {
-
-print "Sorry, the Database cannot be Found";
-mysql_close( $db_handle );
-
-}
-}
-else
-{
 ?>
 <p></p>
 <h3>Adding a Device Type</h3>
@@ -147,8 +128,5 @@ else
 </tr>
 </table>
 </form>
-<?php
-}
-?>
 </body>
 </html>
