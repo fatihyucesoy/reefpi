@@ -103,9 +103,9 @@ if(isset($_POST['add']))
 $deviceName = ($_POST['deviceName']);
 $busType = ($_POST['busType']);
 
-$addDevice = mysqli_query($con, "INSERT INTO devicetype ". "(deviceName, busType)". "VALUES ('$deviceName', '$busType')");
+$addDeviceType = mysqli_query($con, "INSERT INTO devicetype ". "(deviceName, busType)". "VALUES ('$deviceName', '$busType')");
 	
-	$result = mysql_query($addDevice);
+	$result = ($addDeviceType);
 }
 ?>
 <p></p>
@@ -124,6 +124,43 @@ $addDevice = mysqli_query($con, "INSERT INTO devicetype ". "(deviceName, busType
 <td width="100"> </td>
 <td>
 <input name="add" type="submit" id="add" value="Add Device">
+</td>
+</tr>
+</table>
+</form>
+
+<?PHP
+if(isset($_POST['addDevices']))
+{
+$Name = ($_POST['Name']);
+$iddeviceType = ($_POST['iddeviceType']);
+$address = ($_POST['address']);
+
+$addDevice = mysqli_query($con, "INSERT INTO devices ". "(Name, iddeviceType, address)". "VALUES ('$Name', '$iddeviceType', 'address')");
+	
+	$result = ($addDevice);
+}
+?>
+<p></p>
+<h3>Adding a Device</h3>
+<form method="post" action="<?php $_PHP_SELF ?>">
+<table width="400" border="0" cellspacing="1" cellpadding="2">
+<tr>
+<td width="100">Name</td>
+<td><input name="Name" type="text" id="Name"></td>
+</tr>
+<tr>
+<td width="100">Device Type ID</td>
+<td><input name="iddeviceType" type="text" id="type"></td>
+</tr>
+<tr>
+<td width="100">Address</td>
+<td><input name="address" type="text" id="type"></td>
+</tr>
+<tr>
+<td width="100"> </td>
+<td>
+<input name="addDevices" type="submit" id="addDevices" value="Add Device">
 </td>
 </tr>
 </table>
