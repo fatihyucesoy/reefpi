@@ -8,7 +8,7 @@
             $mysqlusername="root";
             $mysqlpassword="root";
             $dbname = 'reefpi_rpi_schema';
-            $con=mysqli_connect("$mysqlserver", "$mysqlusername", "","$dbname");
+            $con=mysqli_connect("$mysqlserver", "$mysqlusername", "$mysqlpassword","$dbname");
 
 						if (mysqli_connect_errno())
 	{
@@ -96,6 +96,59 @@
 					echo "</tr>";
 				}
 		echo "</table>"
+?>
+<?PHP
+if(isset($_POST['add']))
+{
+$db_found = mysql_select_db($con);
+
+$deviceName = ($_POST['deviceName']);
+$busType = ($_POST['busType']);
+
+if ($db_found) {
+
+$SQL = "INSERT INTO devicetype ".
+"(deviceName, busType)". 
+"VALUES ('$deviceName', '$busType')";
+	
+	$result = mysql_query($SQL);
+
+print "The device has been added to the database";
+mysql_close( $db_handle );
+
+}
+else {
+
+print "Sorry, the Database cannot be Found";
+mysql_close( $db_handle );
+
+}
+}
+else
+{
+?>
+<p></p>
+<h3>Adding a Device Type</h3>
+<form method="post" action="<?php $_PHP_SELF ?>">
+<table width="400" border="0" cellspacing="1" cellpadding="2">
+<tr>
+<td width="100">Device Name</td>
+<td><input name="deviceName" type="text" id="name"></td>
+</tr>
+<tr>
+<td width="100">Bus Type</td>
+<td><input name="busType" type="text" id="type"></td>
+</tr>
+<tr>
+<td width="100"> </td>
+<td>
+<input name="add" type="submit" id="add" value="Add Device">
+</td>
+</tr>
+</table>
+</form>
+<?php
+}
 ?>
 </body>
 </html>
