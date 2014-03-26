@@ -16,6 +16,11 @@ from scheduler.reefPI_Scheduler import *
 from lib.LEDIntensityCalculator import *
 from lib.scheduledEvent import *
 
+latitude = -19.770621   # + to N  Defualt - (-19.770621) Heart Reef, Great Barrier Reef, QLD, Australia 
+longitude = 149.238532  # + to E  Defualt - (149.238532)
+TimeZone = 10             # + to E  Defulat - (10)
+
+
 	
 def init(sensors, devices, scheduledEvents):
 	DB     = SQLInterface()
@@ -101,8 +106,6 @@ def processSensor(sensor):
 		print 'Probe:' + str(sensor.getProbeId()) + ' current temp is:' + str(reading)	 	
 		time.sleep(int(sensor.getPeriod()))
 		
-		
-		
 def decodeSchedulerEvent(commandId, probeID, deviceId, level):
 	print datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ":Scheduled event running: " + str(commandId) +' ' + str(deviceId)	
 	DB     = SQLInterface()
@@ -123,6 +126,18 @@ def main():
 		
 	init(sensors, devices, scheduledEvents)
 	scheduler = ReefPI_Scheduler()
+	
+	
+	#scheduler.AddIntervalTask(decodeSchedulerEvent, \
+	#									min=0, sec=5, hrs=0, \
+	#									startDate= datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), \
+	#									argList=['1', None,'1', None])
+	#scheduler.AddIntervalTask(decodeSchedulerEvent, \
+	#									min=0, sec=5, hrs=0, \
+	#									startDate= datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), \
+	#									argList=['3',None, '3', 10,])
+	#									
+	#scheduler a task to run at 5 seconds past every minute
 	
 	for event in scheduledEvents:
 		if(event.type == 'crone'):
