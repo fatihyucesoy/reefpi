@@ -12,7 +12,7 @@ logging.basicConfig()
 _g_aps_default_config = {
     'apscheduler.standalone' : False,
     'apscheduler.jobstore.default.class' : 'apscheduler.jobstores.sqlalchemy_store:SQLAlchemyJobStore',
-    'apscheduler.jobstore.default.url' : 'mysql://root@localhost/reefPi_RPi_schema',
+    'apscheduler.jobstore.default.url' : 'mysql://root:root@localhost/reefPi_RPi_schema',
     'apscheduler.jobstore.default.tablename' : 'reefPiSchedulerJobStore'
 }
 
