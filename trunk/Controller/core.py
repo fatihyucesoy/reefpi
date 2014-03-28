@@ -19,12 +19,12 @@ from lib.scheduledEvent import *
 latitude = -19.770621   # + to N  Defualt - (-19.770621) Heart Reef, Great Barrier Reef, QLD, Australia 
 longitude = 149.238532  # + to E  Defualt - (149.238532)
 TimeZone = 10             # + to E  Defulat - (10)
-
-
 	
 def init(sensors, devices, scheduledEvents):
+
 	DB     = SQLInterface()
 	configureDB()
+	
 	DBSensors = DB.getAllSensors()
 	for sensor in DBSensors:
 		if(DB.getSensorType(sensor[2]) == 'tempSimulator'):
@@ -47,6 +47,12 @@ def init(sensors, devices, scheduledEvents):
 											event[12], event[13], event[14]))
 			
 
+
+#
+# put some data in the DB so I have something to play
+# with.  This wil be removed when we have data coming
+# form he UI
+#
 def configureDB():
 	DB     = SQLInterface()
 	DB.config();
@@ -67,12 +73,23 @@ def configureDB():
 	DB.addScheduledEvent("intervalEvent", "interval", 2, 0, 0, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), \
 						 None, None, None, None, None, None, None, 3)	
 
+
+
+#
+# Uses the current data time to get the intensity value
+# for the lights based on longitude and latitude.
+#
 def getLEDIntensity():
 	return calculateSunLight(BluePWMHigh[0], BluePWMLow[0], BlueFull[0], \
 						datetime.datetime.now(), \
 						latitude, longitude, \
 						TimeZone)	
-	
+
+#
+# gets the next command from the command table in the 
+# db and decodes it.  It then calls the command
+# on the selected device	
+#
 def processCommand(devices):
 	result = None
 	DB     = SQLInterface()
@@ -106,6 +123,8 @@ def processSensor(sensor):
 		print 'Probe:' + str(sensor.getProbeId()) + ' current temp is:' + str(reading)	 	
 		time.sleep(int(sensor.getPeriod()))
 		
+		
+
 def decodeSchedulerEvent(commandId, probeID, deviceId, level):
 	print datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ":Scheduled event running: " + str(commandId) +' ' + str(deviceId)	
 	DB     = SQLInterface()
@@ -117,28 +136,11 @@ def decodeSchedulerEvent(commandId, probeID, deviceId, level):
 	elif(commandId=='3'):
 		DB.addCommand(commandId, deviceId)
 
-	
-def main():
-	sensors = []
-	devices = []
-	sensorPool = []
-	scheduledEvents = []
-		
-	init(sensors, devices, scheduledEvents)
-	scheduler = ReefPI_Scheduler()
-	
-	
-	#scheduler.AddIntervalTask(decodeSchedulerEvent, \
-	#									min=0, sec=5, hrs=0, \
-	#									startDate= datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), \
-	#									argList=['1', None,'1', None])
-	#scheduler.AddIntervalTask(decodeSchedulerEvent, \
-	#									min=0, sec=5, hrs=0, \
-	#									startDate= datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), \
-	#									argList=['3',None, '3', 10,])
-	#									
-	#scheduler a task to run at 5 seconds past every minute
-	
+
+#
+#
+#
+def addScheduledEvents(scheduler, scheduledEvents):
 	for event in scheduledEvents:
 		if(event.type == 'crone'):
 			scheduler.AddCroneTask(decodeSchedulerEvent, \
@@ -146,32 +148,48 @@ def main():
 										startDate= event.startDate, \
 										argList=['2', None,'1', None])
 		elif(event.type == 'interval'):
-			print type(event.startDate)
 			scheduler.AddIntervalTask(decodeSchedulerEvent, \
 										sec=event.second,\
 										startDate= event.startDate, \
 										argList=['2', None,'1', None])
-	scheduler.Run()
-	
-	
-	
-	# creates a separate process for each sensor to run it
-	# this allows them to be independent.
+#
+# creates a separate process for each sensor to run it
+# this allows them to be independent.
+#										
+def createSensors(sensorPool, sensors):
 	for sensor in sensors: 
 		process = Process(target=processSensor, args=(sensor,))
 		process.start()
-		sensorPool.append(process)		
+		sensorPool.append(process)	
+	
+def main():
+
+	sensors = []
+	devices = []
+	sensorPool = []
+	scheduledEvents = []
+		
+	
+	init(sensors, devices, scheduledEvents)
+	createSensors(sensorPool, sensors)
+	
+	scheduler = ReefPI_Scheduler()
+	addScheduledEvents(scheduler, scheduledEvents)
+	scheduler.Run()
+
 	
 	#Main loop.  When happy this will be switched to a while(1) or similar
 	# for now its easier to limit number of loops
-	for loop in range(1,100):
+	while(1):
+	#for loop in range(1,100):
 		processCommand(devices)
 		lightlevel = calculateSunLight(BluePWMHigh[0], BluePWMLow[0], BlueFull[0], \
 										datetime.datetime.now(), \
 										latitude, longitude, TimeZone)
 		print datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ': and all is well :' + str(lightlevel)
 		time.sleep(1)
-		
+	
+	
 	print 'Going to sleep'	
 	for process in sensorPool:
 		process.terminate()

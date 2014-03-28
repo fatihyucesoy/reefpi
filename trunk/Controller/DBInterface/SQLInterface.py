@@ -18,7 +18,6 @@ class SQLInterface:
 			cur = con.cursor() 
 			test = cur.execute("""INSERT INTO controllerType VALUES(DEFAULT, %s, %s)""", \
 			(type, desc))
-			print '*****************************' + str(test)
 			con.commit()
 			
 	def addController(self, name, desc, type):
@@ -151,7 +150,6 @@ class SQLInterface:
 			cur = con.cursor()    
     		cur.execute("""SELECT sensorName FROM sensorType where idsensorType = %s""", (sensorTypeId, ))
     		type = cur.fetchone()
-    		print type
     		
 		return type[0]
 	
@@ -169,9 +167,7 @@ class SQLInterface:
 		with con:
 			cur = con.cursor()    
     		cur.execute("""SELECT deviceName FROM deviceType where iddeviceType = %s""", (deviceTypeId, ))
-    		device = cur.fetchone()
-    		print device
-    		
+    		device = cur.fetchone()    		
 		return device[0]
 		
 			
