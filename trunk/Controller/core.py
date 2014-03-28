@@ -47,10 +47,7 @@ def init(sensors, devices, scheduledEvents, DB, host, user, passwd, dataBase):
 			
 	dbEvents = DB.getAllScheduledEvents()
 	for event in dbEvents:
-		scheduledEvents.append(scheduledEvent(event[0], event[1], event[2], event[3], \
-											event[4], event[5], event[6], event[7], \
-											event[8], event[9], event[10], event[11], \
-											event[12], event[13], event[14]))
+		scheduledEvents.append(scheduledEvent(event))
 			
 
 
@@ -128,9 +125,10 @@ def processSensor(sensor):
 		
 		
 
-def decodeSchedulerEvent(commandId, probeID, deviceId, level, DB):
-	print datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ":Scheduled event running: " + str(commandId) +' ' + str(deviceId)	
-
+def decodeSchedulerEvent(commandId, probeID, deviceId, level):
+	print datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + \
+			":Scheduled event running: " + str(commandId) +' ' + str(deviceId)	
+	DB = SQLInterface(host, user, passwd, dataBase)
 	if(commandId=='1'):
 		DB.addCommand(commandId, deviceId)
 	elif(commandId=='2'):
@@ -142,18 +140,12 @@ def decodeSchedulerEvent(commandId, probeID, deviceId, level, DB):
 #
 #
 #
-def addScheduledEvents(scheduler, scheduledEvents, DB):
+def addScheduledEvents(scheduler, scheduledEvents):
 	for event in scheduledEvents:
 		if(event.type == 'crone'):
-			scheduler.AddCroneTask(decodeSchedulerEvent, \
-										sec=event.second,\
-										startDate= event.startDate, \
-										argList=['2', None,'1', None, DB])
+			scheduler.AddCroneEvent(decodeSchedulerEvent, event)
 		elif(event.type == 'interval'):
-			scheduler.AddIntervalTask(decodeSchedulerEvent, \
-										sec=event.second,\
-										startDate= event.startDate, \
-										argList=['2', None,'1', None, DB])
+			scheduler.AddIntervalEvent(decodeSchedulerEvent, event)
 
 
 #
@@ -180,7 +172,7 @@ def main():
 	createSensors(sensorPool, sensors)
 	
 	scheduler = ReefPI_Scheduler(host, user, passwd, dataBase)
-	addScheduledEvents(scheduler, scheduledEvents, DB)
+	addScheduledEvents(scheduler, scheduledEvents)
 	scheduler.Run()
 
 	

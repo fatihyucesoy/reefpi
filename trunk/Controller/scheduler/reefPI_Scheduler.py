@@ -25,7 +25,7 @@ class ReefPI_Scheduler:
 		self._user = user
 		self._passwd = passwd
 		self._dataBase = dataBase
-		apscheduler=""
+		connectString=""
 		if(self._passwd!=""):
 			connectString = "mysql://"+self._user+":"+self._passwd+"@"+self._host+"/"+self._dataBase
 		else:
@@ -38,13 +38,46 @@ class ReefPI_Scheduler:
     			
 		self._sched = Scheduler(_g_aps_default_config)
 		  
+	def AddIntervalEvent(self, methodPointer, event):
 		
-	def AddIntervalTask(self, methodPointer, min=0, sec=0, hrs=0, startDate='2013-08-06 00:09:12', argList=['Interval task running']):
-		print argList
-		return self._sched.add_interval_job(methodPointer, minutes=min, seconds=sec, hours=hrs, start_date=startDate, args=argList)
+		if(event.hour==None):
+			hour = 0
+		else:
+			hour=event.hour
+			
+		if(event.minute==None):
+			minute = 0
+		else:
+			minute = event.minute
+		
+		if(event.second==None):
+			second = 0
+		else:
+			second = event.second
+			
+		if(event.startDate==None):
+			startDate = '2013-08-06 00:09:12'
+		else:
+			startDate = event.startDate
+						
+		return self.AddIntervalTask(methodPointer, hrs=hour, min=minute, sec=second, \
+								startDate=startDate, argList=[event.deviceId, None, event.state, None])
+	
+	
+	
+	def AddIntervalTask(self, methodPointer, weeks=0, days=0, hrs=0, min=0, sec=0, startDate='2013-08-06 00:09:12', argList=[]):
+		return self._sched.add_interval_job(methodPointer, weeks=weeks, days=days, hours=hrs, minutes=min, seconds=sec, \
+											start_date=startDate, args=argList)
+											
+											
+	def AddCroneEvent(self, methodPointer, event):
+		return self.AddCroneTask(methodPointer, year=event.year, month=event.month, day=event.day, week=event.week, \
+								day_of_week=event.day_of_week, min=event.minute, sec=event.second, hour=event.hour, \
+								argList=[event.deviceId, None, event.state, None])
 
-	def AddCroneTask(self, methodPointer, min=None, sec=None, hrs=None, startDate='2013-08-06 00:09:12', argList=['crone task running']):
-		return self._sched.add_cron_job(methodPointer, year=None, month=None, day=None, week=None, day_of_week=None, hour=hrs, minute=min, second=sec, args=argList)
+	def AddCroneTask(self, methodPointer, year=None, month=None, day=None, week=None, \
+					 day_of_week=None, hour=None, min=None, sec=None, argList=['crone task running']):
+		return self._sched.add_cron_job(methodPointer, year, month, day, week, day_of_week, hour, min, sec, args=argList)
 			
 	def RemoveTask(self, job):
 		self._sched.unschedule_job(job)
