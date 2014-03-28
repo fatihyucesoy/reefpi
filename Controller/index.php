@@ -200,21 +200,5 @@ if(isset($_POST['addDevices']))
 	</table>
 </form>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 </body>
 </html>

@@ -33,7 +33,7 @@ TimeZone1 = 10             # + to E  Defulat - (10)
 
 delayTime = 0     # start time delay in minutes,  - will push the day back, + will bring the day forward
 
-def Map(x, in_min, in_max, out_minute, out_max):
+def Map(x, in_min, in_max, out_min, out_max):
 	return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
 
 
