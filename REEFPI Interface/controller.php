@@ -26,6 +26,8 @@
 
 <?php include('includes/nav.php'); ?>
 
+<?php include('includes/dbconnect.php'); ?>
+
 <div id="content">
 
 
@@ -33,7 +35,24 @@
 Controller
 </p>
 
+<?php
+			$resultAvailableController = mysqli_query($con, "SELECT * FROM controller");
 
+		echo "<table border='1'>
+	<tr>
+		<th>Controller Name</th>
+		<th>Description</th>
+	</tr>";
+
+			while($rowAvailableController = mysqli_fetch_array($resultAvailableController))
+				{
+					echo "<tr>";
+					echo "<td>" . $rowAvailableController['Name'] . "</td>";
+					echo "<td>" . $rowAvailableController['description'] . "</td>";
+					echo "</tr>";
+				}
+		echo "</table>"
+?>
 
 </div> <!-- end #content -->
 
