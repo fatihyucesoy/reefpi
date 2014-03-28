@@ -41,7 +41,8 @@ if(isset($_POST['addDevices']))
 	$Name = ($_POST['Name']);
 	$iddeviceType = ($_POST['deviceType']);
 	$address = ($_POST['address']);
-	$addDevice = mysqli_query($con, "INSERT INTO devices ". "(Name, iddeviceType, address)". "VALUES ('$Name', '$iddeviceType', 'address')");
+	$status = ($_POST['status']);
+	$addDevice = mysqli_query($con, "INSERT INTO devices ". "(Name, iddeviceType, address, status)". "VALUES ('$Name', '$iddeviceType', '$address', $status)");
 	$result = ($addDevice);
 }
 ?>
@@ -72,9 +73,13 @@ if(isset($_POST['addDevices']))
 			<td><input name="address" type="text" id="address"></td>
 		</tr>
 		<tr>
+			<td width="100">Status</td>
+			<td><input name="status" type="text" id="status"></td>
+		</tr>		
+		<tr>
 			<td width="100"> </td>
 			<td>
-				<input name="addDevices" type="submit" id="addDevices" value="addDevices">
+				<input name="addDevices" type="submit" id="addDevices" value="Add Device">
 			</td>
 		</tr>
 	</table>
