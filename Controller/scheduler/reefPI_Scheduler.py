@@ -9,18 +9,33 @@ import logging
 logging.basicConfig()
 
 #set standalone to false to allow the scheduler to launch in another thread
-_g_aps_default_config = {
-    'apscheduler.standalone' : False,
-    'apscheduler.jobstore.default.class' : 'apscheduler.jobstores.sqlalchemy_store:SQLAlchemyJobStore',
-    'apscheduler.jobstore.default.url' : 'mysql://root:root@localhost/reefPi_RPi_schema',
-    'apscheduler.jobstore.default.tablename' : 'reefPiSchedulerJobStore'
-}
 
 
 class ReefPI_Scheduler:
+
+	_host = "localhost"
+	_user = "root"
+	_passwd = ""
+	_dataBase = "reefPi_RPi_schema"	
 	_sched = None
+
 	
-	def __init__(self):
+	def __init__(self,  host, user, passwd, dataBase):
+		self._host = host
+		self._user = user
+		self._passwd = passwd
+		self._dataBase = dataBase
+		apscheduler=""
+		if(self._passwd!=""):
+			connectString = "mysql://"+self._user+":"+self._passwd+"@"+self._host+"/"+self._dataBase
+		else:
+			connectString = "mysql://"+self._user+"@"+self._host+"/"+self._dataBase
+			
+		_g_aps_default_config = {'apscheduler.standalone' : False, 
+				'apscheduler.jobstore.default.class' : 'apscheduler.jobstores.sqlalchemy_store:SQLAlchemyJobStore',
+    			'apscheduler.jobstore.default.url' : connectString,
+    			'apscheduler.jobstore.default.tablename' : 'reefPiSchedulerJobStore'}
+    			
 		self._sched = Scheduler(_g_aps_default_config)
 		  
 		

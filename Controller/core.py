@@ -19,25 +19,31 @@ from lib.scheduledEvent import *
 latitude = -19.770621   # + to N  Defualt - (-19.770621) Heart Reef, Great Barrier Reef, QLD, Australia 
 longitude = 149.238532  # + to E  Defualt - (149.238532)
 TimeZone = 10             # + to E  Defulat - (10)
-	
-def init(sensors, devices, scheduledEvents):
 
-	DB     = SQLInterface()
-	configureDB()
+host = "localhost"
+user = "root"
+passwd = ""
+dataBase = "reefPi_RPi_schema"
+	
+def init(sensors, devices, scheduledEvents, DB, host, user, passwd, dataBase):
+	configureDB(DB)
 	
 	DBSensors = DB.getAllSensors()
 	for sensor in DBSensors:
 		if(DB.getSensorType(sensor[2]) == 'tempSimulator'):
-			sensors.append(tempSimulator(sensor[0], sensor[1], sensor[4], sensor[5], sensor[6], sensor[7]))
+			sensors.append(tempSimulator(sensor[0], sensor[1], sensor[4], sensor[5], sensor[6], sensor[7], \
+							host, user, passwd, dataBase))
 		elif(sensor[2] == 'DS18B20'):
 			sensors.append(DS1882Interface(sensor[1]))
 
 	dbDevices = DB.getAllDevices()
 	for device in dbDevices:
 		if(DB.getDeviceType(device[2]) == 'heaterSimulator'):
-			devices.append(heaterSimulator(device[0], device[1], device[2], device[3]))
+			devices.append(heaterSimulator(device[0], device[1], device[2], device[3], \
+							host, user, passwd, dataBase))
 		elif(DB.getDeviceType(device[2]) == 'LEDSimulator'):
-			devices.append(LEDSimulator(device[0], device[1], device[2], device[3]))
+			devices.append(LEDSimulator(device[0], device[1], device[2], device[3], \
+							host, user, passwd, dataBase))
 			
 	dbEvents = DB.getAllScheduledEvents()
 	for event in dbEvents:
@@ -53,9 +59,8 @@ def init(sensors, devices, scheduledEvents):
 # with.  This wil be removed when we have data coming
 # form he UI
 #
-def configureDB():
-	DB     = SQLInterface()
-	DB.config();
+def configureDB(DB):
+	DB.configure()
 	DB.addControllerType('PCA thingy', 'this is the type to represnt the PCA I2C type controller')
 	DB.addController('PCA', 'this is the type to represnt the PCA I2C type controller', 1)
 	DB.addDeviceType('heaterSimulator', 'I2C')
@@ -90,16 +95,14 @@ def getLEDIntensity():
 # db and decodes it.  It then calls the command
 # on the selected device	
 #
-def processCommand(devices):
+def processCommand(devices, DB):
 	result = None
-	DB     = SQLInterface()
 	command = DB.getNextCommand()
 	if(command[0] != None):
 	
 		#get the device with the correct device ID
 		for device in devices:
 			if(device.getId() == int(command[1])):
-				print 'storing'
 				cmdDevice = device
 				break
 					
@@ -125,9 +128,8 @@ def processSensor(sensor):
 		
 		
 
-def decodeSchedulerEvent(commandId, probeID, deviceId, level):
+def decodeSchedulerEvent(commandId, probeID, deviceId, level, DB):
 	print datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ":Scheduled event running: " + str(commandId) +' ' + str(deviceId)	
-	DB     = SQLInterface()
 
 	if(commandId=='1'):
 		DB.addCommand(commandId, deviceId)
@@ -140,18 +142,20 @@ def decodeSchedulerEvent(commandId, probeID, deviceId, level):
 #
 #
 #
-def addScheduledEvents(scheduler, scheduledEvents):
+def addScheduledEvents(scheduler, scheduledEvents, DB):
 	for event in scheduledEvents:
 		if(event.type == 'crone'):
 			scheduler.AddCroneTask(decodeSchedulerEvent, \
 										sec=event.second,\
 										startDate= event.startDate, \
-										argList=['2', None,'1', None])
+										argList=['2', None,'1', None, DB])
 		elif(event.type == 'interval'):
 			scheduler.AddIntervalTask(decodeSchedulerEvent, \
 										sec=event.second,\
 										startDate= event.startDate, \
-										argList=['2', None,'1', None])
+										argList=['2', None,'1', None, DB])
+
+
 #
 # creates a separate process for each sensor to run it
 # this allows them to be independent.
@@ -161,6 +165,8 @@ def createSensors(sensorPool, sensors):
 		process = Process(target=processSensor, args=(sensor,))
 		process.start()
 		sensorPool.append(process)	
+
+
 	
 def main():
 
@@ -168,13 +174,13 @@ def main():
 	devices = []
 	sensorPool = []
 	scheduledEvents = []
+	DB = SQLInterface(host, user, passwd, dataBase)
 		
-	
-	init(sensors, devices, scheduledEvents)
+	init(sensors, devices, scheduledEvents, DB, host, user, passwd, dataBase)
 	createSensors(sensorPool, sensors)
 	
-	scheduler = ReefPI_Scheduler()
-	addScheduledEvents(scheduler, scheduledEvents)
+	scheduler = ReefPI_Scheduler(host, user, passwd, dataBase)
+	addScheduledEvents(scheduler, scheduledEvents, DB)
 	scheduler.Run()
 
 	
@@ -182,11 +188,8 @@ def main():
 	# for now its easier to limit number of loops
 	while(1):
 	#for loop in range(1,100):
-		processCommand(devices)
-		lightlevel = calculateSunLight(BluePWMHigh[0], BluePWMLow[0], BlueFull[0], \
-										datetime.datetime.now(), \
-										latitude, longitude, TimeZone)
-		print datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ': and all is well :' + str(lightlevel)
+		processCommand(devices, DB)
+		#TODO scan the db for changes such as new devices or events
 		time.sleep(1)
 	
 	

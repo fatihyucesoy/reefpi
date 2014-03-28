@@ -1,16 +1,36 @@
 import MySQLdb as sql
+import os
 
 class SQLInterface:
 
-	def _connect(self):
-		return sql.connect(host="localhost", # your host, usually localhost
-							user="root",
-                                                        passwd="root",
-							db="reefPi_RPi_schema")
+	_host = "localhost"
+	_user = "root"
+	_passwd = ""
+	_dataBase = "reefPi_RPi_schema"
 	
-	def config(self):
-		import os
-		os.system('mysql -u root -proot < ../DataBase/reefPi_RPi_schema.sql')	
+	def _connect(self):
+		return sql.connect(host=self._host,
+							user=self._user,
+							passwd=self._passwd,
+							db=self._dataBase)
+	
+	def __init__(self, host, user, passwd, dataBase):
+		
+		self._host = host
+		self._user = user
+		self._passwd = passwd
+		self._dataBase = dataBase
+		
+	def configure(self):
+		createString=""
+		
+		if(self._passwd!=""):
+			createString = "mysql -u "+self._user+" -p"+self._passwd+" < ../DataBase/reef"+self._dataBase+".sql"
+		else:
+			createString = "mysql -u "+self._user+" < ../DataBase/"+self._dataBase+".sql"
+		print createString
+		os.system(createString)	
+		
 	
 	def addControllerType(self, type, desc):
 		con = self._connect()
