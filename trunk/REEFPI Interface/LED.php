@@ -26,6 +26,8 @@
 
 <?php include('includes/nav.php'); ?>
 
+<?php include('includes/dbconnect.php'); ?>
+
 <div id="content">
 
 <p>
@@ -33,6 +35,28 @@
 LED Page
 
 </p>
+<br>
+<h3>LED Temperature Reading</h3>
+<?php
+			$resultReadingLED = mysqli_query($con,"SELECT * FROM sensorreadings
+				WHERE sensorId=(SELECT idsensors from sensors
+					WHERE sensorID = 'tempSensor1')
+						ORDER BY timeStamp DESC limit 1");
+
+		echo "<table border='1'>
+	<tr>
+		<th>Reading</th>
+	</tr>";
+
+			while($rowLED = mysqli_fetch_array($resultReadingLED))
+				{
+					echo "<tr>";
+					echo "<td>" . $rowLED['reading'] . "</td>";
+					echo "</tr>";
+				}
+		echo "</table>";
+
+?>
 
 
 

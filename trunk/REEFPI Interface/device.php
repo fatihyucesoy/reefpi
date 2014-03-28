@@ -32,10 +32,29 @@
 
 
 <p>
-Device
+Devices
 </p>
 
+<?php
+			$resultAvailableDevices = mysqli_query($con, "SELECT * FROM devices");
 
+		echo "<table border='1'>
+	<tr>
+		<th>Device Name</th>
+		<th>Address</th>
+		<th>Status</th>
+	</tr>";
+
+			while($rowAvailableDevice = mysqli_fetch_array($resultAvailableDevices))
+				{
+					echo "<tr>";
+					echo "<td>" . $rowAvailableDevice['Name'] . "</td>";
+					echo "<td>" . $rowAvailableDevice['address'] . "</td>";
+					echo "<td>" . $rowAvailableDevice['status'] . "</td>";
+					echo "</tr>";
+				}
+		echo "</table>"
+?>
 
 </div> <!-- end #content -->
 
