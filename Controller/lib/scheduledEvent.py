@@ -15,26 +15,23 @@ class scheduledEvent:
 	minute = None
 	second = None
 	
-	def __init__(self, Id, name, type, deviceId=None, \
-				state=None, value=None, startDate=None, 			\
-				year=None, month=None, day=None, week=None, \
-				day_of_week=None, hour=None, minute=None, second=None):
-		#self._printParameters()
-		self.Id = Id
-		self.name = name
-		self.type = type
-		self.deviceId = deviceId
-		self.state = state
-		self.startDate = startDate
-		self.value = value
-		self.year = year
-		self.month = month
-		self.day = day
-		self.week = week
-		self.day_of_week = day_of_week
-		self.hour = hour
-		self.minute = minute
-		self.second = second
+	def __init__(self, event):
+		self.Id = event[0]
+		self.name = event[1]
+		self.type = event[2]
+		self.deviceId = event[3]
+		self.state = event[4]
+		self.value = event[5]
+		self.startDate = event[6]
+		self.year = event[7]
+		self.month = event[8]
+		self.day = event[9]
+		self.week = event[10]
+		self.day_of_week = event[11]
+		self.hour = event[12]
+		self.minute = event[13]
+		self.second = event[14]
+		self._printParameters()
 		
 	def _printParameters(self):
 		print '''				id 		={0},
