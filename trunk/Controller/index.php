@@ -8,7 +8,7 @@
             $mysqlusername="root";
             $mysqlpassword="root";
             $dbname = 'reefpi_rpi_schema';
-            $con=mysqli_connect("$mysqlserver", "$mysqlusername", "$mysqlpassword","$dbname");
+            $con=mysqli_connect("$mysqlserver", "$mysqlusername", "","$dbname");
 
 						if (mysqli_connect_errno())
 	{
@@ -36,6 +36,28 @@
 		echo "</table>";
 
 ?>
+<h3>List of available device types</h3>
+<?php
+			$deviceTypes= mysqli_query($con, 'select * from deviceType') or die (mysql_error()); 
+
+		echo "<table border='1'>
+	<tr>
+		<th>ID</th>
+		<th>type name</th>
+		<th>bus type</th>
+	</tr>";
+
+			while($rowAvailableDevice = mysqli_fetch_array($deviceTypes))
+				{
+					echo "<tr>";
+					echo "<td>" . $rowAvailableDevice['iddeviceType'] . "</td>";
+					echo "<td>" . $rowAvailableDevice['deviceName'] . "</td>";
+					echo "<td>" . $rowAvailableDevice['busType'] . "</td>";
+				}
+		echo "</table>"
+?>
+
+
 <h3>List of used devices</h3>
 <?php
 			$resultUsedDevices = mysqli_query($con, "SELECT * FROM devices WHERE status=1");
@@ -98,72 +120,101 @@
 		echo "</table>"
 ?>
 <?PHP
-if(isset($_POST['add']))
+if(isset($_POST['addDeviceType']))
 {
-$deviceName = ($_POST['deviceName']);
-$busType = ($_POST['busType']);
-
-$addDeviceType = mysqli_query($con, "INSERT INTO devicetype ". "(deviceName, busType)". "VALUES ('$deviceName', '$busType')");
-	
+	$deviceName = ($_POST['deviceTypeName']);
+	$busType = ($_POST['busType']);
+	$addDeviceType = mysqli_query($con, "INSERT INTO devicetype ". "(deviceName, busType)". "VALUES ('$deviceName', '$busType')");
 	$result = ($addDeviceType);
 }
 ?>
 <p></p>
+
 <h3>Adding a Device Type</h3>
 <form method="post" action="<?php $_PHP_SELF ?>">
-<table width="400" border="0" cellspacing="1" cellpadding="2">
-<tr>
-<td width="100">Device Name</td>
-<td><input name="deviceName" type="text" id="name"></td>
-</tr>
-<tr>
-<td width="100">Bus Type</td>
-<td><input name="busType" type="text" id="type"></td>
-</tr>
-<tr>
-<td width="100"> </td>
-<td>
-<input name="add" type="submit" id="add" value="Add Device">
-</td>
-</tr>
-</table>
+	<table width="400" border="0" cellspacing="1" cellpadding="2">
+		<tr>
+			<td width="100">Device Type Name</td>
+			<td><input name="deviceTypeName" type="text" id="name"></td>
+		</tr>
+		<tr>
+			<td width="100">Bus Type</td>
+			<td><input name="busType" type="text" id="type"></td>
+		</tr>
+		<tr>
+			<td width="100"> </td>
+			<td>
+				<input name="addDeviceType" type="submit" id="addDeviceType" value="Add Device Type">
+			</td>
+		</tr>
+	</table>
 </form>
+
+
+
 
 <?PHP
 if(isset($_POST['addDevices']))
 {
-$Name = ($_POST['Name']);
-$iddeviceType = ($_POST['iddeviceType']);
-$address = ($_POST['address']);
-
-$addDevice = mysqli_query($con, "INSERT INTO devices ". "(Name, iddeviceType, address)". "VALUES ('$Name', '$iddeviceType', 'address')");
-	
+	$Name = ($_POST['Name']);
+	$iddeviceType = ($_POST['deviceType']);
+	$address = ($_POST['address']);
+	$addDevice = mysqli_query($con, "INSERT INTO devices ". "(Name, iddeviceType, address)". "VALUES ('$Name', '$iddeviceType', 'address')");
 	$result = ($addDevice);
 }
 ?>
+
 <p></p>
 <h3>Adding a Device</h3>
 <form method="post" action="<?php $_PHP_SELF ?>">
-<table width="400" border="0" cellspacing="1" cellpadding="2">
-<tr>
-<td width="100">Name</td>
-<td><input name="Name" type="text" id="Name"></td>
-</tr>
-<tr>
-<td width="100">Device Type ID</td>
-<td><input name="iddeviceType" type="text" id="type"></td>
-</tr>
-<tr>
-<td width="100">Address</td>
-<td><input name="address" type="text" id="type"></td>
-</tr>
-<tr>
-<td width="100"> </td>
-<td>
-<input name="addDevices" type="submit" id="addDevices" value="Add Device">
-</td>
-</tr>
-</table>
+	<table width="400" border="0" cellspacing="1" cellpadding="2">
+		<tr>
+			<td width="100">Name</td>
+			<td><input name="Name" type="text" id="Name"></td>
+		</tr>
+		<tr>
+			<td width="100">Device Type ID</td>
+			<td>
+				<select name="deviceType" id="deviceType" style="width: 200px" >
+   	   				<?php
+   	   					$deviceTypes= mysqli_query($con, 'select * from deviceType') or die (mysql_error()); 
+       
+      					while($deviceType = mysqli_fetch_array($deviceTypes))
+      					{
+        					echo "<option value=".$deviceType['iddeviceType']."> ".$deviceType['deviceName']." </option>";
+      					}
+      				?>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td width="100">Address</td>
+			<td><input name="type" type="text" id="type"></td>
+		</tr>
+		<tr>
+			<td width="100"> </td>
+			<td>
+				<input name="addDevices" type="submit" id="addDevices" value="addDevices">
+			</td>
+		</tr>
+	</table>
 </form>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 </body>
 </html>
