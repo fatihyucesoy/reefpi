@@ -26,19 +26,22 @@
 
 <?php include('includes/nav.php'); ?>
 
+<?php include('includes/dbconnect.php'); ?>
+
 <div id="content">
 
-<p>
-	
-Main Page Page
 
+<p>
+Device
 </p>
+
+
 
 </div> <!-- end #content -->
 
 <div id="sidebar">
-<?php include('includes/sidebar.php'); ?>
 
+<?php include('includes/sidebar.php'); ?>
 
 </div> <!-- end #sidebar -->
 
