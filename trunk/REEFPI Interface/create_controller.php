@@ -41,7 +41,7 @@ if(isset($_POST['addDevices']))
 	$Name = ($_POST['Name']);
 	$idcontrollerType = ($_POST['controllerType']);
 	$description = ($_POST['description']);
-	$addDevice = mysqli_query($con, "INSERT INTO controller ". "(Name, idcontrollerType, description)". "VALUES ('$Name', '$idcontrollerType', '$description')");
+	$addDevice = mysqli_query($con, "INSERT INTO controller ". "(Name, description, idcontrollerType)". "VALUES ('$Name', '$description', $idcontrollerType)");
 	$result = ($addDevice);
 }
 ?>
@@ -61,7 +61,7 @@ if(isset($_POST['addDevices']))
        
       					while($controllerType = mysqli_fetch_array($controllerTypes))
       					{
-        					echo "<option value=".$conrollerType['iddeviceType']."> ".$controllerType['name']." </option>";
+        					echo "<option value=".$conrollerType['idcontrollerType']."> ".$controllerType['name']." </option>";
       					}
       				?>
 				</select>
