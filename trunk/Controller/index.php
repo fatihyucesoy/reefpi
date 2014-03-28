@@ -166,7 +166,7 @@ if(isset($_POST['addDevices']))
 
 <p></p>
 <h3>Adding a Device</h3>
-<form method="post" action="<?php $_PHP_SELF ?>">
+
 	<table width="400" border="0" cellspacing="1" cellpadding="2">
 		<tr>
 			<td width="100">Name</td>
@@ -198,7 +198,6 @@ if(isset($_POST['addDevices']))
 			</td>
 		</tr>
 	</table>
-</form>
 
 </body>
 </html>
