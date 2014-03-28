@@ -28,17 +28,18 @@
 
 <div id="content">
 
-<p>
-	
-Main Page Page
 
+<p>
+Test Page
 </p>
+
+
 
 </div> <!-- end #content -->
 
 <div id="sidebar">
-<?php include('includes/sidebar.php'); ?>
 
+<?php include('includes/sidebar.php'); ?>
 
 </div> <!-- end #sidebar -->
 
