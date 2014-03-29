@@ -26,14 +26,32 @@
 
 <?php include('includes/nav.php'); ?>
 
+<?php include('includes/dbconnect.php'); ?>
+
 <div id="content">
 
 
 <p>
 Device Types
 </p>
+<?php
+			$resultDeviceTypes = mysqli_query($con, "SELECT * FROM deviceType");
 
+		echo "<table border='1'>
+	<tr>
+		<th>Device type</th>
+		<th>Bus Type</th>
+	</tr>";
 
+			while($rowDeviceType = mysqli_fetch_array($resultDeviceTypes))
+				{
+					echo "<tr>";
+					echo "<td>" . $rowDeviceType['deviceName'] . "</td>";
+					echo "<td>" . $rowDeviceType['busType'] . "</td>";
+					echo "</tr>";
+				}
+		echo "</table>"
+?>
 
 </div> <!-- end #content -->
 
