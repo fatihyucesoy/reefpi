@@ -26,6 +26,8 @@
 
 <?php include('includes/nav.php'); ?>
 
+<?php include('includes/dbconnect.php'); ?>
+
 <div id="content">
 
 
@@ -33,6 +35,25 @@
 Controller Types
 </p>
 
+<h3>List of controllers</h3>
+<?php
+			$resultControllerTypes = mysqli_query($con, "SELECT * FROM controllerType");
+
+		echo "<table border='1'>
+	<tr>
+		<th>Controller Name</th>
+		<th>Description</th>
+	</tr>";
+
+			while($rowControllerType = mysqli_fetch_array($resultControllerTypes))
+				{
+					echo "<tr>";
+					echo "<td>" . $rowControllerType['name'] . "</td>";
+					echo "<td>" . $rowControllerType['description'] . "</td>";
+					echo "</tr>";
+				}
+		echo "</table>"
+?>
 
 
 </div> <!-- end #content -->
@@ -44,7 +65,7 @@ Controller Types
 </div> <!-- end #sidebar -->
 
 <div id="footer">
-	<p>Copyright &copy Bigguy 2014 <a href="#">REEFPI</a></p>
+	<p><a href="#">REEFPI</a></p>
 </div> <!-- end #footer -->
 
 		</div> <!-- End #wrapper -->

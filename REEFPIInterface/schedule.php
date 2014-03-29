@@ -26,12 +26,62 @@
 
 <?php include('includes/nav.php'); ?>
 
+<?php include('includes/dbconnect.php'); ?>
+
 <div id="content">
 
 
 <p>
 Scheduler
 </p>
+
+<?php
+			$resultControllerTypes = mysqli_query($con, "SELECT * FROM scheduledEvent AS SE inner JOIN devices AS D ON SE.idDevices = D.iddevices");
+
+		echo "<table border='1'>
+	<tr>
+		<th>Job Name</th>
+		<th>Job type</th>
+		<th>device</th>
+		<th>state</th>
+		<th>value</th>
+		<th>startDate</th>
+		<th>year</th>
+		<th>Month</th>
+		<th>day</th>
+		<th>week</th>
+		<th>day of week</th>
+		<th>hour</th>
+		<th>minute</th>
+		<th>second</th>
+	</tr>";
+
+			while($rowControllerType = mysqli_fetch_array($resultControllerTypes))
+				{
+					echo "<tr>";
+					echo "<td>" . $rowControllerType['JobName'] . "</td>";
+					echo "<td>" . $rowControllerType['type'] . "</td>";
+					echo "<td>" . $rowControllerType['Name'] . "</td>";
+					echo "<td>" . $rowControllerType['state'] . "</td>";
+					echo "<td>" . $rowControllerType['value'] . "</td>";
+					echo "<td>" . $rowControllerType['startDate'] . "</td>";
+					echo "<td>" . $rowControllerType['year'] . "</td>";
+					echo "<td>" . $rowControllerType['month'] . "</td>";
+					echo "<td>" . $rowControllerType['day'] . "</td>";
+					echo "<td>" . $rowControllerType['week'] . "</td>";
+					echo "<td>" . $rowControllerType['day_of_week'] . "</td>";
+					echo "<td>" . $rowControllerType['hour'] . "</td>";
+					echo "<td>" . $rowControllerType['minute'] . "</td>";
+					echo "<td>" . $rowControllerType['second'] . "</td>";
+					
+					echo "</tr>";
+				}
+		echo "</table>"
+?>
+
+
+
+
 
 
 
@@ -44,7 +94,7 @@ Scheduler
 </div> <!-- end #sidebar -->
 
 <div id="footer">
-	<p>Copyright &copy Bigguy 2014 <a href="#">REEFPI</a></p>
+	<p> <a href="#">REEFPI</a></p>
 </div> <!-- end #footer -->
 
 		</div> <!-- End #wrapper -->
