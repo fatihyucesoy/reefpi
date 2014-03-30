@@ -36,9 +36,10 @@ Scheduler
 </p>
 
 <?php
-			$resultControllerTypes = mysqli_query($con, "SELECT * FROM scheduledEvent AS SE inner JOIN devices AS D ON SE.idDevices = D.iddevices");
+	$resultControllerTypes = mysqli_query($con, "SELECT * FROM scheduledEvent AS SE inner JOIN device AS D ON SE.iddevice = D.iddevice");
 
-		echo "<table border='1'>
+	if($resultControllerTypes){
+	echo "<table border='1'>
 	<tr>
 		<th>Job Name</th>
 		<th>Job type</th>
@@ -47,7 +48,7 @@ Scheduler
 		<th>value</th>
 		<th>startDate</th>
 		<th>year</th>
-		<th>Month</th>
+		<th>month</th>
 		<th>day</th>
 		<th>week</th>
 		<th>day of week</th>
@@ -59,9 +60,9 @@ Scheduler
 			while($rowControllerType = mysqli_fetch_array($resultControllerTypes))
 				{
 					echo "<tr>";
-					echo "<td>" . $rowControllerType['JobName'] . "</td>";
+					echo "<td>" . $rowControllerType['jobName'] . "</td>";
 					echo "<td>" . $rowControllerType['type'] . "</td>";
-					echo "<td>" . $rowControllerType['Name'] . "</td>";
+					echo "<td>" . $rowControllerType['deviceName'] . "</td>";
 					echo "<td>" . $rowControllerType['state'] . "</td>";
 					echo "<td>" . $rowControllerType['value'] . "</td>";
 					echo "<td>" . $rowControllerType['startDate'] . "</td>";
@@ -72,11 +73,15 @@ Scheduler
 					echo "<td>" . $rowControllerType['day_of_week'] . "</td>";
 					echo "<td>" . $rowControllerType['hour'] . "</td>";
 					echo "<td>" . $rowControllerType['minute'] . "</td>";
-					echo "<td>" . $rowControllerType['second'] . "</td>";
-					
+					echo "<td>" . $rowControllerType['second'] . "</td>";		
 					echo "</tr>";
 				}
-		echo "</table>"
+		echo "</table>";
+		}
+		else
+		{
+			echo "failed to find any results";
+		}
 ?>
 
 

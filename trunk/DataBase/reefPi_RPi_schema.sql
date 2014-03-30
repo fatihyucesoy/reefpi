@@ -241,7 +241,7 @@ CREATE TABLE IF NOT EXISTS `reefPi_RPi_schema`.`scheduledEvent` (
   `idscheduledEvent` INT NOT NULL AUTO_INCREMENT,
   `jobName` VARCHAR(45) NULL,
   `type` VARCHAR(45) NULL,
-  `iddevices` INT NULL,
+  `iddevice` INT NULL,
   `state` TINYINT(1) NULL,
   `value` INT NULL,
   `startDate` DATETIME NULL,
