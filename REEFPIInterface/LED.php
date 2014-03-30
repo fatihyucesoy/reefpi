@@ -38,10 +38,10 @@ LED Page
 <br>
 <h3>LED Temperature Reading</h3>
 <?php
-			$resultReadingLED = mysqli_query($con,"SELECT * FROM sensorreadings
-				WHERE sensorId=(SELECT idsensors from sensors
-					WHERE sensorID = 'tempSensor1')
-						ORDER BY timeStamp DESC limit 1");
+			$resultReadingLED = mysqli_query($con,"SELECT reading FROM sensorReadings 
+					WHERE idsensor = (SELECT idsensor FROM sensor WHERE sensorName = 'tempSensor1') 
+					ORDER BY timeStamp DESC 
+					limit 1;");
 
 		echo "<table border='1'>
 	<tr>
