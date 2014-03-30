@@ -46,7 +46,7 @@ Device Types
 			while($rowDeviceType = mysqli_fetch_array($resultDeviceTypes))
 				{
 					echo "<tr>";
-					echo "<td>" . $rowDeviceType['deviceName'] . "</td>";
+					echo "<td>" . $rowDeviceType['deviceTypeName'] . "</td>";
 					echo "<td>" . $rowDeviceType['busType'] . "</td>";
 					echo "</tr>";
 				}
