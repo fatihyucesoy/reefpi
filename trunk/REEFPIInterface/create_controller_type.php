@@ -39,8 +39,8 @@ Create Controller Types
 if(isset($_POST['addDeviceType']))
 {
 	$controllerTypeName = ($_POST['controllerTypeName']);
-	$description = ($_POST['description']);
-	$addDeviceType = mysqli_query($con, "INSERT INTO controllertype ". "(name, description)". "VALUES ('$controllerTypeName', '$description')");
+	$description = ($_POST['controllerTypeDescription']);
+	$addDeviceType = mysqli_query($con, "INSERT INTO controllertype ". "(controllerTypeName, controllerTypeDescription)". "VALUES ('$controllerTypeName', '$description')");
 	$result = ($addDeviceType);
 }
 ?>
@@ -53,7 +53,7 @@ if(isset($_POST['addDeviceType']))
 		</tr>
 		<tr>
 			<td width="100">Description</td>
-			<td><input name="description" type="text" id="type"></td>
+			<td><input name="controllerTypeDescription" type="text" id="type"></td>
 		</tr>
 		<tr>
 			<td width="100"> </td>
