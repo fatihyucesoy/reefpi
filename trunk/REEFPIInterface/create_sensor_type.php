@@ -40,7 +40,7 @@ if(isset($_POST['addDeviceType']))
 {
 	$sensorName = ($_POST['sensorName']);
 	$busType = ($_POST['busType']);
-	$addDeviceType = mysqli_query($con, "INSERT INTO sensortype ". "(sensorName, busType)". "VALUES ('$sensorName', '$busType')");
+	$addDeviceType = mysqli_query($con, "INSERT INTO sensortype ". "(sensorTypeName, busType)". "VALUES ('$sensorName', '$busType')");
 	$result = ($addDeviceType);
 }
 ?>
