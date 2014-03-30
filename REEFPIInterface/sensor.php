@@ -26,13 +26,45 @@
 
 <?php include('includes/nav.php'); ?>
 
+<?php include('includes/dbconnect.php'); ?>
+
 <div id="content">
 
 
 <p>
 Sensors
 </p>
+<?php
+			$resultControllerTypes = mysqli_query($con, 'SELECT * FROM sensors AS S INNER JOIN devices AS D ON S.device = D.iddevices INNER JOIN sensorType AS ST ON S.idsensorType = ST.idsensorType');
 
+		echo "<table border='1'>
+	<tr>
+		<th>SName</th>
+		<th>Type</th>
+		<th>address</th>
+		<th>sample period</th>
+		<th>Device</th>
+		<th>state</th>
+		<th>lower limit</th>
+		<th>Upper Limit</th>
+	</tr>";
+
+			while($rowControllerType = mysqli_fetch_array($resultControllerTypes))
+				{
+					echo "<tr>";
+					echo "<td>" . $rowControllerType['sensorId'] . "</td>";
+					echo "<td>" . $rowControllerType['sensorName'] . "</td>";
+					echo "<td>" . $rowControllerType['address'] . "</td>";
+					echo "<td>" . $rowControllerType['period'] . "</td>";
+					echo "<td>" . $rowControllerType['Name'] . "</td>";
+					echo "<td>" . $rowControllerType['state'] . "</td>";
+					echo "<td>" . $rowControllerType['lowerLimit'] . "</td>";
+					echo "<td>" . $rowControllerType['upperLimit'] . "</td>";
+					
+					echo "</tr>";
+				}
+		echo "</table>"
+?>
 
 
 </div> <!-- end #content -->

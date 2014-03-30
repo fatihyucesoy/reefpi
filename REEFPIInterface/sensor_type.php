@@ -26,13 +26,33 @@
 
 <?php include('includes/nav.php'); ?>
 
+<?php include('includes/dbconnect.php'); ?>
+
+
 <div id="content">
 
 
 <p>
 Sensor Types
 </p>
+<?php
+			$resultSensorTypes = mysqli_query($con, "SELECT * FROM sensorType");
 
+		echo "<table border='1'>
+	<tr>
+		<th>Controller Name</th>
+		<th>Description</th>
+	</tr>";
+
+			while($rowSensorType = mysqli_fetch_array($resultSensorTypes))
+				{
+					echo "<tr>";
+					echo "<td>" . $rowSensorType['sensorTypeName'] . "</td>";
+					echo "<td>" . $rowSensorType['busType'] . "</td>";
+					echo "</tr>";
+				}
+		echo "</table>"
+?>
 
 
 </div> <!-- end #content -->
