@@ -36,7 +36,7 @@ Devices
 </p>
 
 <?php
-			$resultAvailableDevices = mysqli_query($con, "SELECT * FROM devices");
+			$resultAvailableDevices = mysqli_query($con, "SELECT * FROM device");
 
 		echo "<table border='1'>
 	<tr>
@@ -48,7 +48,7 @@ Devices
 			while($rowAvailableDevice = mysqli_fetch_array($resultAvailableDevices))
 				{
 					echo "<tr>";
-					echo "<td>" . $rowAvailableDevice['Name'] . "</td>";
+					echo "<td>" . $rowAvailableDevice['deviceName'] . "</td>";
 					echo "<td>" . $rowAvailableDevice['address'] . "</td>";
 					echo "<td>" . $rowAvailableDevice['status'] . "</td>";
 					echo "</tr>";

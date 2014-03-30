@@ -25,7 +25,7 @@ class SQLInterface:
 		createString=""
 		
 		if(self._passwd!=""):
-			createString = "mysql -u "+self._user+" -p"+self._passwd+" < ../DataBase/reef"+self._dataBase+".sql"
+			createString = "mysql -u "+self._user+" -p"+self._passwd+" < ../DataBase/"+self._dataBase+".sql"
 		else:
 			createString = "mysql -u "+self._user+" < ../DataBase/"+self._dataBase+".sql"
 		print createString
