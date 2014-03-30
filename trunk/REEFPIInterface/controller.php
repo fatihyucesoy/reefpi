@@ -36,19 +36,22 @@ Controller
 </p>
 
 <?php
-			$resultAvailableController = mysqli_query($con, "SELECT * FROM controller");
+			$resultAvailableController = mysqli_query($con, "SELECT * FROM controller 
+				INNER JOIN controllerType ON controller.idcontrollerType = controllerType.idcontrollerType");
 
 		echo "<table border='1'>
 	<tr>
-		<th>Controller Name</th>
+		<th>Name</th>
+		<th>Type</th>
 		<th>Description</th>
 	</tr>";
 
 			while($rowAvailableController = mysqli_fetch_array($resultAvailableController))
 				{
 					echo "<tr>";
-					echo "<td>" . $rowAvailableController['Name'] . "</td>";
-					echo "<td>" . $rowAvailableController['description'] . "</td>";
+					echo "<td>" . $rowAvailableController['controllerName'] . "</td>";
+					echo "<td>" . $rowAvailableController['controllerTypeName'] . "</td>";
+					echo "<td>" . $rowAvailableController['controllerDescription'] . "</td>";
 					echo "</tr>";
 				}
 		echo "</table>"

@@ -32,52 +32,53 @@ class SQLInterface:
 		os.system(createString)	
 		
 	
-	def addControllerType(self, type, desc):
+	def addControllerType(self, name, desc):
 		con = self._connect()
 		with con:
 			cur = con.cursor() 
-			test = cur.execute("""INSERT INTO controllerType VALUES(DEFAULT, %s, %s)""", \
-			(type, desc))
+			test = cur.execute("""INSERT INTO controllerType (controllerTypeName, ControllerTypeDescription)
+									VALUES(%s, %s)""", (name, desc))
 			con.commit()
 			
 	def addController(self, name, desc, type):
 		con = self._connect()
 		with con:
 			cur = con.cursor() 
-			cur.execute("""INSERT INTO controller VALUES(DEFAULT, %s, %s, %s)""", \
-			(name, desc, type))
+			cur.execute("""INSERT INTO controller (controllerName, idcontrollerType, controllerDescription)
+							VALUES(%s, %s, %s)""", (name, type, desc))
 			con.commit()
 			
-	def addDeviceType(self, type, busType):
+	def addDeviceType(self, name, busType):
 		con = self._connect()
 		with con:
 			cur = con.cursor() 
-			cur.execute("""INSERT INTO deviceType VALUES(DEFAULT, %s, %s)""", \
-			(type, busType))
+			cur.execute("""INSERT INTO deviceType (deviceTypeName, busType) 
+							VALUES (%s, %s)""", (name, busType))
 			con.commit()
 	
 	def addSensorType(self, type, busType):
 		con = self._connect()
 		with con:
 			cur = con.cursor() 
-			cur.execute("""INSERT INTO sensorType VALUES(DEFAULT, %s, %s)""", \
-			(type, busType))
+			cur.execute("""INSERT INTO sensorType (sensorTypeName, busType)
+							VALUES(%s, %s)""", (type, busType))
 			con.commit()
 		
-	def addSensor(self, sensorID, type, address, minTemp, maxTemp, device, period):
+	def addSensor(self, sensorID, type, address, units, period):
 		con = self._connect()
 		with con:
 			cur = con.cursor() 
-			cur.execute("""INSERT INTO sensors VALUES(DEFAULT, %s, %s, %s, %s, %s, %s, %s)""", \
-			(sensorID, type, address, minTemp, maxTemp, device, period))
+			cur.execute("""INSERT INTO sensor (sensorName, idsensorType, address, units, period)
+							VALUES(%s, %s, %s, %s, %s)""", (sensorID, type, address, units, period))
 			con.commit()
 			
-	def addDevice(self, deviceID, type, address, defaultState, idController, level):
+	def addDevice(self, deviceName, type, address, defaultState, idController, level):
 		con = self._connect()
 		with con:
 			cur = con.cursor() 
-			cur.execute("""INSERT INTO devices VALUES(NULL, %s, %s, %s, %s, %s, %s)""", \
-			(deviceID, type, address, defaultState, idController, level))
+			cur.execute("""INSERT INTO device (deviceName, iddeviceType, idcontroller, address, status, level) 
+							VALUES(%s, %s, %s, %s, %s, %s)""", \
+			(deviceName, type, idController, address, defaultState, level))
 			con.commit()
 			
 			
@@ -109,8 +110,8 @@ class SQLInterface:
 		con = self._connect()
 		with con:
 			cur = con.cursor()    
-			cur.execute("""UPDATE Devices SET Status=%s
-							WHERE idDevices=%s """
+			cur.execute("""UPDATE device SET Status=%s
+							WHERE iddevice=%s """
 							,(status, deviceId))
 			con.commit()
 			
@@ -118,7 +119,7 @@ class SQLInterface:
 		con = self._connect()
 		with con:
 			cur = con.cursor()    
-			cur.execute("""UPDATE devices SET level=%s
+			cur.execute("""UPDATE device SET level=%s
 							WHERE idDevices=%s """
 							,(level, deviceId))
 
@@ -128,14 +129,14 @@ class SQLInterface:
 		con = self._connect()
 		with con:
 			cur = con.cursor()    
-			cur.execute("SELECT * FROM devices")
+			cur.execute("SELECT * FROM device")
 			return cur.fetchall()
 			
 	def getAllSensors(self):
 		con = self._connect()
 		with con:
 			cur = con.cursor()    
-    		cur.execute("SELECT * FROM sensors")
+    		cur.execute("SELECT * FROM sensor")
     		return cur.fetchall()
 
        				
@@ -168,7 +169,7 @@ class SQLInterface:
 		con = self._connect()
 		with con:
 			cur = con.cursor()    
-    		cur.execute("""SELECT sensorName FROM sensorType where idsensorType = %s""", (sensorTypeId, ))
+    		cur.execute("""SELECT sensorTypeName FROM sensorType where idsensorType = %s""", (sensorTypeId, ))
     		type = cur.fetchone()
     		
 		return type[0]
@@ -186,7 +187,7 @@ class SQLInterface:
 		con = self._connect()
 		with con:
 			cur = con.cursor()    
-    		cur.execute("""SELECT deviceName FROM deviceType where iddeviceType = %s""", (deviceTypeId, ))
+    		cur.execute("""SELECT deviceTypeName FROM deviceType where iddeviceType = %s""", (deviceTypeId, ))
     		device = cur.fetchone()    		
 		return device[0]
 		
@@ -195,9 +196,10 @@ class SQLInterface:
 		con = self._connect()
 		with con:
 			cur = con.cursor() 
-			cur.execute("""INSERT INTO commands VALUES(NULL, %s, %s)""", (commandId, deviceId))
+			print 'cmdid={0}, deviceID={1}'.format(commandId, deviceId)
+			cur.execute("""INSERT INTO commands (iddevice, commandId)VALUES(%s, %s)""", (deviceId, commandId))
 			con.commit() 
 			
 					
 			
-	
+		

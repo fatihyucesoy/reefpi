@@ -41,15 +41,15 @@ Controller Types
 
 		echo "<table border='1'>
 	<tr>
-		<th>Controller Name</th>
+		<th>Name</th>
 		<th>Description</th>
 	</tr>";
 
 			while($rowControllerType = mysqli_fetch_array($resultControllerTypes))
 				{
 					echo "<tr>";
-					echo "<td>" . $rowControllerType['name'] . "</td>";
-					echo "<td>" . $rowControllerType['description'] . "</td>";
+					echo "<td>" . $rowControllerType['controllerTypeName'] . "</td>";
+					echo "<td>" . $rowControllerType['controllerTypeDescription'] . "</td>";
 					echo "</tr>";
 				}
 		echo "</table>"

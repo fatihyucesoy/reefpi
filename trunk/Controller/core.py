@@ -31,8 +31,9 @@ def init(sensors, devices, scheduledEvents, DB, host, user, passwd, dataBase):
 	DBSensors = DB.getAllSensors()
 	for sensor in DBSensors:
 		if(DB.getSensorType(sensor[2]) == 'tempSimulator'):
-			sensors.append(tempSimulator(sensor[0], sensor[1], sensor[4], sensor[5], sensor[6], sensor[7], \
-							host, user, passwd, dataBase))
+			print sensor
+			sensors.append(tempSimulator(sensor[0], sensor[1], sensor[2], sensor[3], sensor[4], sensor[5],  \
+										host, user, passwd, dataBase))
 		elif(sensor[2] == 'DS18B20'):
 			sensors.append(DS1882Interface(sensor[1]))
 
@@ -68,8 +69,10 @@ def configureDB(DB):
 	DB.addDevice('LEDChannel2', 2, '0x4F', 0, 1, 0)
 	DB.addDevice('LEDChannel3', 2, '0x50', 0, 1, 0)
 	DB.addSensorType('tempSimulator', 'SW')
-	DB.addSensor('tempSensor1', 1, '4', 25.5, 25.5, 1, 3)
-	DB.addSensor('tempSensor2', 1, '5', 25.5, 25.5, 2, 4)
+	#DB.addSensor('tempSensor1', 1, '4', 25.5, 25.5, 1, 3)
+	#DB.addSensor('tempSensor2', 1, '5', 25.5, 25.5, 2, 4)
+	DB.addSensor('tempSensor1', 1, 'SW', 'degrees', 3)
+	DB.addSensor('tempSensor2', 1, 'SW', 'celcius', 4)
 	DB.addScheduledEvent("croneEvent", "crone", 1, 1, 100, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), \
 						 None, None, None, None, None, None, None, 6)
 	DB.addScheduledEvent("intervalEvent", "interval", 2, 0, 0, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), \
