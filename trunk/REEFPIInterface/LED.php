@@ -3,10 +3,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 
 <head>
-
-<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-
-<meta name="description" content="" />
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<meta name="description" content="" />
 
 <meta name="keywords" content="" />
 
@@ -14,6 +12,47 @@
 
 <link rel="stylesheet" type="text/css" href="style.css" media="screen" />
 
+
+<?php include('includes/header.php'); ?>
+
+<?php include('includes/nav.php'); ?>
+
+<?php include('includes/dbconnect.php'); ?>
+
+<?php
+	$result = mysqli_query($con,"SELECT timeStamp, reading FROM sensorReadings 
+					WHERE idsensor = (SELECT idsensor FROM sensor WHERE sensorName = 'tempSensor1') 
+					ORDER BY timeStamp DESC LIMIT 10;");
+					
+	$dataArray = array(array('timeStamp', 'reading'));
+	
+	while($row = mysqli_fetch_array($result)) {
+    	$dataArray[] = array($row['timeStamp'], (int) $row['reading']);
+	}
+	
+	
+	echo count($dataArray);
+?>
+<!--Load the AJAX API-->
+
+        <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+   		<script type="text/javascript">
+      	google.load("visualization", "1", {packages:["corechart"]});
+      	google.setOnLoadCallback(drawChart);
+      	function drawChart() {
+        var data = google.visualization.arrayToDataTable(<?php echo json_encode($dataArray); ?>);
+
+        var options = {
+        	height : 400,
+          	title: 'temp 1 temperature',
+          	is3d: true,
+        };
+
+        var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+        chart.draw(data, options);
+      }
+    </script>
+    
 <title>REEFPI Home Page</title>
 
 </head>
@@ -22,11 +61,7 @@
 
 		<div id="wrapper">
 
-<?php include('includes/header.php'); ?>
 
-<?php include('includes/nav.php'); ?>
-
-<?php include('includes/dbconnect.php'); ?>
 
 <div id="content">
 
@@ -35,6 +70,8 @@
 LED Page
 
 </p>
+<br>
+<div id="chart_div"></div>
 <br>
 <h3>LED Temperature Reading</h3>
 <?php
@@ -55,6 +92,8 @@ LED Page
 					echo "</tr>";
 				}
 		echo "</table>";
+		
+	
 
 ?>
 
