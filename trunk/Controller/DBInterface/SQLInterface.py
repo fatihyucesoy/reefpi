@@ -88,8 +88,6 @@ class SQLInterface:
 		con = self._connect()
 		with con:
 			cur = con.cursor() 
-			#"""insert into scheduledEvent values (default, "test", "crone", 1, 1, 100,
-			#				now(), null, null, null, null, null, null, null, 6)"""
 			cur.execute("""insert into scheduledEvent values (default, %s, %s, %s, %s, %s, %s, %s, 
 							%s, %s, %s, %s, %s, %s,%s)""",
 							(name, type, deviceId, state, value, startDate,			\
@@ -97,6 +95,14 @@ class SQLInterface:
 							hour, minute, second))
 			con.commit()
 				
+	def addSensorAction(self, idSensor, value, relation, type, iddevice, action):
+		con = self._connect()
+		with con:
+			cur = con.cursor() 
+			cur.execute("""INSERT INTO sensorAction (idsensor, value, relation, type, iddevice, action) 
+							VALUES (%s, %s, %s, %s, %s, %s)""",\
+							(idSensor, value, relation, type, iddevice, action))
+			con.commit()
 			
 	def insertSensorReading(self, probeId, temp):
 		con = self._connect()
@@ -149,6 +155,7 @@ class SQLInterface:
     			
 	def getNextCommand(self):
 		command = None
+		deviceId = None
 		commandId = None
 		param = None
 		con = self._connect()
@@ -157,12 +164,13 @@ class SQLInterface:
     		cur.execute("SELECT * FROM commands LIMIT 1")
     		command = cur.fetchone()
     		if(command != None):
-    			commandId = command[1]
-    			param = command[2]
+    			deviceId = command[1]
+    			commandId = command[2]
+    			param = command[3]
     			cur.execute("""DELETE FROM commands where IdCommands = %s""", (command[0],))
     			con.commit()
 		
-		return (commandId, param)
+		return (deviceId, commandId, param)
 		
 	def getSensorType(self, sensorTypeId):	
 		type = None
@@ -180,6 +188,13 @@ class SQLInterface:
 			cur = con.cursor()    
     		cur.execute("select * from scheduledEvent")
     		return cur.fetchall()
+	
+	def getAllSensorActions(self, idSensor):
+		con = self._connect()
+		with con:
+			cur = con.cursor()    
+    		cur.execute("select * from sensorAction WHERE idsensor = %s", (idSensor, ))
+    		return cur.fetchall()
 		
 	
 	def getDeviceType(self, deviceTypeId):	
@@ -192,12 +207,11 @@ class SQLInterface:
 		return device[0]
 		
 			
-	def addCommand(self, commandId, deviceId):
+	def addCommand(self, deviceId, command):
 		con = self._connect()
 		with con:
 			cur = con.cursor() 
-			print 'cmdid={0}, deviceID={1}'.format(commandId, deviceId)
-			cur.execute("""INSERT INTO commands (iddevice, commandId)VALUES(%s, %s)""", (deviceId, commandId))
+			cur.execute("""INSERT INTO commands (iddevice, command)VALUES(%s, %s)""", (deviceId, command))
 			con.commit() 
 			
 					

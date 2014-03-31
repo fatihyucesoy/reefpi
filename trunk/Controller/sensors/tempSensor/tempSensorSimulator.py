@@ -25,25 +25,23 @@ class tempSimulator:
 	#_dataBase = "reefPi_RPi_schema"
 	#_DB = None
 	
-	def __init__(self, probeId, probeName, type, address, units, period, host, user, passwd, dataBase):
+	def __init__(self, probeId, probeName, type, address, units, period, actionList, host, user, passwd, dataBase):
 		self._probeId = probeId
 		self._probeName = probeName
 		self._type = type
 		self._units = units
 		self._period = period
+		self._actionList = actionList
 		self._DB = SQLInterface(host, user, passwd, dataBase)
 		
 	def _processNewReading(self):
 		# TODO: add error checking as if this fails things might be bad.
 		self._DB.insertSensorReading(self._probeId, self._reading)
-		
 		for action in self._actionList:
-			if(self._reading < self._minReading):
-			#DB.turnHeaterOn(_getCommandID(turnHeaterOn))
-				self._DB.addCommand(1, self._deviceId)
-			else:
-				#DB.turnHeateroff(_getCommandID(turnHeaterOff))
-		 		self._DB.addCommand(2, self._deviceId)	
+			if(action.checkValue(self._reading)):
+				print "adding command for device {0} and action {1}".format(action.iddevice, action.action)
+				self._DB.addCommand(action.iddevice, action.action)
+	
 	
 	def setActionList(self, actionList):
 		self._actionList = actionList

@@ -170,9 +170,9 @@ SHOW WARNINGS;
 CREATE TABLE IF NOT EXISTS `reefPi_RPi_schema`.`commands` (
   `idcommands` INT NOT NULL AUTO_INCREMENT,
   `iddevice` INT NOT NULL,
-  `commandId` INT NOT NULL,
+  `command` VARCHAR(45) NOT NULL,
   `parameterList` VARCHAR(255) NULL,
-  PRIMARY KEY (`idcommands`, `commandId`),
+  PRIMARY KEY (`idcommands`, `command`),
   CONSTRAINT `FK_command_device`
     FOREIGN KEY (`iddevice`)
     REFERENCES `reefPi_RPi_schema`.`device` (`iddevice`)
@@ -271,7 +271,7 @@ CREATE TABLE IF NOT EXISTS `reefPi_RPi_schema`.`sensorAction` (
   `relation` VARCHAR(45) NOT NULL,
   `type` VARCHAR(45) NOT NULL,
   `iddevice` INT NOT NULL,
-  `action` INT NOT NULL,
+  `action` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`idsensorAction`),
   CONSTRAINT `FK_SensorAction_Device`
     FOREIGN KEY (`iddevice`)

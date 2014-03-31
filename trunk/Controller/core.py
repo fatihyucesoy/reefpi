@@ -15,6 +15,7 @@ from scheduler.reefPI_Scheduler import *
 
 from lib.LEDIntensityCalculator import *
 from lib.scheduledEvent import *
+from lib.sensorAction import *
 
 latitude = -19.770621   # + to N  Defualt - (-19.770621) Heart Reef, Great Barrier Reef, QLD, Australia 
 longitude = 149.238532  # + to E  Defualt - (149.238532)
@@ -30,10 +31,18 @@ def init(sensors, devices, scheduledEvents, DB, host, user, passwd, dataBase):
 	
 	DBSensors = DB.getAllSensors()
 	for sensor in DBSensors:
+		
+		#get a list of all of the actions for this sensor.  This could be empty
+		actionList = []
+		returnedSensorActions = DB.getAllSensorActions(sensor[0])
+		for action in returnedSensorActions:
+			print "creating sensor action"
+			actionList.append(sensorAction(action))
+		
 		if(DB.getSensorType(sensor[2]) == 'tempSimulator'):
 			print sensor
 			sensors.append(tempSimulator(sensor[0], sensor[1], sensor[2], sensor[3], sensor[4], sensor[5],  \
-										host, user, passwd, dataBase))
+										actionList, host, user, passwd, dataBase))
 		elif(sensor[2] == 'DS18B20'):
 			sensors.append(DS1882Interface(sensor[1]))
 
@@ -71,8 +80,18 @@ def configureDB(DB):
 	DB.addSensorType('tempSimulator', 'SW')
 	#DB.addSensor('tempSensor1', 1, '4', 25.5, 25.5, 1, 3)
 	#DB.addSensor('tempSensor2', 1, '5', 25.5, 25.5, 2, 4)
-	DB.addSensor('tempSensor1', 1, 'SW', 'degrees', 3)
+	
+	# create a temp sensor simulator to represent a tank heater
+	DB.addSensor('tempSensor1', 1, 'SW', 'degrees', 3)	
+	DB.addSensorAction('1', 25, 'lt', 'crossing', 1, 'turnOn')
+	DB.addSensorAction('1', 25, 'gt', 'crossing', 1, 'turnOff')
+	
+	# create a temp sensor simulator to represent the LED fans
 	DB.addSensor('tempSensor2', 1, 'SW', 'celcius', 4)
+	DB.addSensorAction('2', 27, 'gt', 'crossing', 2, 'turnOn')
+	DB.addSensorAction('2', 27, 'lt', 'crossing', 2, 'turnOff')
+	
+	
 	DB.addScheduledEvent("croneEvent", "crone", 1, 1, 100, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), \
 						 None, None, None, None, None, None, None, 6)
 	DB.addScheduledEvent("intervalEvent", "interval", 2, 0, 0, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), \
@@ -102,16 +121,16 @@ def processCommand(devices, DB):
 	
 		#get the device with the correct device ID
 		for device in devices:
-			if(device.getId() == int(command[1])):
+			if(device.getId() == int(command[0])):
 				cmdDevice = device
 				break
-					
-		if(command[0] == 1):
+		print command		
+		if(command[1] == 'turnOn'):
 			result = cmdDevice.turnDeviceOn()
-		elif(command[0] == 2):
+		elif(command[1] == 'turnOff'):
 			result = cmdDevice.turnDeviceOff()
-		elif(command[0] == 3):
-			result = cmdDevice.setIntensity(command[1])	
+		elif(command[2] == 'set'):
+			result = cmdDevice.setIntensity()	
 		
 	return result
 		
