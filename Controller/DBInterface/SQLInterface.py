@@ -82,7 +82,7 @@ class SQLInterface:
 			con.commit()
 			
 			
-	def addScheduledEvent(self, name, type, deviceId=None, state=None, value=None, startDate=None, \
+	def addScheduledEvent(self, name, type, deviceId=None, command=None, value=None, startDate=None, \
 							year=None, month=None, day=None, week=None, day_of_week=None, 				\
 							hour=None, minute=None, second=None):
 		con = self._connect()
@@ -90,7 +90,7 @@ class SQLInterface:
 			cur = con.cursor() 
 			cur.execute("""insert into scheduledEvent values (default, %s, %s, %s, %s, %s, %s, %s, 
 							%s, %s, %s, %s, %s, %s,%s)""",
-							(name, type, deviceId, state, value, startDate,			\
+							(name, type, deviceId, command, value, startDate,			\
 							year, month, day, week, day_of_week, 					\
 							hour, minute, second))
 			con.commit()
@@ -126,7 +126,7 @@ class SQLInterface:
 		with con:
 			cur = con.cursor()    
 			cur.execute("""UPDATE device SET level=%s
-							WHERE idDevices=%s """
+							WHERE iddevice=%s """
 							,(level, deviceId))
 
 			con.commit()
