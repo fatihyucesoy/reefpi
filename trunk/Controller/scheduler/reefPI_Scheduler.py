@@ -61,7 +61,7 @@ class ReefPI_Scheduler:
 			startDate = event.startDate
 						
 		return self.AddIntervalTask(methodPointer, hrs=hour, min=minute, sec=second, \
-								startDate=startDate, argList=[event.deviceId, None, event.state, None])
+								startDate=startDate, argList=[event.deviceId, None, event.command, event.value])
 	
 	
 	
@@ -73,7 +73,7 @@ class ReefPI_Scheduler:
 	def AddCroneEvent(self, methodPointer, event):
 		return self.AddCroneTask(methodPointer, year=event.year, month=event.month, day=event.day, week=event.week, \
 								day_of_week=event.day_of_week, min=event.minute, sec=event.second, hour=event.hour, \
-								argList=[event.deviceId, None, event.state, None])
+								argList=[event.deviceId, None, event.command, event.value])
 
 	def AddCroneTask(self, methodPointer, year=None, month=None, day=None, week=None, \
 					 day_of_week=None, hour=None, min=None, sec=None, argList=['crone task running']):

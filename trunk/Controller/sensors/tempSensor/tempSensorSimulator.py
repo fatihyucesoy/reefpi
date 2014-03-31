@@ -39,8 +39,7 @@ class tempSimulator:
 		self._DB.insertSensorReading(self._probeId, self._reading)
 		for action in self._actionList:
 			if(action.checkValue(self._reading)):
-				print "adding command for device {0} and action {1}".format(action.iddevice, action.action)
-				self._DB.addCommand(action.iddevice, action.action)
+				self._DB.addCommand(action.iddevice, action.action, action.value)
 	
 	
 	def setActionList(self, actionList):
@@ -50,7 +49,7 @@ class tempSimulator:
 		return self._probeId
 		
 	def takeNewReading(self):
-		self._reading = random.uniform(25,26)
+		self._reading = random.uniform(23, 28)
 		self._processNewReading()
 		return self._reading
 		
