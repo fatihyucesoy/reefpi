@@ -22,12 +22,12 @@
 <?php
 	$result = mysqli_query($con,"SELECT timeStamp, reading FROM sensorReadings 
 					WHERE idsensor = (SELECT idsensor FROM sensor WHERE sensorName = 'tempSensor1') 
-					ORDER BY timeStamp DESC LIMIT 10;");
+					ORDER BY timeStamp DESC LIMIT 1000;");
 					
 	$dataArray = array(array('timeStamp', 'reading'));
 	
 	while($row = mysqli_fetch_array($result)) {
-    	$dataArray[] = array($row['timeStamp'], (int) $row['reading']);
+    	$dataArray[] = array($row['timeStamp'], (float) $row['reading']);
 	}
 	
 	
@@ -46,6 +46,8 @@
         	height : 400,
           	title: 'temp 1 temperature',
           	is3d: true,
+          	curveType: 'function',
+          	explorer:{ actions: ['dragToZoom', 'rightClickToReset'] , axis: 'horizontal'}
         };
 
         var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
@@ -108,7 +110,7 @@ LED Page
 </div> <!-- end #sidebar -->
 
 <div id="footer">
-	<p>Copyright &copy Bigguy 2014 <a href="#">REEFPI</a></p>
+	<p><a href="#">REEFPI</a></p>
 </div> <!-- end #footer -->
 
 		</div> <!-- End #wrapper -->
