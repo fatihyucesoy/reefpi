@@ -41,9 +41,9 @@ class LEDSimulator:
 		
 	def turnDeviceOff(self):
 		print self._name + ': Turning LED off'
-		DB.setDeviceStatus(self._Id, 0)
+		self._DB.setDeviceStatus(self._Id, 0)
 		self._LEDState = 0
-		return self._heaterState
+		return self._LEDState
 	
 	def setIntensity(self, level):
 		print self._name + ': setting LED intensity to ' + str(level)

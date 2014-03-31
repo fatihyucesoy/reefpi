@@ -92,16 +92,17 @@ def configureDB(DB):
 	DB.addSensorAction('2', 27, 'lt', 'crossing', 2, 'turnOff')
 	
 	
-	DB.addScheduledEvent("croneEvent", "crone", 1, 'turnOn', 100, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), \
+	DB.addScheduledEvent("croneEvent", "crone", 3, 'turnOn', 100, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), \
 						 None, None, None, None, None, None, None, 6)
-	DB.addScheduledEvent("croneEvent", "crone", 1, 'turnOff', 100, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), \
+	DB.addScheduledEvent("croneEvent", "crone", 3, 'turnOff', 0, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), \
 						 None, None, None, None, None, None, None, 36)
-	DB.addScheduledEvent("intervalEvent", "interval", 1, 'turnOff', 0, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), \
+	DB.addScheduledEvent("intervalEvent", "interval", 4, 'turnOff', 0, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), \
 						 None, None, None, None, None, None, None, 10)
-	DB.addScheduledEvent("intervalEvent", "interval", 1, 'turnOn', 0, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), \
+	DB.addScheduledEvent("intervalEvent", "interval", 4, 'turnOn', 0, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), \
 						 None, None, None, None, None, None, None, 10)	
-
-
+	DB.addScheduledEvent("intervalEvent", "interval", 5, 'set', 255, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), \
+						 None, None, None, None, None, None, None, 2)	
+	
 
 #
 # Uses the current data time to get the intensity value
@@ -127,14 +128,13 @@ def processCommand(devices, DB):
 		for device in devices:
 			if(device.getId() == int(command[0])):
 				cmdDevice = device
-				break
-						
+				break		
 		if(command[1] == 'turnOn'):
 			result = cmdDevice.turnDeviceOn()
 		elif(command[1] == 'turnOff'):
 			result = cmdDevice.turnDeviceOff()
-		elif(command[2] == 'set'):
-			result = cmdDevice.setIntensity()	
+		elif(command[1] == 'set'):
+			result = cmdDevice.setIntensity(getLEDIntensity())	
 		
 	return result
 		
