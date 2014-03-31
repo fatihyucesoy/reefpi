@@ -73,7 +73,7 @@ def configureDB(DB):
 	DB.addDeviceType('heaterSimulator', 'I2C')
 	DB.addDeviceType('LEDSimulator', 'I2C')
 	DB.addDevice('heater1', 1, '0x40', 0, 1, 0)
-	DB.addDevice('heater2', 1, '0x48', 0, 1, 0)
+	DB.addDevice('LEDFAN', 1, '0x48', 0, 1, 0)
 	DB.addDevice('LEDChannel1', 2, '0x4A', 0, 1, 0)
 	DB.addDevice('LEDChannel2', 2, '0x4F', 0, 1, 0)
 	DB.addDevice('LEDChannel3', 2, '0x50', 0, 1, 0)
@@ -92,10 +92,14 @@ def configureDB(DB):
 	DB.addSensorAction('2', 27, 'lt', 'crossing', 2, 'turnOff')
 	
 	
-	DB.addScheduledEvent("croneEvent", "crone", 1, 1, 100, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), \
+	DB.addScheduledEvent("croneEvent", "crone", 1, 'turnOn', 100, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), \
 						 None, None, None, None, None, None, None, 6)
-	DB.addScheduledEvent("intervalEvent", "interval", 2, 0, 0, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), \
-						 None, None, None, None, None, None, None, 3)	
+	DB.addScheduledEvent("croneEvent", "crone", 1, 'turnOff', 100, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), \
+						 None, None, None, None, None, None, None, 36)
+	DB.addScheduledEvent("intervalEvent", "interval", 1, 'turnOff', 0, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), \
+						 None, None, None, None, None, None, None, 10)
+	DB.addScheduledEvent("intervalEvent", "interval", 1, 'turnOn', 0, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), \
+						 None, None, None, None, None, None, None, 10)	
 
 
 
@@ -124,7 +128,7 @@ def processCommand(devices, DB):
 			if(device.getId() == int(command[0])):
 				cmdDevice = device
 				break
-		print command		
+						
 		if(command[1] == 'turnOn'):
 			result = cmdDevice.turnDeviceOn()
 		elif(command[1] == 'turnOff'):
@@ -147,16 +151,11 @@ def processSensor(sensor):
 		
 		
 
-def decodeSchedulerEvent(commandId, probeID, deviceId, level):
+def decodeSchedulerEvent(deviceId, probeID, command, level):
 	print datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + \
-			":Scheduled event running: " + str(commandId) +' ' + str(deviceId)	
+			":Scheduled event running: " + str(command) +' ' + str(deviceId)	
 	DB = SQLInterface(host, user, passwd, dataBase)
-	if(commandId=='1'):
-		DB.addCommand(commandId, deviceId)
-	elif(commandId=='2'):
-		DB.addCommand(commandId, deviceId)
-	elif(commandId=='3'):
-		DB.addCommand(commandId, deviceId)
+	DB.addCommand(deviceId, command, [level])
 
 
 #

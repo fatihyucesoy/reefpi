@@ -3,7 +3,7 @@ class scheduledEvent:
 	name = None
 	type = None
 	deviceId = None
-	state = None
+	command = None
 	startDate = None
 	value = None
 	year = None
@@ -20,7 +20,7 @@ class scheduledEvent:
 		self.name = event[1]
 		self.type = event[2]
 		self.deviceId = event[3]
-		self.state = event[4]
+		self.command = event[4]
 		self.value = event[5]
 		self.startDate = event[6]
 		self.year = event[7]
@@ -31,14 +31,14 @@ class scheduledEvent:
 		self.hour = event[12]
 		self.minute = event[13]
 		self.second = event[14]
-		self._printParameters()
+		#self._printParameters()
 		
 	def _printParameters(self):
 		print '''				id 		={0},
 				name		={1},
 				type		={2}, 
 				deviceId	={3}, 
-				state		={4}, 
+				command		={4}, 
 				startDate	={5}, 
 				value		={6}, 
 				year		={7},
@@ -50,7 +50,7 @@ class scheduledEvent:
 				min		={13}, 
 				sec		={14}'''\
 				.format(self.Id, self.name, self.type, self.deviceId, \
-				self.state, self.startDate, self.value, self.year, \
+				self.command, self.startDate, self.value, self.year, \
 				self.month, self.day, self.week, self.day_of_week, \
 				self.hour, self.minute, self.second)
 		

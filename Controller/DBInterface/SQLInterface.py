@@ -207,11 +207,11 @@ class SQLInterface:
 		return device[0]
 		
 			
-	def addCommand(self, deviceId, command):
+	def addCommand(self, deviceId, command, args):
 		con = self._connect()
 		with con:
 			cur = con.cursor() 
-			cur.execute("""INSERT INTO commands (iddevice, command)VALUES(%s, %s)""", (deviceId, command))
+			cur.execute("""INSERT INTO commands (iddevice, command, parameterlist)VALUES(%s, %s, %s)""", (deviceId, command, args))
 			con.commit() 
 			
 					

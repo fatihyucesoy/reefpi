@@ -242,7 +242,7 @@ CREATE TABLE IF NOT EXISTS `reefPi_RPi_schema`.`scheduledEvent` (
   `jobName` VARCHAR(45) NULL,
   `type` VARCHAR(45) NULL,
   `iddevice` INT NULL,
-  `state` TINYINT(1) NULL,
+  `command` VARCHAR(45) NULL,
   `value` INT NULL,
   `startDate` DATETIME NULL,
   `year` INT NULL,
