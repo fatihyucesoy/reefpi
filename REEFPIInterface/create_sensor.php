@@ -39,11 +39,14 @@ Sensors
 if(isset($_POST['addSensor']))
 {
 	$sensorName = ($_POST['sensorName']);
-	$sensorTypes = ($_POST['idsensorType']);
+	$sensorType = (int)($_POST['sensorTypes']);
 	$address = ($_POST['address']);
 	$units = ($_POST['units']);
-	$period = ($_POST['period']);
-	$addDevice = mysqli_query($con, "INSERT INTO sensor ". "(sensorName, idsensorType, address, units, period)". "VALUES ('$sensorName', '$idsensorType', '$address', '$units', '$period')");
+	$period = (int)($_POST['period']);
+	echo $sensorName;
+	$addDevice = mysqli_query($con, "INSERT INTO sensor (sensorName, idsensorType, address, units, period) 
+									VALUES ('$sensorName', '$sensorType', '$address', '$units', '$period')
+									")or die(mysqli_error($con));
 	$result = ($addDevice);
 }
 ?>

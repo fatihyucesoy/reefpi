@@ -14,10 +14,10 @@ DROP TABLE IF EXISTS `reefPi_RPi_schema`.`sensorType` ;
 
 SHOW WARNINGS;
 CREATE TABLE IF NOT EXISTS `reefPi_RPi_schema`.`sensorType` (
-  `idSensorType` INT NOT NULL AUTO_INCREMENT,
+  `idsensorType` INT NOT NULL AUTO_INCREMENT,
   `sensorTypeName` VARCHAR(45) NOT NULL,
   `busType` VARCHAR(45) NOT NULL,
-  PRIMARY KEY (`idSensorType`))
+  PRIMARY KEY (`idsensorType`))
 ENGINE = InnoDB;
 
 SHOW WARNINGS;
@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS `reefPi_RPi_schema`.`sensor` (
   PRIMARY KEY (`Idsensor`),
   CONSTRAINT `type`
     FOREIGN KEY (`idsensorType`)
-    REFERENCES `reefPi_RPi_schema`.`sensorType` (`idSensorType`)
+    REFERENCES `reefPi_RPi_schema`.`sensorType` (`idsensorType`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
