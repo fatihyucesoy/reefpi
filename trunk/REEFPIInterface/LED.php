@@ -23,14 +23,14 @@
 	date_default_timezone_set('Europe/London');
 	$result = mysqli_query($con,"select * from (SELECT timeStamp, reading FROM sensorReadings 
 				WHERE idsensor = (SELECT idsensor FROM sensor WHERE sensorName = 'tempSensor1') 
-				ORDER BY timeStamp DESC LIMIT 100) 
+				ORDER BY timeStamp DESC LIMIT 1000) 
 				AS descArray ORDER BY descArray.timeStamp ASC;");
 					
 	$dataArray = array(array('timeStamp', 'reading'));
 	$date = '';
 	while($row = mysqli_fetch_array($result)) {
 		$timestamp = DateTime::createFromFormat('Y-m-d H:i:s', $row['timeStamp']);
-    	$dataArray[] = array($timestamp->format('Y:m:d H:i:s'), (float) $row['reading']);
+    	$dataArray[] = array($timestamp->format('H:i:s'), (float) $row['reading']);
     	$dateStamp = DateTime::createFromFormat('Y-m-d H:i:s', $row['timeStamp']);
 		$date = $dateStamp->format('d:m:Y');
 	}
@@ -55,7 +55,7 @@
           		curveType: 'function',
           		explorer:{ actions: ['dragToZoom', 'rightClickToReset'] , axis: 'horizontal'},
           		vAxis: { title: "temperature", viewWindowMode:'explicit',viewWindow: {max:28.1,min:22.5} },
-          		hAxis: { title: <?php echo json_encode($date); ?>}
+          		hAxis: { title: <?php echo json_encode($date); ?>, format: 'HH:mm'}
         	};
         var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
         chart.draw(data, options);
