@@ -23,7 +23,7 @@
 	date_default_timezone_set('Europe/London');
 	$result = mysqli_query($con,"select * from (SELECT timeStamp, reading FROM sensorReadings 
 				WHERE idsensor = (SELECT idsensor FROM sensor WHERE sensorName = 'tempSensor1') 
-				ORDER BY timeStamp DESC LIMIT 1000) 
+				ORDER BY timeStamp DESC LIMIT 100) 
 				AS descArray ORDER BY descArray.timeStamp ASC;");
 					
 	$dataArray = array(array('timeStamp', 'reading'));
