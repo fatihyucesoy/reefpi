@@ -44,7 +44,7 @@ Scheduler
 		<th>Job Name</th>
 		<th>Job type</th>
 		<th>device</th>
-		<th>state</th>
+		<th>command</th>
 		<th>value</th>
 		<th>startDate</th>
 		<th>year</th>
@@ -63,7 +63,7 @@ Scheduler
 					echo "<td>" . $rowControllerType['jobName'] . "</td>";
 					echo "<td>" . $rowControllerType['type'] . "</td>";
 					echo "<td>" . $rowControllerType['deviceName'] . "</td>";
-					echo "<td>" . $rowControllerType['state'] . "</td>";
+					echo "<td>" . $rowControllerType['command'] . "</td>";
 					echo "<td>" . $rowControllerType['value'] . "</td>";
 					echo "<td>" . $rowControllerType['startDate'] . "</td>";
 					echo "<td>" . $rowControllerType['year'] . "</td>";
@@ -92,11 +92,7 @@ Scheduler
 
 </div> <!-- end #content -->
 
-<div id="sidebar">
 
-<?php include('includes/sidebar.php'); ?>
-
-</div> <!-- end #sidebar -->
 
 <div id="footer">
 	<p> <a href="#">REEFPI</a></p>
