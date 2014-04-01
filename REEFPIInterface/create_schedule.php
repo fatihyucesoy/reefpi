@@ -36,6 +36,7 @@ Create Scheduled Event
 </p>
 
 <?PHP
+date_default_timezone_set('Europe/London');
 if(isset($_POST['addSchedule']))
 {
 	$jobName = ($_POST['jobName']);
@@ -43,7 +44,7 @@ if(isset($_POST['addSchedule']))
 	$iddevice = ($_POST['iddevice']);
 	$command = ($_POST['command']);
 	$value = ($_POST['value']);
-	$startDate = ($_POST['startDate']);
+	$startDate = date("Y-m-d H:i:s");
 	$year = ($_POST['year']);
 	$month = ($_POST['month']);
 	$day = ($_POST['day']);
@@ -103,7 +104,7 @@ if(isset($_POST['addSchedule']))
 		</tr>
 		<tr>
 			<td width="100">Year</td>
-			<td><input name="year" type="text" id="year"></td>
+			<td><input name="year" type="int" id="year"></td>
 		</tr>	
 		<tr>
 			<td width="100">Month</td>
