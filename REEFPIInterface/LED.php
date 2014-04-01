@@ -21,46 +21,43 @@
 
 <?php
 	date_default_timezone_set('Europe/London');
-	$result = mysqli_query($con,"SELECT timeStamp, reading FROM sensorReadings 
-					WHERE idsensor = (SELECT idsensor FROM sensor WHERE sensorName = 'tempSensor1') 
-					ORDER BY timeStamp DESC LIMIT 100;");
+	$result = mysqli_query($con,"select * from (SELECT timeStamp, reading FROM sensorReadings 
+				WHERE idsensor = (SELECT idsensor FROM sensor WHERE sensorName = 'tempSensor1') 
+				ORDER BY timeStamp DESC LIMIT 100) 
+				AS descArray ORDER BY descArray.timeStamp ASC;");
 					
 	$dataArray = array(array('timeStamp', 'reading'));
-	
+	$date = '';
 	while($row = mysqli_fetch_array($result)) {
-		$format = 'Y-m-d H:i:s';
-		$timestamp = DateTime::createFromFormat($format, $row['timeStamp']);
-    	$dataArray[] = array($timestamp->format('H:i:s'), (float) $row['reading']);
+		$timestamp = DateTime::createFromFormat('Y-m-d H:i:s', $row['timeStamp']);
+    	$dataArray[] = array($timestamp->format('Y:m:d H:i:s'), (float) $row['reading']);
+    	$dateStamp = DateTime::createFromFormat('Y-m-d H:i:s', $row['timeStamp']);
+		$date = $dateStamp->format('d:m:Y');
 	}
 	
-	
-	echo count($dataArray);
 ?>
+
+
+
 <!--Load the AJAX API-->
 
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
    	<script type="text/javascript">
+   		google.load("jquery", "1.6.1");
       	google.load("visualization", "1", {packages:["corechart"]});
       	google.setOnLoadCallback(drawChart);
-      	function drawChart() {
-      	
-        var data = google.visualization.arrayToDataTable(<?php echo json_encode($dataArray); ?>);
-		var formatter = new google.visualization.DateFormat({pattern: "HH:mm:ss"});
-		var formatter_short = new google.visualization.DateFormat({formatType: 'short'});
-		formatter_short.format(data, 0);
-		
-        var options = {
-        	height : 400,
-          	title: 'temp 1 temperature',
-          	is3d: true,
-          	curveType: 'function',
-          	explorer:{ actions: ['dragToZoom', 'rightClickToReset'] , axis: 'horizontal'},
-          	vAxis: { title: "Percentage Uptime", viewWindowMode:'explicit',viewWindow: {max:28.1,min:22.5} } 
-        };
-        
-		
+      	function drawChart(dataArray) {
+        	var data = google.visualization.arrayToDataTable(<?php echo json_encode($dataArray); ?>);
+        	var options = {
+        		height : 400,
+          		title: 'temperature',
+          		is3d: true,
+          		curveType: 'function',
+          		explorer:{ actions: ['dragToZoom', 'rightClickToReset'] , axis: 'horizontal'},
+          		vAxis: { title: "temperature", viewWindowMode:'explicit',viewWindow: {max:28.1,min:22.5} },
+          		hAxis: { title: <?php echo json_encode($date); ?>}
+        	};
         var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
-        
         chart.draw(data, options);
       }
     </script>
@@ -85,6 +82,18 @@ LED Page
 <br>
 <div id="chart_div"></div>
 <br>
+
+<select name="deviceType" id="deviceType" style="width: 200px" >
+	<?php
+		$sensors = mysqli_query($con, 'select * from sensor') or die (mysql_error());
+		while($sensorType = mysqli_fetch_array($sensors))
+		{
+			echo "<option value=".$sensorType['idsensor']."> ".$sensorType['sensorName']." </option>";
+		}
+	?>
+</select>
+				
+				
 <h3>LED Temperature Reading</h3>
 <?php
 			$resultReadingLED = mysqli_query($con,"SELECT reading, timeStamp FROM sensorReadings 
