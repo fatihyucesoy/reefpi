@@ -61,6 +61,10 @@ These links take you to the pages where you can control bits on your Pi. This is
 <br>
 <a href="create_device_type.php">Create Device Types</a>
 <br>
+<a href="create_schedule.php">Create Scheduled Event</a>
+<br>
+<a href="create_schedule_type.php">Create Scheduled Type</a>
+<br>
 <a href="create_sensor.php">Create Sensors</a>
 <br>
 <a href="create_sensor_type.php">Create Sensor Types</a>
