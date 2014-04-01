@@ -61,7 +61,7 @@ if(isset($_POST['addDevices']))
        
       					while($controllerType = mysqli_fetch_array($controllerTypes))
       					{
-        					echo "<option value=".$controllerType['idcontrollerType']."> ".$controllerType['name']." </option>";
+        					echo "<option value=".$controllerType['idcontrollerType']."> ".$controllerType['controllerTypeName']." </option>";
       					}
       				?>
 				</select>
