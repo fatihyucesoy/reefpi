@@ -54,7 +54,8 @@
           	title: 'temp 1 temperature',
           	is3d: true,
           	curveType: 'function',
-          	explorer:{ actions: ['dragToZoom', 'rightClickToReset'] , axis: 'horizontal'}
+          	explorer:{ actions: ['dragToZoom', 'rightClickToReset'] , axis: 'horizontal'},
+          	vAxis: { title: "Percentage Uptime", viewWindowMode:'explicit',viewWindow: {max:28.1,min:22.5} } 
         };
         
 		
@@ -93,9 +94,9 @@ LED Page
 
 		echo "<table border='1'>
 	<tr>
+		<th>Date</th>
+		<th>Time</th>
 		<th>Reading</th>
-		<th>date</th>
-		<th>other date</th>
 	</tr>";
 
 			while($rowLED = mysqli_fetch_array($resultReadingLED))
@@ -103,8 +104,9 @@ LED Page
 					$format = 'Y-m-d H:i:s';
 					$timestamp = DateTime::createFromFormat($format, $rowLED['timeStamp']);					
 					echo "<tr>";
-					echo "<td>" . $rowLED['reading'] . "</td>";
+					echo "<td>" . $timestamp->format('d:m:Y'). "</td>";
 					echo "<td>" . $timestamp->format('H:i:s'). "</td>";
+					echo "<td>" . $rowLED['reading'] . "</td>";
 					echo "</tr>";
 				}
 		echo "</table>";
