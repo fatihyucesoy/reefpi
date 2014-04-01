@@ -53,7 +53,13 @@ if(isset($_POST['addSchedule']))
 	$minute = ($_POST['minute']);
 	$second = ($_POST['second']);
 	
-	$addScheduledEvent = mysqli_query($con, "INSERT INTO scheduledevent ". "(jobName, type, iddevice, command, value, startDate, year, month, day, week, day_of_week, hour, minute, second)". "VALUES ('$jobName', '$type', '$iddevice', '$command', '$value', '$startDate', '$year', '$month', '$day', '$week', '$day_of_week', '$hour', '$minute', '$second')");
+	$addScheduledEvent = mysqli_query($con, "INSERT INTO scheduledevent 
+									(jobName, type, iddevice, command, value, startDate, 
+									year, month, day, week, day_of_week, 
+									hour, minute, second)". 
+									"VALUES ('$jobName', '$type', '$iddevice', '$command', '$value', '$startDate', '
+									$year', '$month', '$day', '$week', '$day_of_week', 
+									'$hour', '$minute', '$second')") or die(mysqli_error($con));
 	$result = ($addScheduledEvent);
 }
 ?>
@@ -77,7 +83,7 @@ if(isset($_POST['addSchedule']))
        
       					while($deviceType = mysqli_fetch_array($deviceTypes))
       					{
-        					echo "<option value=".$deviceType['iddeviceType']."> ".$deviceType['deviceName']." </option>";
+        					echo "<option value=".$deviceType['iddevice']."> ".$deviceType['deviceName']." </option>";
       					}
       				?>
 				</select>
