@@ -26,6 +26,8 @@
 
 <?php include('includes/nav.php'); ?>
 
+<?php include('includes/dbconnect.php'); ?>
+
 <div id="content">
 
 
@@ -57,11 +59,11 @@ if(isset($_POST['addSensor']))
 			<td>
 				<select name="sensorTypes" id="sensorTypes" style="width: 200px" >
    	   				<?php
-   	   					$idsensorTypes= mysqli_query($con, 'select * from sensortype') or die (mysql_error()); 
+   	   					$idsensorTypes= mysqli_query($con, 'select * from sensorType') or die (mysql_error()); 
        
       					while($sensorsType = mysqli_fetch_array($idsensorTypes))
       					{
-        					echo "<option value=".$sensorsType['idSensorType']."> ".$sensorsType['sensorTypeName']." </option>";
+        					echo "<option value=".$sensorsType['idsensorType']."> ".$sensorsType['sensorTypeName']." </option>";
       					}
       				?>
 				</select>
