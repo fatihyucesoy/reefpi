@@ -47,6 +47,8 @@ These links take you to the pages where you can control bits on your Pi. This is
 <br>
 <a href="schedule.php">Scheduler</a>
 <br>
+<a href="schedule_type.php">Schedule Type</a>
+<br>
 <a href="sensor.php">Sensors</a>
 <br>
 <a href="sensor_type.php">Sensor Types</a>
