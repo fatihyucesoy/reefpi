@@ -42,6 +42,11 @@ if(isset($_POST['addDeviceType']))
 	$busType = ($_POST['busType']);
 	$addDeviceType = mysqli_query($con, "INSERT INTO devicetype ". "(deviceTypeName, busType)". "VALUES ('$deviceName', '$busType')");
 	$result = ($addDeviceType);
+		echo "Sorry, cannot submit your request";
+	else
+		{
+		header("Location: ".$_SERVER['REQUEST_URI']); //which will just reload the page
+		}
 }
 ?>
 <p></p>

@@ -44,6 +44,11 @@ if(isset($_POST['addDevices']))
 	$status = ($_POST['status']);
 	$addDevice = mysqli_query($con, "INSERT INTO devices ". "(Name, iddeviceType, address, status)". "VALUES ('$Name', '$iddeviceType', '$address', $status)");
 	$result = ($addDevice);
+		echo "Sorry, cannot submit your request";
+	else
+		{
+		header("Location: ".$_SERVER['REQUEST_URI']); //which will just reload the page
+		}
 }
 ?>
 

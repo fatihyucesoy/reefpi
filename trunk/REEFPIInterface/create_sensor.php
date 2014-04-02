@@ -48,6 +48,11 @@ if(isset($_POST['addSensor']))
 									VALUES ('$sensorName', '$sensorType', '$address', '$units', '$period')
 									")or die(mysqli_error($con));
 	$result = ($addDevice);
+		echo "Sorry, cannot submit your request";
+	else
+		{
+		header("Location: ".$_SERVER['REQUEST_URI']); //which will just reload the page
+		}
 }
 ?>
 
