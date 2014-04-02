@@ -69,7 +69,11 @@ Schedule Types
 
 
 </div> <!-- end #content -->
+<div id="sidebar">
 
+<?php include('includes/sidebar.php'); ?>
+
+</div> <!-- end #sidebar -->
 
 
 <div id="footer">
