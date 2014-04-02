@@ -42,6 +42,11 @@ if(isset($_POST['addDeviceType']))
 	$description = ($_POST['controllerTypeDescription']);
 	$addDeviceType = mysqli_query($con, "INSERT INTO controllertype ". "(controllerTypeName, controllerTypeDescription)". "VALUES ('$controllerTypeName', '$description')");
 	$result = ($addDeviceType);
+		echo "Sorry, cannot submit your request";
+	else
+		{
+		header("Location: ".$_SERVER['REQUEST_URI']); //which will just reload the page
+		}
 }
 ?>
 

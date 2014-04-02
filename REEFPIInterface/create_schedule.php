@@ -62,6 +62,11 @@ if(isset($_POST['addSchedule']))
 									$year', '$month', '$day', '$week', '$day_of_week', 
 									'$hour', '$minute', '$second')") or die(mysqli_error($con));
 	$result = ($addScheduledEvent);
+		echo "Sorry, cannot submit your request";
+	else
+		{
+		header("Location: ".$_SERVER['REQUEST_URI']); //which will just reload the page
+		}
 }
 ?>
 
