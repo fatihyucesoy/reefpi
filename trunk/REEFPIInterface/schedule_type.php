@@ -32,7 +32,7 @@
 
 
 <p>
-Schedule Types
+Available Schedule Types
 </p>
 
 <?php
@@ -62,7 +62,44 @@ Schedule Types
 		}
 ?>
 
+<p>
+Add a Schedule Type
+</p>
 
+<?PHP
+if(isset($_POST['addScheduleTypes']))
+{
+	$scheduleTypeName = ($_POST['scheduleTypeName']);
+	$description = ($_POST['Description']);
+	$addScheduleType = mysqli_query($con, "INSERT INTO scheduletype ". "(scheduleTypeName, Description, idcontrollerType)". "VALUES ('$scheduleTypeName', '$description')");
+	$result = ($addScheduleType);
+			if(!$result)
+		echo "Sorry, cannot submit your request";
+	else
+		{
+		header("Location: ".$_SERVER['REQUEST_URI']); //which will just reload the page
+		}
+}
+?>
+
+<form method="post" action="<?php $_PHP_SELF ?>">
+	<table width="400" border="0" cellspacing="1" cellpadding="2">
+		<tr>
+			<td width="100">Schedule Type Name</td>
+			<td><input name="scheduleTypeName" type="text" id="scheduleTypeName"></td>
+		</tr>
+		<tr>
+			<td width="100">Description</td>
+			<td><input name="description" type="text" id="description"></td>
+		</tr>
+		<tr>
+			<td width="100"> </td>
+			<td>
+				<input name="addScheduleTypes" type="submit" id="addScheduleTypes" value="Add Schedule Type">
+			</td>
+		</tr>
+	</table>
+</form>
 
 
 

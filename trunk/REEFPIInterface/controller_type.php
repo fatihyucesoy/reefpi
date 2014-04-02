@@ -54,7 +54,44 @@ Controller Types
 				}
 		echo "</table>"
 ?>
+<p>
+Create Controller Types
+</p>
 
+<?PHP
+if(isset($_POST['addDeviceType']))
+{
+	$controllerTypeName = ($_POST['controllerTypeName']);
+	$description = ($_POST['controllerTypeDescription']);
+	$addDeviceType = mysqli_query($con, "INSERT INTO controllertype ". "(controllerTypeName, controllerTypeDescription)". "VALUES ('$controllerTypeName', '$description')");
+		$result = ($addDeviceType);
+		if(!$result)
+		echo "Sorry, cannot submit your request";
+	else
+		{
+		header("Location: ".$_SERVER['REQUEST_URI']); //which will just reload the page
+		}
+}
+?>
+
+<form method="post" action="<?php $_PHP_SELF ?>">
+	<table width="400" border="0" cellspacing="1" cellpadding="2">
+		<tr>
+			<td width="100">Controller Type Name</td>
+			<td><input name="controllerTypeName" type="text" id="name"></td>
+		</tr>
+		<tr>
+			<td width="100">Description</td>
+			<td><input name="controllerTypeDescription" type="text" id="type"></td>
+		</tr>
+		<tr>
+			<td width="100"> </td>
+			<td>
+				<input name="addDeviceType" type="submit" id="addDeviceType" value="Add Controller Type">
+			</td>
+		</tr>
+	</table>
+</form>
 
 </div> <!-- end #content -->
 

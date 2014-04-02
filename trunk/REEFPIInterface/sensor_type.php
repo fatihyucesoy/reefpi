@@ -33,7 +33,7 @@
 
 
 <p>
-Sensor Types
+Available Sensor Types
 </p>
 <?php
 			$resultSensorTypes = mysqli_query($con, "SELECT * FROM sensorType");
@@ -53,7 +53,44 @@ Sensor Types
 				}
 		echo "</table>"
 ?>
+<p>
+Add a Sensor Type
+</p>
 
+<?PHP
+if(isset($_POST['addDeviceType']))
+{
+	$sensorName = ($_POST['sensorName']);
+	$busType = ($_POST['busType']);
+	$addDeviceType = mysqli_query($con, "INSERT INTO sensortype ". "(sensorTypeName, busType)". "VALUES ('$sensorName', '$busType')");
+	$result = ($addDeviceType);
+			if(!$result)
+		echo "Sorry, cannot submit your request";
+	else
+		{
+		header("Location: ".$_SERVER['REQUEST_URI']); //which will just reload the page
+		}
+}
+?>
+
+<form method="post" action="<?php $_PHP_SELF ?>">
+	<table width="400" border="0" cellspacing="1" cellpadding="2">
+		<tr>
+			<td width="100">Sensor Type Name</td>
+			<td><input name="sensorName" type="text" id="name"></td>
+		</tr>
+		<tr>
+			<td width="100">Bus Type</td>
+			<td><input name="busType" type="text" id="type"></td>
+		</tr>
+		<tr>
+			<td width="100"> </td>
+			<td>
+				<input name="addDeviceType" type="submit" id="addDeviceType" value="Add Sensor Type">
+			</td>
+		</tr>
+	</table>
+</form>
 
 </div> <!-- end #content -->
 

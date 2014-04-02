@@ -32,7 +32,7 @@
 
 
 <p>
-Device Types
+Available Device Types
 </p>
 <?php
 			$resultDeviceTypes = mysqli_query($con, "SELECT * FROM deviceType");
@@ -52,6 +52,45 @@ Device Types
 				}
 		echo "</table>"
 ?>
+<p>
+Add a Device Type
+</p>
+
+<?PHP
+if(isset($_POST['addDeviceType']))
+{
+	$deviceName = ($_POST['deviceTypeName']);
+	$busType = ($_POST['busType']);
+	$addDeviceType = mysqli_query($con, "INSERT INTO devicetype ". "(deviceTypeName, busType)". "VALUES ('$deviceName', '$busType')");
+	$result = ($addDeviceType);
+			if(!$result)
+		echo "Sorry, cannot submit your request";
+	else
+		{
+		header("Location: ".$_SERVER['REQUEST_URI']); //which will just reload the page
+		}
+}
+?>
+<p></p>
+
+<form method="post" action="<?php $_PHP_SELF ?>">
+	<table width="400" border="0" cellspacing="1" cellpadding="2">
+		<tr>
+			<td width="100">Device Type Name</td>
+			<td><input name="deviceTypeName" type="text" id="name"></td>
+		</tr>
+		<tr>
+			<td width="100">Bus Type</td>
+			<td><input name="busType" type="text" id="type"></td>
+		</tr>
+		<tr>
+			<td width="100"> </td>
+			<td>
+				<input name="addDeviceType" type="submit" id="addDeviceType" value="Add Device Type">
+			</td>
+		</tr>
+	</table>
+</form>
 
 </div> <!-- end #content -->
 

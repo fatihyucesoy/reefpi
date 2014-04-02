@@ -32,7 +32,7 @@
 
 
 <p>
-Devices
+Available Devices
 </p>
 
 <?php
@@ -55,6 +55,64 @@ Devices
 				}
 		echo "</table>"
 ?>
+<p>
+Add a Device
+</p>
+<?PHP
+if(isset($_POST['addDevices']))
+{
+	$deviceName = ($_POST['deviceName']);
+	$deviceType = (int)($_POST['deviceType']);
+	$address = ($_POST['address']);
+	$status = ($_POST['status']);
+	$addDevice = mysqli_query($con, "INSERT INTO device ". "(deviceName, iddeviceType, address, status)". "VALUES ('$deviceName', '$deviceType', '$address', $status)");
+	$result = ($addDevice);
+			if(!$result)
+		echo "Sorry, cannot submit your request";
+	else
+		{
+		header("Location: ".$_SERVER['REQUEST_URI']); //which will just reload the page
+		}
+}
+?>
+
+<form method="post" action="<?php $_PHP_SELF ?>">
+	<table width="400" border="0" cellspacing="1" cellpadding="2">
+		<tr>
+			<td width="100">Name</td>
+			<td><input name="deviceName" type="text" id="deviceName"></td>
+		</tr>
+		<tr>
+			<td width="100">Device Type ID</td>
+			<td>
+				<select name="deviceType" id="deviceType" style="width: 200px" >
+   	   				<?php
+   	   					$deviceTypes= mysqli_query($con, 'select * from deviceType') or die (mysql_error()); 
+       
+      					while($deviceType = mysqli_fetch_array($deviceTypes))
+      					{
+        					echo "<option value=".$deviceType['iddeviceType']."> ".$deviceType['deviceTypeName']." </option>";
+      					}
+      				?>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td width="100">Address</td>
+			<td><input name="address" type="text" id="address"></td>
+		</tr>
+		<tr>
+			<td width="100">Status</td>
+			<td><input name="status" type="text" id="status"></td>
+		</tr>		
+		<tr>
+			<td width="100"> </td>
+			<td>
+				<input name="addDevices" type="submit" id="addDevices" value="Add Device">
+			</td>
+		</tr>
+	</table>
+</form>
 
 </div> <!-- end #content -->
 
