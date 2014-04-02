@@ -38,28 +38,26 @@ Create Scheduled Event
 <?PHP
 if(isset($_POST['addSchedule']))
 {
-	$jobName = ($_POST['jobName']);
-	$type = ($_POST['type']);
-	$iddevice = ($_POST['iddevice']);
-	$command = ($_POST['command']);
-	$value = ($_POST['value']);
-	$startDate = ($_POST['startDate']);
-	$year = (int)($_POST['year']);
-	$month = ($_POST['month']);
-	$day = ($_POST['day']);
-	$week = ($_POST['week']);
-	$day_of_week = ($_POST['day_of_week']);
-	$hour = ($_POST['hour']);
-	$minute = ($_POST['minute']);
-	$second = ($_POST['second']);
+	$jobName = ($_POST['jobName'])!="" ? ($_POST["'jobName'"]): 'NULL';
+	$type = ($_POST['type'])!="" ? ($_POST["'type'"]): 'NULL';
+	$iddevice = ($_POST['iddevice'])!="" ? ($_POST['iddevice']): 'NULL';
+	$command = ($_POST['command'])!="" ? ($_POST["'command'"]): 'NULL';
+	$value = ($_POST['value'])!="" ? ($_POST['value']): 'NULL';
+	$startDate = ($_POST['startDate'])!="" ? ($_POST['startDate']): "'now()'";
+	$year = (int)($_POST['year'])!="" ? ($_POST['year']): 'NULL';
+	$month = ($_POST['month'])!="" ? ($_POST['month']): 'NULL';
+	$day = ($_POST['day'])!="" ? ($_POST['day']): 'NULL';
+	$week = ($_POST['week'])!="" ? ($_POST['week']): 'NULL';
+	$day_of_week = ($_POST['day_of_week'])!="" ? ($_POST['day_of_week']): 'NULL';
+	$hour = ($_POST['hour'])!="" ? ($_POST['hour']): 'NULL';
+	$minute = ($_POST['minute'])!="" ? ($_POST['minute']): 'NULL';
+	$second = ($_POST['second'])!="" ? ($_POST['second']): 'NULL';
 	
 	$addScheduledEvent = mysqli_query($con, "INSERT INTO scheduledevent 
 									(jobName, type, iddevice, command, value, startDate, 
 									year, month, day, week, day_of_week, 
-									hour, minute, second)". 
-									"VALUES ('$jobName', '$type', '$iddevice', '$command', '$value', '$startDate', 
-									$year, '$month', '$day', '$week', '$day_of_week', 
-									'$hour', '$minute', '$second')") or die(mysqli_error($con));
+									hour, minute, second)VALUES ($jobName, $type, $iddevice, $command, $value, $startDate, 
+									$year, $month, $day, $week, $day_of_week, $hour, $minute, $second)") or die(mysqli_error($con));
 	$result = ($addScheduledEvent);
 }
 ?>
