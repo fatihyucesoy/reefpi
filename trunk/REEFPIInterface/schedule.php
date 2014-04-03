@@ -89,35 +89,53 @@ Add a Scheduled Event
 </p>
 
 <?PHP
+function convertToDBValue($string)
+{
+	$returnValue = 'NULL';
+	
+	if(empty($string))
+	{
+		//this should have quotes - also the query should not have
+		//single quotes around the variable as this will cause the 
+		//string NULL to be inserted rather than a SqlNull
+		$returnValue = 'NULL';
+	}
+	else
+	{
+		// we need to add single quotes
+		$returnValue="'".$string."'";
+	}
+	
+	return $returnValue;
+}
+
 if(isset($_POST['addSchedule']))
 {
-	$jobName = ($_POST['jobName'])!="" ? ($_POST["'jobName'"]): 'NULL';
-	$type = ($_POST['type'])!="" ? ($_POST["'type'"]): 'NULL';
-	$iddevice = ($_POST['iddevice'])!="" ? ($_POST['iddevice']): 'NULL';
-	$command = ($_POST['command'])!="" ? ($_POST["'command'"]): 'NULL';
-	$value = ($_POST['value'])!="" ? ($_POST['value']): 'NULL';
-	$startDate = ($_POST['startDate'])!="" ? ($_POST['startDate']): 'now()';
-	$year = (int)($_POST['year'])!="" ? ($_POST['year']): 'NULL';
-	$month = ($_POST['month'])!="" ? ($_POST['month']): 'NULL';
-	$day = ($_POST['day'])!="" ? ($_POST['day']): 'NULL';
-	$week = ($_POST['week'])!="" ? ($_POST['week']): 'NULL';
-	$day_of_week = ($_POST['day_of_week'])!="" ? ($_POST['day_of_week']): 'NULL';
-	$hour = ($_POST['hour'])!="" ? ($_POST['hour']): 'NULL';
-	$minute = ($_POST['minute'])!="" ? ($_POST['minute']): 'NULL';
-	$second = ($_POST['second'])!="" ? ($_POST['second']): 'NULL';
+	$jobName = convertToDBValue($_POST['jobName']);
+	$type = convertToDBValue($_POST['type']);
+	$iddevice = convertToDBValue($_POST['iddevice']);
+	$command = convertToDBValue($_POST['command']);
+	$value = convertToDBValue($_POST['value']);
+	$startDate = ($_POST['startDate'])!="" ? "'".$_POST['startDate']."'": 'now()';
+	$year = convertToDBValue($_POST['year']);
+	$month = convertToDBValue($_POST['month']);
+	$day = convertToDBValue($_POST['day']);
+	$week = convertToDBValue($_POST['week']);
+	$day_of_week = convertToDBValue($_POST['day_of_week']);
+	$hour = convertToDBValue($_POST['hour']);
+	$minute = convertToDBValue($_POST['minute']);
+	$second = convertToDBValue($_POST['second']);
 	
-	$addScheduledEvent = mysqli_query($con, "INSERT INTO scheduledevent 
-									(jobName, type, iddevice, command, value, startDate, 
-									year, month, day, week, day_of_week, 
-									hour, minute, second)VALUES ($jobName, $type, $iddevice, $command, $value, $startDate, 
-									$year, $month, $day, $week, $day_of_week, $hour, $minute, $second)") or die(mysqli_error($con));
+	$query = "INSERT INTO scheduledevent (jobName, type, iddevice, command, value, startDate, year, month, day, week, day_of_week, hour, minute, second) VALUES ($jobName, $type, $iddevice, $command, $value, $startDate, $year, $month, $day, $week, $day_of_week, $hour, $minute, $second)";
+	//echo $query;
+	$addScheduledEvent = mysqli_query($con, $query) or die(mysqli_error($con));
 	$result = ($addScheduledEvent);
-			if(!$result)
-		echo "Sorry, cannot submit your request";
-	else
-		{
-		header("Location: ".$_SERVER['REQUEST_URI']); //which will just reload the page
-		}
+	//if(!$result)
+	//	echo "Sorry, cannot submit your request";
+	//else
+	//	{
+	//	header("Location: ".$_SERVER['REQUEST_URI']); //which will just reload the page
+	//	}
 }
 ?>
 
