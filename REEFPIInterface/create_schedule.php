@@ -43,7 +43,7 @@ if(isset($_POST['addSchedule']))
 	$iddevice = ($_POST['iddevice'])!="" ? ($_POST['iddevice']): 'NULL';
 	$command = ($_POST['command'])!="" ? ($_POST["'command'"]): 'NULL';
 	$value = ($_POST['value'])!="" ? ($_POST['value']): 'NULL';
-	$startDate = ($_POST['startDate'])!="" ? ($_POST['startDate']): "'now()'";
+	$startDate = ($_POST['startDate'])!="" ? ($_POST['startDate']): "now()";
 	$year = (int)($_POST['year'])!="" ? ($_POST['year']): 'NULL';
 	$month = ($_POST['month'])!="" ? ($_POST['month']): 'NULL';
 	$day = ($_POST['day'])!="" ? ($_POST['day']): 'NULL';
@@ -89,7 +89,18 @@ if(isset($_POST['addSchedule']))
 		</tr>
 		<tr>
 			<td width="100">Command</td>
-			<td><input name="command" type="text" id="command"></td>
+			<td>
+				<select name="command" id="command" style="width: 200px" >
+   	   				<?php
+   	   					$deviceCommands= mysqli_query($con, 'select * from deviceCommand') or die (mysql_error()); 
+       
+      					while($deviceCommand = mysqli_fetch_array($deviceCommands))
+      					{
+        					echo "<option value=".$deviceCommand['iddeviceCommand']."> ".$deviceCommand['deviceCommand']." </option>";
+      					}
+      				?>
+				</select>
+			</td>
 		</tr>
 		<tr>
 			<td width="100">Value</td>

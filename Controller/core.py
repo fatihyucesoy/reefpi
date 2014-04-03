@@ -68,8 +68,14 @@ def init(sensors, devices, scheduledEvents, DB, host, user, passwd, dataBase):
 #
 def configureDB(DB):
 	DB.configure()
-	DB.addControllerType('PCA thingy', 'this is the type to represnt the PCA I2C type controller')
+	DB.addControllerType('PCA thingy', 'this is the type to represent the PCA I2C type controller')
 	DB.addController('PCA', 'this is the type to represnt the PCA I2C type controller', 1)
+	
+	DB.addDeviceCommand('turnOn', 'turn the device on')
+	DB.addDeviceCommand('turnOff', 'turn the device off')
+	DB.addDeviceCommand('setOutput', 'set the output value to that given (uses the value entry)')
+	
+	
 	DB.addDeviceType('heaterSimulator', 'I2C')
 	DB.addDeviceType('LEDSimulator', 'I2C')
 	DB.addDevice('heater1', 1, '0x40', 0, 1, 0)
@@ -91,16 +97,19 @@ def configureDB(DB):
 	DB.addSensorAction('2', 27, 'gt', 'crossing', 2, 'turnOn')
 	DB.addSensorAction('2', 27, 'lt', 'crossing', 2, 'turnOff')
 	
+	DB.addScheduleType("crone", "crone task base don standard crone syntax")
+	DB.addScheduleType("interval", "task will run at regular intervals with period defined here")
 	
-	DB.addScheduledEvent("croneEvent", "crone", 3, 'turnOn', 100, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), \
+	
+	DB.addScheduledEvent("croneEvent", 1, 3, 1, 100, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), \
 						 None, None, None, None, None, None, None, 6)
-	DB.addScheduledEvent("croneEvent", "crone", 3, 'turnOff', 0, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), \
+	DB.addScheduledEvent("croneEvent", 1, 3, 2, 0, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), \
 						 None, None, None, None, None, None, None, 36)
-	DB.addScheduledEvent("intervalEvent", "interval", 4, 'turnOff', 0, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), \
+	DB.addScheduledEvent("intervalEvent", 2, 4, 2, 0, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), \
 						 None, None, None, None, None, None, None, 10)
-	DB.addScheduledEvent("intervalEvent", "interval", 4, 'turnOn', 0, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), \
+	DB.addScheduledEvent("intervalEvent", 2, 4, 1, 0, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), \
 						 None, None, None, None, None, None, None, 10)	
-	DB.addScheduledEvent("intervalEvent", "interval", 5, 'set', 255, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), \
+	DB.addScheduledEvent("intervalEvent", 2, 5, 3, 255, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), \
 						 None, None, None, None, None, None, None, 2)	
 	
 

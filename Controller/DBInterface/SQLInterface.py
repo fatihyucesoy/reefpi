@@ -55,7 +55,16 @@ class SQLInterface:
 			cur.execute("""INSERT INTO deviceType (deviceTypeName, busType) 
 							VALUES (%s, %s)""", (name, busType))
 			con.commit()
-	
+			
+	def addDeviceCommand(self, command, description):
+		con = self._connect()
+		with con:
+			cur = con.cursor() 
+			cur.execute("""INSERT INTO deviceCommand (deviceCommand, deviceCommandDescription) 
+							VALUES (%s, %s)""", (command, description))
+			con.commit()
+			
+			
 	def addSensorType(self, type, busType):
 		con = self._connect()
 		with con:
@@ -81,7 +90,15 @@ class SQLInterface:
 			(deviceName, type, idController, address, defaultState, level))
 			con.commit()
 			
+	def addScheduleType(self, type, description):
+		con = self._connect()
+		with con:
+			cur = con.cursor() 
+			cur.execute("""INSERT INTO scheduleType (scheduleTypeName, scheduleTypeDescription) 
+							VALUES (%s, %s)""", (type, description))
+			con.commit()
 			
+					
 	def addScheduledEvent(self, name, type, deviceId=None, command=None, value=None, startDate=None, \
 							year=None, month=None, day=None, week=None, day_of_week=None, 				\
 							hour=None, minute=None, second=None):
