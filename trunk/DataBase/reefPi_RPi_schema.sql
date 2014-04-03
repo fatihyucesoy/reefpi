@@ -186,33 +186,48 @@ CREATE INDEX `FK_command_device_idx` ON `reefPi_RPi_schema`.`commands` (`iddevic
 SHOW WARNINGS;
 
 -- -----------------------------------------------------
--- Table `reefPi_RPi_schema`.`link_controller_controllerType`
+-- Table `reefPi_RPi_schema`.`deviceCommand`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `reefPi_RPi_schema`.`link_controller_controllerType` ;
+DROP TABLE IF EXISTS `reefPi_RPi_schema`.`deviceCommand` ;
 
 SHOW WARNINGS;
-CREATE TABLE IF NOT EXISTS `reefPi_RPi_schema`.`link_controller_controllerType` (
-  `idlink_controller_controllerType` INT NOT NULL AUTO_INCREMENT,
-  `idcontroller` INT NULL,
-  `idcontrollerType` INT NULL,
-  PRIMARY KEY (`idlink_controller_controllerType`),
-  CONSTRAINT `FK_controller`
-    FOREIGN KEY (`idcontroller`)
-    REFERENCES `reefPi_RPi_schema`.`controller` (`idcontroller`)
+CREATE TABLE IF NOT EXISTS `reefPi_RPi_schema`.`deviceCommand` (
+  `iddeviceCommand` INT NOT NULL AUTO_INCREMENT,
+  `deviceCommand` VARCHAR(45) NOT NULL,
+  `deviceCommandDescription` BLOB NULL,
+  PRIMARY KEY (`iddeviceCommand`))
+ENGINE = InnoDB;
+
+SHOW WARNINGS;
+
+-- -----------------------------------------------------
+-- Table `reefPi_RPi_schema`.`link_deviceType_deviceCommand`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `reefPi_RPi_schema`.`link_deviceType_deviceCommand` ;
+
+SHOW WARNINGS;
+CREATE TABLE IF NOT EXISTS `reefPi_RPi_schema`.`link_deviceType_deviceCommand` (
+  `idlink_deviceType_deviceCommand` INT NOT NULL AUTO_INCREMENT,
+  `iddevice` INT NOT NULL,
+  `iddeviceCommand` INT NOT NULL,
+  PRIMARY KEY (`idlink_deviceType_deviceCommand`),
+  CONSTRAINT `FK_link_device_devicecommand`
+    FOREIGN KEY (`iddevice`)
+    REFERENCES `reefPi_RPi_schema`.`device` (`iddevice`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `FK_controllerType`
-    FOREIGN KEY (`idcontrollerType`)
-    REFERENCES `reefPi_RPi_schema`.`controllerType` (`idcontrollerType`)
+  CONSTRAINT `FK_link_deviceCommand_device`
+    FOREIGN KEY (`iddeviceCommand`)
+    REFERENCES `reefPi_RPi_schema`.`deviceCommand` (`iddeviceCommand`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 SHOW WARNINGS;
-CREATE INDEX `controller_idx` ON `reefPi_RPi_schema`.`link_controller_controllerType` (`idcontroller` ASC);
+CREATE INDEX `FK_link_device_devicecommand_idx` ON `reefPi_RPi_schema`.`link_deviceType_deviceCommand` (`iddevice` ASC);
 
 SHOW WARNINGS;
-CREATE INDEX `FK_controllerType_idx` ON `reefPi_RPi_schema`.`link_controller_controllerType` (`idcontrollerType` ASC);
+CREATE INDEX `FK_link_deviceCommand_device_idx` ON `reefPi_RPi_schema`.`link_deviceType_deviceCommand` (`iddeviceCommand` ASC);
 
 SHOW WARNINGS;
 
@@ -225,7 +240,7 @@ SHOW WARNINGS;
 CREATE TABLE IF NOT EXISTS `reefPi_RPi_schema`.`scheduleType` (
   `idscheduleType` INT NOT NULL AUTO_INCREMENT,
   `scheduleTypeName` VARCHAR(45) NOT NULL,
-  `Description` VARCHAR(255) NULL,
+  `scheduleTypeDescription` BLOB NULL,
   PRIMARY KEY (`idscheduleType`))
 ENGINE = InnoDB;
 
@@ -239,10 +254,10 @@ DROP TABLE IF EXISTS `reefPi_RPi_schema`.`scheduledEvent` ;
 SHOW WARNINGS;
 CREATE TABLE IF NOT EXISTS `reefPi_RPi_schema`.`scheduledEvent` (
   `idscheduledEvent` INT NOT NULL AUTO_INCREMENT,
-  `jobName` VARCHAR(45) NULL,
-  `type` VARCHAR(45) NULL,
+  `jobName` VARCHAR(45) NOT NULL,
+  `idscheduleType` INT NOT NULL,
   `iddevice` INT NULL,
-  `command` VARCHAR(45) NULL,
+  `iddeviceCommand` INT NULL,
   `value` INT NULL,
   `startDate` DATETIME NULL,
   `year` INT NULL,
@@ -253,8 +268,24 @@ CREATE TABLE IF NOT EXISTS `reefPi_RPi_schema`.`scheduledEvent` (
   `hour` INT NULL,
   `minute` INT NULL,
   `second` INT NULL,
-  PRIMARY KEY (`idscheduledEvent`))
+  PRIMARY KEY (`idscheduledEvent`),
+  CONSTRAINT `FK_scheduleEvent_scheduleType`
+    FOREIGN KEY (`idscheduleType`)
+    REFERENCES `reefPi_RPi_schema`.`scheduleType` (`idscheduleType`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_scheduleEvent_scheduleTypeCommand`
+    FOREIGN KEY (`iddeviceCommand`)
+    REFERENCES `reefPi_RPi_schema`.`deviceCommand` (`iddeviceCommand`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
 ENGINE = InnoDB;
+
+SHOW WARNINGS;
+CREATE INDEX `FK_scheduleEvent_scheduleType_idx` ON `reefPi_RPi_schema`.`scheduledEvent` (`idscheduleType` ASC);
+
+SHOW WARNINGS;
+CREATE INDEX `FK_scheduleEvent_scheduleTypeCommand_idx` ON `reefPi_RPi_schema`.`scheduledEvent` (`iddeviceCommand` ASC);
 
 SHOW WARNINGS;
 

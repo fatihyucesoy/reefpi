@@ -51,7 +51,7 @@ Available Schedule Types
 					echo "<tr>";
 					echo "<td>" . $rowScheduleType['idscheduleType'] . "</td>";
 					echo "<td>" . $rowScheduleType['scheduleTypeName'] . "</td>";
-					echo "<td>" . $rowScheduleType['Description'] . "</td>";	
+					echo "<td>" . $rowScheduleType['scheduleTypeDescription'] . "</td>";	
 					echo "</tr>";
 				}
 		echo "</table>";
@@ -67,17 +67,36 @@ Add a Schedule Type
 </p>
 
 <?PHP
+function redirect($url) {
+    if(!headers_sent()) {
+        //If headers not sent yet... then do php redirect
+        header('Location: '.$url);
+        exit;
+    } else {
+        //If headers are sent... do javascript redirect... if javascript disabled, do html redirect.
+        echo '<script type="text/javascript">';
+        echo 'window.location.href="'.$url.'";';
+        echo '</script>';
+        echo '<noscript>';
+        echo '<meta http-equiv="refresh" content="0;url='.$url.'" />';
+        echo '</noscript>';
+        exit;
+    }
+}
+
 if(isset($_POST['addScheduleTypes']))
 {
 	$scheduleTypeName = ($_POST['scheduleTypeName']);
-	$description = ($_POST['Description']);
-	$addScheduleType = mysqli_query($con, "INSERT INTO scheduletype ". "(scheduleTypeName, Description, idcontrollerType)". "VALUES ('$scheduleTypeName', '$description')");
-	$result = ($addScheduleType);
-			if(!$result)
-		echo "Sorry, cannot submit your request";
-	else
+	$description = ($_POST['description']);
+		$addScheduleType = mysqli_query($con, "INSERT INTO scheduletype (scheduleTypeName, scheduleTypeDescription) VALUES ('$scheduleTypeName', '$description')");
+		$result = ($addScheduleType);
+		if(!$result)
 		{
-		header("Location: ".$_SERVER['REQUEST_URI']); //which will just reload the page
+			echo "Sorry, cannot submit your request:";
+		}
+		else
+		{
+			redirect($_SERVER['PHP_SELF']);
 		}
 }
 ?>

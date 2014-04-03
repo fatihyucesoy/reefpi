@@ -126,7 +126,7 @@ if(isset($_POST['addSchedule']))
 	$minute = convertToDBValue($_POST['minute']);
 	$second = convertToDBValue($_POST['second']);
 	
-	$query = "INSERT INTO scheduledevent (jobName, type, iddevice, command, value, startDate, year, month, day, week, day_of_week, hour, minute, second) VALUES ($jobName, $type, $iddevice, $command, $value, $startDate, $year, $month, $day, $week, $day_of_week, $hour, $minute, $second)";
+	$query = "INSERT INTO scheduledevent (jobName, idscheduleType, iddevice, iddeviceCommand, value, startDate, year, month, day, week, day_of_week, hour, minute, second) VALUES ($jobName, $type, $iddevice, $command, $value, $startDate, $year, $month, $day, $week, $day_of_week, $hour, $minute, $second)";
 	//echo $query;
 	$addScheduledEvent = mysqli_query($con, $query) or die(mysqli_error($con));
 	$result = ($addScheduledEvent);
@@ -147,10 +147,21 @@ if(isset($_POST['addSchedule']))
 		</tr>
 		<tr>
 			<td width="100">Type</td>
-			<td><input name="type" type="text" id="type"></td>
+			<td>
+				<select name="type" id="type" style="width: 200px" >
+   	   				<?php
+   	   					$scheduleTypes= mysqli_query($con, 'select * from scheduleType') or die (mysql_error()); 
+       
+      					while($scheduleType = mysqli_fetch_array($scheduleTypes))
+      					{
+        					echo "<option value=".$scheduleType['idscheduleType']."> ".$scheduleType['scheduleTypeName']." </option>";
+      					}
+      				?>
+				</select>
+			</td>
 		</tr>
 		<tr>
-			<td width="100">Device ID</td>
+			<td width="100">Device</td>
 			<td>
 				<select name="iddevice" id="iddevice" style="width: 200px" >
    	   				<?php
@@ -166,7 +177,18 @@ if(isset($_POST['addSchedule']))
 		</tr>
 		<tr>
 			<td width="100">Command</td>
-			<td><input name="command" type="text" id="command"></td>
+			<td>
+				<select name="command" id="command" style="width: 200px" >
+   	   				<?php
+   	   					$deviceCommands= mysqli_query($con, 'select * from deviceCommand') or die (mysql_error()); 
+       
+      					while($deviceCommand = mysqli_fetch_array($deviceCommands))
+      					{
+        					echo "<option value=".$deviceCommand['iddeviceCommand']."> ".$deviceCommand['deviceCommand']." </option>";
+      					}
+      				?>
+				</select>
+			</td>
 		</tr>
 		<tr>
 			<td width="100">Value</td>
