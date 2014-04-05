@@ -49,7 +49,24 @@ class SQLInterface:
 			cur.execute("""INSERT INTO controller (controllerName, idcontrollerType, controllerDescription)
 							VALUES(%s, %s, %s)""", (name, type, desc))
 			con.commit()
+		
+	def addSensorActionType(self, name, desc):
+		con = self._connect()
+		with con:
+			cur = con.cursor() 
+			cur.execute("""INSERT INTO sensorActionType (sensorActionType, sensorActionTypeDescription) 
+							VALUES (%s, %s)""", (name, desc))
+			con.commit()
 			
+	def addSensorActionRelation(self, relation, symbol, desc):
+		con = self._connect()
+		with con:
+			cur = con.cursor() 
+			cur.execute("""INSERT INTO sensorActionRelation 
+							(sensorActionRelation, sensorActionRelationSymbol, sensorActionRelationDescription) 
+							VALUES (%s, %s, %s)""", (relation, symbol, desc))
+			con.commit()
+									
 	def addDeviceType(self, name, busType):
 		con = self._connect()
 		with con:
@@ -118,7 +135,7 @@ class SQLInterface:
 		con = self._connect()
 		with con:
 			cur = con.cursor() 
-			cur.execute("""INSERT INTO sensorAction (idsensor, value, relation, type, iddevice, iddeviceCommand) 
+			cur.execute("""INSERT INTO sensorAction (idsensor, value, idsensorActionRelation, idsensorActionType, iddevice, iddeviceCommand) 
 							VALUES (%s, %s, %s, %s, %s, %s)""",\
 							(idSensor, value, relation, type, iddevice, action))
 			con.commit()
@@ -215,6 +232,8 @@ class SQLInterface:
     		cur.execute("SELECT * FROM sensorAction AS SA INNER JOIN device AS D ON SA.iddevice = D.iddevice 	\
 							INNER join deviceCommand AS DC ON SA.iddeviceCommand = DC.iddeviceCommand 			\
 							INNER JOIN sensor AS S ON SA.idsensor = S.idsensor									\
+							INNER JOIN sensorActionType AS SAT ON SA.idsensorActionType = SAT.idsensorActionType \
+							INNER JOIN sensorActionRelation AS SAR on SA.idsensorActionRelation = SAR.idsensorActionRelation \
 							WHERE SA.iddevice = %s", (idSensor, ))
     		return cur.fetchall()
 		
