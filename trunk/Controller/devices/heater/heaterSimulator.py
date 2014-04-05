@@ -1,41 +1,36 @@
 from DBInterface.SQLInterface import *
 
 class heaterSimulator:
-	_heaterState = 0
-	_Id = 0
-	_name = None
-	_type = None
-	_address = None
-	_host = "localhost"
-	_user = "root"
-	_passwd = ""
-	_dataBase = "reefPi_RPi_schema"
+	status = 0
+	iddevice = 0
+	deviceName= None
+	iddeviceType = None
+	deviceTypeName = None
+	address = None
+	level = None
 	_DB = None
 	
-	def __init__(self, Id, name, type, address, \
-				host, user, passwd, dataBase):
-		self._Id = Id
-		self._name = name
-		self._type = type
-		self._address = address
-		self._host = host
-		self._user = user
-		self._passwd = passwd
-		self._dataBase = dataBase
-		self._DB = SQLInterface(self._host, self._user, self._passwd, self._dataBase)
+	def __init__(self, deviceInfo, host, user, passwd, dataBase):
+		self.Iddevice = deviceInfo['iddevice']
+		self.deviceName = deviceInfo['deviceName']
+		self.iddeviceType = deviceInfo['iddeviceType']
+		self.address = deviceInfo['address']
+		self.status = deviceInfo['status']
+		self.level = deviceInfo['level']
+		# TODO: reaffirm the state on start up.  This makes sure things stay in sync
+		# over power cycles.
+		self._DB = SQLInterface(host, user, passwd, dataBase)
 	
-	def turnDeviceOn(self):
+	def _setState(state):
+		self._DB.setDeviceStatus(self.iddevice, state)
+		self.status = state
+		return self.status
+		
+	def turnOn(self):
 		print self._name +': Turning heater on'
-		self._DB.setDeviceStatus(self._Id, 1)
-		self._heaterState = 1
-		return self._heaterState
-		
+		return self._setStatus(1)
 	
-	def turnDeviceOff(self):
+	def turnOff(self):
 		print self._name + ': Turning heater off'
-		self._DB.setDeviceStatus(self._Id, 0)
-		self._heaterState = 0
-		return self._heaterState
+		return self._setStatus(0)
 		
-	def getId(self):
-		return self._Id

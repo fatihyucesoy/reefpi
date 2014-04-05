@@ -1,4 +1,5 @@
 import MySQLdb as sql
+import MySQLdb.cursors
 import os
 
 class SQLInterface:
@@ -12,7 +13,8 @@ class SQLInterface:
 		return sql.connect(host=self._host,
 							user=self._user,
 							passwd=self._passwd,
-							db=self._dataBase)
+							db=self._dataBase,
+							cursorclass=MySQLdb.cursors.DictCursor)
 	
 	def __init__(self, host, user, passwd, dataBase):
 		
@@ -116,16 +118,16 @@ class SQLInterface:
 		con = self._connect()
 		with con:
 			cur = con.cursor() 
-			cur.execute("""INSERT INTO sensorAction (idsensor, value, relation, type, iddevice, action) 
+			cur.execute("""INSERT INTO sensorAction (idsensor, value, relation, type, iddevice, iddeviceCommand) 
 							VALUES (%s, %s, %s, %s, %s, %s)""",\
 							(idSensor, value, relation, type, iddevice, action))
 			con.commit()
 			
-	def insertSensorReading(self, probeId, temp):
+	def insertSensorReading(self, idsensor, reading):
 		con = self._connect()
 		with con:
 			cur = con.cursor() 
-			cur.execute("""INSERT INTO sensorReadings VALUES(NULL, CURRENT_TIMESTAMP, %s, %s)""", (probeId, temp,))
+			cur.execute("""INSERT INTO sensorReadings (idsensor, reading) VALUES(%s, %s)""", (idsensor, reading))
 			con.commit()
 	
 	
@@ -152,14 +154,14 @@ class SQLInterface:
 		con = self._connect()
 		with con:
 			cur = con.cursor()    
-			cur.execute("SELECT * FROM device")
+			cur.execute("SELECT * FROM device AS D INNER JOIN deviceType AS DT ON D.iddeviceType = DT.iddeviceType")
 			return cur.fetchall()
 			
 	def getAllSensors(self):
 		con = self._connect()
 		with con:
 			cur = con.cursor()    
-    		cur.execute("SELECT * FROM sensor")
+    		cur.execute("SELECT * FROM sensor AS S INNER JOIN sensorType AS ST ON S.idsensorType = ST.idsensorType")
     		return cur.fetchall()
 
        				
@@ -172,22 +174,19 @@ class SQLInterface:
     			
 	def getNextCommand(self):
 		command = None
-		deviceId = None
-		commandId = None
-		param = None
 		con = self._connect()
 		with con:
 			cur = con.cursor()    
-    		cur.execute("SELECT * FROM commands LIMIT 1")
+    		cur.execute("SELECT * FROM command AS C				\
+							INNER JOIN device AS D ON C.iddevice = D.iddevice \
+							INNER JOIN deviceCommand AS DC ON C.iddeviceCommand = DC.iddeviceCommand\
+							LIMIT 1")
     		command = cur.fetchone()
     		if(command != None):
-    			deviceId = command[1]
-    			commandId = command[2]
-    			param = command[3]
-    			cur.execute("""DELETE FROM commands where IdCommands = %s""", (command[0],))
+    			cur.execute("""DELETE FROM command where Idcommand = %s""", (command['idcommand'],))
     			con.commit()
 		
-		return (deviceId, commandId, param)
+		return command
 		
 	def getSensorType(self, sensorTypeId):	
 		type = None
@@ -203,14 +202,20 @@ class SQLInterface:
 		con = self._connect()
 		with con:
 			cur = con.cursor()    
-    		cur.execute("select * from scheduledEvent")
+    		cur.execute("SELECT * FROM scheduledEvent AS SE											\
+							INNER JOIN scheduleType AS ST ON SE.idscheduleType = ST.idscheduleType 	\
+							INNER join device AS D ON SE.iddevice = D.iddevice 						\
+							INNER join deviceCommand AS DC on SE.iddeviceCommand = DC.iddeviceCommand")
     		return cur.fetchall()
 	
 	def getAllSensorActions(self, idSensor):
 		con = self._connect()
 		with con:
 			cur = con.cursor()    
-    		cur.execute("select * from sensorAction WHERE idsensor = %s", (idSensor, ))
+    		cur.execute("SELECT * FROM sensorAction AS SA INNER JOIN device AS D ON SA.iddevice = D.iddevice 	\
+							INNER join deviceCommand AS DC ON SA.iddeviceCommand = DC.iddeviceCommand 			\
+							INNER JOIN sensor AS S ON SA.idsensor = S.idsensor									\
+							WHERE SA.iddevice = %s", (idSensor, ))
     		return cur.fetchall()
 		
 	
@@ -228,7 +233,7 @@ class SQLInterface:
 		con = self._connect()
 		with con:
 			cur = con.cursor() 
-			cur.execute("""INSERT INTO commands (iddevice, command, parameterlist)VALUES(%s, %s, %s)""", (deviceId, command, args))
+			cur.execute("""INSERT INTO command (iddevice, iddeviceCommand, parameterlist)VALUES(%s, %s, %s)""", (deviceId, command, args))
 			con.commit() 
 			
 					

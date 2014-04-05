@@ -1,7 +1,6 @@
 import web
 import time
 import datetime
-from multiprocessing import Process
 
 from DBInterface.SQLInterface import *
 
@@ -16,6 +15,7 @@ from scheduler.reefPI_Scheduler import *
 from lib.LEDIntensityCalculator import *
 from lib.scheduledEvent import *
 from lib.sensorAction import *
+from lib.command import *
 
 latitude = -19.770621   # + to N  Defualt - (-19.770621) Heart Reef, Great Barrier Reef, QLD, Australia 
 longitude = 149.238532  # + to E  Defualt - (149.238532)
@@ -25,39 +25,73 @@ host = "localhost"
 user = "root"
 passwd = ""
 dataBase = "reefPi_RPi_schema"
+		
+def createSensor(sensorInfo, DB):
+	#get a list of all of the actions for this sensor.  This could be empty
+	actionList = []
+	sensor = None
 	
-def init(sensors, devices, scheduledEvents, DB, host, user, passwd, dataBase):
+	
+	# get the actions for this sensor
+	for action in DB.getAllSensorActions(sensorInfo['idsensor']):
+		actionList.append(sensorAction(action))
+	
+	
+	#create a sensor object of the correct type
+	#need to figure out how to make this more generic
+	if(sensorInfo['sensorTypeName'] == 'tempSimulator'):
+		sensor = tempSimulator(sensorInfo, actionList, host, user, passwd, dataBase)
+	elif(sensor['sensorTypeName'] == 'DS18B20'):
+		sensor  = DS1882Interface(sensor[1])
+		
+	return sensor
+			
+	
+def getAllSensors(DB):
+	sensorList = []
+	# get all sensors from the DB
+	dBSensors = DB.getAllSensors()
+	# create a sensor object for each DB entry
+	for dbSensor in dBSensors:
+		sensor = createSensor(dbSensor, DB)
+		if(sensor):
+			sensorList.append(sensor)
+	
+	return sensorList
+
+def createDevice(deviceInfo):
+	device = None
+	if(deviceInfo['deviceTypeName'] == 'heaterSimulator'):
+			device = heaterSimulator(deviceInfo, host, user, passwd, dataBase)
+	elif(deviceInfo['deviceTypeName'] == 'LEDSimulator'):
+			device = LEDSimulator(deviceInfo, host, user, passwd, dataBase)
+	return device
+
+def getAllDevices(DB):
+	deviceList = []
+	dbDeviceList = DB.getAllDevices()
+	for dbDevice in dbDeviceList:
+		deviceList.append(createDevice(dbDevice))
+	return deviceList
+		
+		
+	
+		
+def init(sensors, sensorPool, devices, scheduledEvents, DB, host, user, passwd, dataBase):
+	
+	# This should be removed when we get up and running as it
+	# recreates the DB
 	configureDB(DB)
 	
-	DBSensors = DB.getAllSensors()
-	for sensor in DBSensors:
+	devices = getAllDevices(DB)
+	sensors = getAllSensors(DB)
+	#Start the sensors and create the sensorPool
+	for sensor in sensors: 
+		sensorPool.append(sensor.run())	
 		
-		#get a list of all of the actions for this sensor.  This could be empty
-		actionList = []
-		returnedSensorActions = DB.getAllSensorActions(sensor[0])
-		for action in returnedSensorActions:
-			print "creating sensor action"
-			actionList.append(sensorAction(action))
-		
-		if(DB.getSensorType(sensor[2]) == 'tempSimulator'):
-			print sensor
-			sensors.append(tempSimulator(sensor[0], sensor[1], sensor[2], sensor[3], sensor[4], sensor[5],  \
-										actionList, host, user, passwd, dataBase))
-		elif(sensor[2] == 'DS18B20'):
-			sensors.append(DS1882Interface(sensor[1]))
-
-	dbDevices = DB.getAllDevices()
-	for device in dbDevices:
-		if(DB.getDeviceType(device[2]) == 'heaterSimulator'):
-			devices.append(heaterSimulator(device[0], device[1], device[2], device[3], \
-							host, user, passwd, dataBase))
-		elif(DB.getDeviceType(device[2]) == 'LEDSimulator'):
-			devices.append(LEDSimulator(device[0], device[1], device[2], device[3], \
-							host, user, passwd, dataBase))
-			
-	dbEvents = DB.getAllScheduledEvents()
-	for event in dbEvents:
-		scheduledEvents.append(scheduledEvent(event))
+	dbEventList = DB.getAllScheduledEvents()
+	for dbEvent in dbEventList:
+		scheduledEvents.append(scheduledEvent(dbEvent))
 			
 
 
@@ -89,13 +123,13 @@ def configureDB(DB):
 	
 	# create a temp sensor simulator to represent a tank heater
 	DB.addSensor('tempSensor1', 1, 'SW', 'degrees', 3)	
-	DB.addSensorAction('1', 25, 'lt', 'crossing', 1, 'turnOn')
-	DB.addSensorAction('1', 25, 'gt', 'crossing', 1, 'turnOff')
+	DB.addSensorAction(1, 25, 'lt', 'crossing', 1, 1)
+	DB.addSensorAction(1, 25, 'gt', 'crossing', 1, 2)
 	
 	# create a temp sensor simulator to represent the LED fans
 	DB.addSensor('tempSensor2', 1, 'SW', 'celcius', 4)
-	DB.addSensorAction('2', 27, 'gt', 'crossing', 2, 'turnOn')
-	DB.addSensorAction('2', 27, 'lt', 'crossing', 2, 'turnOff')
+	DB.addSensorAction(2, 27, 'gt', 'crossing', 2, 1)
+	DB.addSensorAction(2, 27, 'lt', 'cont', 2, 2)
 	
 	DB.addScheduleType("crone", "crone task base don standard crone syntax")
 	DB.addScheduleType("interval", "task will run at regular intervals with period defined here")
@@ -130,36 +164,27 @@ def getLEDIntensity():
 #
 def processCommand(devices, DB):
 	result = None
-	command = DB.getNextCommand()
-	if(command[0] != None):
+	command = None
 	
-		#get the device with the correct device ID
+	# check for a command form the DB
+	dBCommand = DB.getNextCommand()
+	if(dBCommand != None):
+		command = deviceCommand(dBCommand)
+		print "running method {0} on device {1}".format(command.deviceCommand, command.deviceName)
 		for device in devices:
-			if(device.getId() == int(command[0])):
-				cmdDevice = device
-				break		
-		if(command[1] == 'turnOn'):
-			result = cmdDevice.turnDeviceOn()
-		elif(command[1] == 'turnOff'):
-			result = cmdDevice.turnDeviceOff()
-		elif(command[1] == 'set'):
-			result = cmdDevice.setIntensity(getLEDIntensity())	
-		
+			if(device.getId() == command.iddevice):
+			#we have found the device now check it has the correct method
+				methodPointer = getattr(device, command.action, None)
+				if(methodpointer):
+					#call the method
+					result = methodPointer()
+				else:
+					print "failed to run method {0} on device {1}".format(command.command, command.device)
+			break
+			
 	return result
-		
 
-# Function loops until killed by the calling process.
-# Intended to be launched as a separate process.  Takes
-# the sensor object as requests get reading. Then sleeps for 
-# the defined period
-def processSensor(sensor):
-	while(1):
-		reading = sensor.takeNewReading()
-		print 'Probe:' + str(sensor.getProbeId()) + ' current temp is:' + str(reading)	 	
-		time.sleep(int(sensor.getPeriod()))
 		
-		
-
 def decodeSchedulerEvent(deviceId, probeID, command, level):
 	print datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + \
 			":Scheduled event running: " + str(command) +' ' + str(deviceId)	
@@ -167,27 +192,13 @@ def decodeSchedulerEvent(deviceId, probeID, command, level):
 	DB.addCommand(deviceId, command, [level])
 
 
-#
-#
-#
+
 def addScheduledEvents(scheduler, scheduledEvents):
 	for event in scheduledEvents:
-		if(event.type == 'crone'):
+		if(event.scheduleTypeName == 'crone'):
 			scheduler.AddCroneEvent(decodeSchedulerEvent, event)
-		elif(event.type == 'interval'):
+		elif(event.scheduleTypeName == 'interval'):
 			scheduler.AddIntervalEvent(decodeSchedulerEvent, event)
-
-
-#
-# creates a separate process for each sensor to run it
-# this allows them to be independent.
-#										
-def createSensors(sensorPool, sensors):
-	for sensor in sensors: 
-		process = Process(target=processSensor, args=(sensor,))
-		process.start()
-		sensorPool.append(process)	
-
 
 	
 def main():
@@ -198,9 +209,8 @@ def main():
 	scheduledEvents = []
 	DB = SQLInterface(host, user, passwd, dataBase)
 		
-	init(sensors, devices, scheduledEvents, DB, host, user, passwd, dataBase)
-	createSensors(sensorPool, sensors)
-	
+	init(sensors, sensorPool,  devices, scheduledEvents, DB, host, user, passwd, dataBase)
+
 	scheduler = ReefPI_Scheduler(host, user, passwd, dataBase)
 	addScheduledEvents(scheduler, scheduledEvents)
 	scheduler.Run()

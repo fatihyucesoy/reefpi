@@ -126,7 +126,10 @@ if(isset($_POST['addSchedule']))
 	$minute = convertToDBValue($_POST['minute']);
 	$second = convertToDBValue($_POST['second']);
 	
-	$query = "INSERT INTO scheduledevent (jobName, idscheduleType, iddevice, iddeviceCommand, value, startDate, year, month, day, week, day_of_week, hour, minute, second) VALUES ($jobName, $type, $iddevice, $command, $value, $startDate, $year, $month, $day, $week, $day_of_week, $hour, $minute, $second)";
+	$query = "INSERT INTO scheduledevent (jobName, idscheduleType, iddevice, iddeviceCommand, 
+				value, startDate, year, month, day, week, day_of_week, hour, minute, second) VALUES 
+				($jobName, $type, $iddevice, $command, $value, $startDate, $year, $month, $day, $week, 
+				$day_of_week, $hour, $minute, $second)";
 	//echo $query;
 	$addScheduledEvent = mysqli_query($con, $query) or die(mysqli_error($con));
 	$result = ($addScheduledEvent);

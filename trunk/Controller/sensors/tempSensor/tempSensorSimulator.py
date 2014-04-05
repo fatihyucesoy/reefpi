@@ -1,5 +1,9 @@
 import random
+import time
+import datetime
+
 from DBInterface.SQLInterface import *
+from multiprocessing import Process
 
 
 #This class will create and maintain a connection to the db
@@ -7,40 +11,53 @@ from DBInterface.SQLInterface import *
 #having its own connection sorts out thread crossing issues.  All communication
 #should be done via the DB or in a thread safe way
 class tempSimulator:
-	_probeId = 0
-	_probeName = 'None'
-	_type = 'None'
-	_address = 'None'
-	_units = 'celcius'
-	_period = 1
-	_actionList = []
-	#_reading = 25.5
-	#_minReading = 0
-	#_maxReading = 100
-	#_deviceId = None
-	#_period = 0
-	#_host = "localhost"
-	#_user = "root"
-	#_passwd = ""
-	#_dataBase = "reefPi_RPi_schema"
-	#_DB = None
+	idsensor = 0
+	sensorName = None
+	idsensorType = None
+	sensorTypeName = None
+	busType = None
+	address = 'None'
+	units = 'celcius'
+	period = 1
+	actionList = []
+	_active = False
+	_DB = None
+	reading = None
 	
-	def __init__(self, probeId, probeName, type, address, units, period, actionList, host, user, passwd, dataBase):
-		self._probeId = probeId
-		self._probeName = probeName
-		self._type = type
-		self._units = units
-		self._period = period
-		self._actionList = actionList
+	def __init__(self, probeInfo, actionList, host, user, passwd, dataBase):
+		print probeInfo 
+		self.idsensor = probeInfo['idsensor']
+		self.sensorName = probeInfo['sensorName']
+		self.idsensorType = probeInfo['idsensorType']
+		self.sensorTypeName = probeInfo['sensorTypeName']
+		self.busType = probeInfo['busType']
+		self.address = probeInfo['address']
+		self.units = probeInfo['units']
+		self.period = probeInfo['period']
+		self.actionList = actionList
 		self._DB = SQLInterface(host, user, passwd, dataBase)
 		
 	def _processNewReading(self):
 		# TODO: add error checking as if this fails things might be bad.
-		self._DB.insertSensorReading(self._probeId, self._reading)
-		for action in self._actionList:
-			if(action.checkValue(self._reading)):
-				self._DB.addCommand(action.iddevice, action.action, action.value)
+		self._DB.insertSensorReading(self.idsensor, self.reading)
+		for action in self.actionList:
+			if(action.checkValue(self.reading)):
+				self._DB.addCommand(action.iddevice, action.iddeviceCommand, [action.value])
 	
+	def _run(self):
+		while(self._active):
+			self.takeNewReading()
+			print 'Sensor:' + str(self.sensorName) + ' current temp is:' + str(self.reading)	 	
+			time.sleep(self.period)
+		
+	def run(self):
+		self._active = True;
+		process = Process(target=self._run, args=())
+		process.start()
+		return Process
+	
+	def stop (self):
+		self._active = False;
 	
 	def setActionList(self, actionList):
 		self._actionList = actionList
@@ -49,21 +66,7 @@ class tempSimulator:
 		return self._probeId
 		
 	def takeNewReading(self):
-		self._reading = random.uniform(23, 28)
+		print "sensorId: {0}, sensorName: {1}, reading: {2}".format(self.idsensor, self.sensorName, self.reading)
+		self.reading = random.uniform(23, 28)
 		self._processNewReading()
-		return self._reading
-		
-	def getReading(self):
-		return self._reading
-		
-	def getMinTemp(self):
-		return self._minReading
-	
-	def getMaxTemp(self):
-		return self._maxReading
-	
-	def getdeviceId(self):
-		return self._deviceID
-	
-	def getPeriod(self):
-		return self._period
+		return self.reading

@@ -1,33 +1,42 @@
 class sensorAction:
-	idSensorAction = 0
+	idsensorAction = 0
 	idsensor = None
+	sensorName = None
 	value = None
 	relation = None
 	type = None
 	iddevice = None
-	action = None
+	deviceName = None
+	iddeviceCommand = None
+	command = None
 
 	
 	def __init__(self, action):
-		self.idSensorAction = action[0]
-		self.idsensor = action[1]
-		self.value = action[2]
-		self.relation = action[3]
-		self.type = action[4]
-		self.iddevice = action[5]
-		self.action = action[6]
+		self.idsensorAction = action['idsensorAction']
+		self.idsensor = action['idsensor']
+		self.sensorName = action['sensorName']
+		self.value = action['value']
+		self.relation = action['relation']
+		self.type = action['type']
+		self.iddevice = action['iddevice']
+		self.deviceName = action['deviceName']
+		self.iddeviceCommand = action['iddeviceCommand']
+		self.command= action['deviceCommand']
 		#self._printParameters()
 		
 	def _printParameters(self):
 		print """idSensorAction		={0},
 				idsensor		={1}, 
-				value	={2}, 
-				relation		={3}, 
-				type		={4},
-				iddevice		={5}, 
-				action		={6}""".format(self.idSensorAction, 
-				self.idsensor, self.value, self.relation, \
-				self.type, self.iddevice, self.action)
+				idSsensosrName = {2},
+				value	={3}, 
+				relation		={4}, 
+				type		={5},
+				iddevice		={6}, 
+				command		={7},
+				deviecName = {8},
+				iddeviceCommand= {9}""".format(self.idsensorAction,  \
+				self.idsensor, self.sensorName, self.value, self.relation, \
+				self.type, self.iddevice, self.command, self.deviceName, self.iddeviceCommand)
 		
 	
 	def checkValue(self, value):
