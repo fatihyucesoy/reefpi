@@ -1,11 +1,14 @@
 class scheduledEvent:
-	Id = 0
-	name = None
-	type = None
-	deviceId = None
-	command = None
-	startDate = None
+	idscheduledEvent = 0
+	jobName = None
+	idscheduleType = None
+	scheduleTypeName = None
+	iddevice = None
+	deviceName = None
+	iddeviceCommand = None
+	deviceCommand = None
 	value = None
+	startDate = None
 	year = None
 	month = None
 	day = None
@@ -16,21 +19,24 @@ class scheduledEvent:
 	second = None
 	
 	def __init__(self, event):
-		self.Id = event[0]
-		self.name = event[1]
-		self.type = event[2]
-		self.deviceId = event[3]
-		self.command = event[4]
-		self.value = event[5]
-		self.startDate = event[6]
-		self.year = event[7]
-		self.month = event[8]
-		self.day = event[9]
-		self.week = event[10]
-		self.day_of_week = event[11]
-		self.hour = event[12]
-		self.minute = event[13]
-		self.second = event[14]
+		self.idscheduledEvent = event['idscheduledEvent']
+		self.jobName = event['jobName']
+		self.idscheduleType = event['idscheduleType']
+		self.scheduleTypeName = event['scheduleTypeName']
+		self.iddevice = event['iddevice']
+		self.deviceName = event['deviceName']
+		self.iddeviceCommand = event['iddeviceCommand']
+		self.deviceCommand = event['deviceCommand']
+		self.value = event['value']
+		self.startDate = event['startDate']
+		self.year = event['year']
+		self.month = event['month']
+		self.day = event['day']
+		self.week = event['week']
+		self.day_of_week = event['day_of_week']
+		self.hour = event['hour']
+		self.minute = event['minute']
+		self.second = event['second']
 		#self._printParameters()
 		
 	def _printParameters(self):

@@ -52,6 +52,9 @@ These links take you to the pages where you can control bits on your Pi. This is
 <a href="sensor.php">Sensors</a>
 <br>
 <a href="sensor_type.php">Sensor Types</a>
+<br>
+<a href="sensor_action.php">Sensor Actions</a>
+
 </p>
 
 
