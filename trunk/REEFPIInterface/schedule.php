@@ -36,7 +36,10 @@ Current Scheduled Events
 </p>
 
 <?php
-	$resultControllerTypes = mysqli_query($con, "SELECT * FROM scheduledEvent AS SE inner JOIN device AS D ON SE.iddevice = D.iddevice");
+	$resultControllerTypes = mysqli_query($con, "SELECT * FROM scheduledEvent AS SE 
+	INNER JOIN device AS D ON SE.iddevice = D.iddevice
+	INNER JOIN deviceCommand AS DC ON SE.iddeviceCommand = DC.iddeviceCommand
+	INNER JOIN scheduleType AS ST ON SE.idscheduleType = ST.idscheduleType");
 
 	if($resultControllerTypes){
 	echo "<table border='1'>
@@ -61,9 +64,9 @@ Current Scheduled Events
 				{
 					echo "<tr>";
 					echo "<td>" . $rowControllerType['jobName'] . "</td>";
-					echo "<td>" . $rowControllerType['type'] . "</td>";
+					echo "<td>" . $rowControllerType['scheduleTypeName'] . "</td>";
 					echo "<td>" . $rowControllerType['deviceName'] . "</td>";
-					echo "<td>" . $rowControllerType['command'] . "</td>";
+					echo "<td>" . $rowControllerType['deviceCommand'] . "</td>";
 					echo "<td>" . $rowControllerType['value'] . "</td>";
 					echo "<td>" . $rowControllerType['startDate'] . "</td>";
 					echo "<td>" . $rowControllerType['year'] . "</td>";

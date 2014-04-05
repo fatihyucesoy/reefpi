@@ -81,7 +81,7 @@ def init(sensors, sensorPool, devices, scheduledEvents, DB, host, user, passwd, 
 	
 	# This should be removed when we get up and running as it
 	# recreates the DB
-	configureDB(DB)
+	addTestData(DB)
 	
 	devices = getAllDevices(DB)
 	sensors = getAllSensors(DB)
@@ -100,7 +100,7 @@ def init(sensors, sensorPool, devices, scheduledEvents, DB, host, user, passwd, 
 # with.  This wil be removed when we have data coming
 # form he UI
 #
-def configureDB(DB):
+def addTestData(DB):
 	DB.configure()
 	DB.addControllerType('PCA thingy', 'this is the type to represent the PCA I2C type controller')
 	DB.addController('PCA', 'this is the type to represnt the PCA I2C type controller', 1)
@@ -200,6 +200,12 @@ def addScheduledEvents(scheduler, scheduledEvents):
 		elif(event.scheduleTypeName == 'interval'):
 			scheduler.AddIntervalEvent(decodeSchedulerEvent, event)
 
+#
+# 
+#
+#
+def checkForSystemUpdates(sensors, sensorPool,  devices, scheduledEvents, DB):
+	sensor = sensors
 	
 def main():
 
@@ -208,7 +214,12 @@ def main():
 	sensorPool = []
 	scheduledEvents = []
 	DB = SQLInterface(host, user, passwd, dataBase)
-		
+	#I am not sure about this anymore... I might just create instances when I need them
+	#this might avoid the need to resync with the DB to check for changes........
+	# will have to do lot more error checking on the calls.. also wonder if its worth just 
+	#setting up an interval event to cover the sensors
+	#we probably just want to use the init to set everything to the state defined in the DB.
+	#this takes care of initial state
 	init(sensors, sensorPool,  devices, scheduledEvents, DB, host, user, passwd, dataBase)
 
 	scheduler = ReefPI_Scheduler(host, user, passwd, dataBase)
@@ -222,6 +233,7 @@ def main():
 	#for loop in range(1,100):
 		processCommand(devices, DB)
 		#TODO scan the db for changes such as new devices or events
+		checkForSystemUpdates(sensors, sensorPool,  devices, scheduledEvents, DB)
 		time.sleep(1)
 	
 	
