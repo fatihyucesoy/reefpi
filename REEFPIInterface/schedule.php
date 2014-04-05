@@ -156,7 +156,7 @@ if(isset($_POST['addSchedule']))
 			<td>
 				<select name="type" id="type" style="width: 200px" >
    	   				<?php
-   	   					$scheduleTypes= mysqli_query($con, 'select * from scheduleType') or die (mysql_error()); 
+   	   					$scheduleTypes= mysqli_query($con, 'select * from scheduleType') or die (mysql_error($con)); 
        
       					while($scheduleType = mysqli_fetch_array($scheduleTypes))
       					{

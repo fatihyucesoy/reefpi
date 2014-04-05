@@ -117,21 +117,26 @@ def addTestData(DB):
 	DB.addDevice('LEDChannel1', 2, '0x4A', 0, 1, 0)
 	DB.addDevice('LEDChannel2', 2, '0x4F', 0, 1, 0)
 	DB.addDevice('LEDChannel3', 2, '0x50', 0, 1, 0)
-	DB.addSensorType('tempSimulator', 'SW')
-	#DB.addSensor('tempSensor1', 1, '4', 25.5, 25.5, 1, 3)
-	#DB.addSensor('tempSensor2', 1, '5', 25.5, 25.5, 2, 4)
 	
+	
+	DB.addSensorType('tempSimulator', 'SW')
+	DB.addSensorActionType('crossing', 'Run the action only once when the condition is met')
+	DB.addSensorActionType('cont', 'Call the action continuously (every period) is the condition is met')
+	DB.addSensorActionRelation('lt', '<', "less than")
+	DB.addSensorActionRelation('gt', '>', "greater than")
+	DB.addSensorActionRelation('eq', '=', "equal to")
+	DB.addSensorActionRelation('neq', '!-', "lnot equal to")
 	# create a temp sensor simulator to represent a tank heater
-	DB.addSensor('tempSensor1', 1, 'SW', 'degrees', 3)	
-	DB.addSensorAction(1, 25, 'lt', 'crossing', 1, 1)
-	DB.addSensorAction(1, 25, 'gt', 'crossing', 1, 2)
+	DB.addSensor('tempSensor1', 1, 'SW', 'degrees', 3)
+	DB.addSensorAction(1, 25, 1, 1, 1, 1)
+	DB.addSensorAction(1, 25, 2, 1, 1, 2)
 	
 	# create a temp sensor simulator to represent the LED fans
 	DB.addSensor('tempSensor2', 1, 'SW', 'celcius', 4)
-	DB.addSensorAction(2, 27, 'gt', 'crossing', 2, 1)
-	DB.addSensorAction(2, 27, 'lt', 'cont', 2, 2)
+	DB.addSensorAction(2, 27, 2, 1, 2, 1)
+	DB.addSensorAction(2, 27, 1, 2, 2, 2)
 	
-	DB.addScheduleType("crone", "crone task base don standard crone syntax")
+	DB.addScheduleType("crone", "crone task based on standard crone syntax")
 	DB.addScheduleType("interval", "task will run at regular intervals with period defined here")
 	
 	
