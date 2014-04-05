@@ -137,10 +137,10 @@ if(isset($_POST['addSensorAction']))
 			<td>
 				<select name="type" id="type" style="width: 200px" >
    	   				<?php
-   	   					$sensors= mysqli_query($con, 'SELECT * FROM sensorActionType') or die (mysql_error());    
-      					while($sensor = mysqli_fetch_array($sensors))
+   	   					$types= mysqli_query($con, 'SELECT * FROM sensorActionType') or die (mysql_error());    
+      					while($type = mysqli_fetch_array($types))
       					{
-        					echo "<option value=".$sensor['idsensorActionType']."> ".$sensor['sensorActionType']." </option>";
+        					echo "<option value=".$type['idsensorActionType']."> ".$type['sensorActionType']." </option>";
       					}
       				?>
 				</select>
@@ -148,7 +148,17 @@ if(isset($_POST['addSensorAction']))
 		</tr>
 		<tr>
 			<td width="200">Relation</td>
-			<td><input name="relation" type="text" id="relation"></td>
+			<td>
+				<select name="relation" id="relation" style="width: 200px" >
+   	   				<?php
+   	   					$relations= mysqli_query($con, 'SELECT * FROM sensorActionRelation') or die (mysql_error());    
+      					while($relation = mysqli_fetch_array($relations))
+      					{
+        					echo "<option value=".$relation['idsensorActionRelation']."> ".$relation['sensorActionRelation']." </option>";
+      					}
+      				?>
+				</select>
+			</td>
 		</tr>
 		<tr>
 			<td width="200">value</td>
