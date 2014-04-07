@@ -173,9 +173,9 @@ def processCommand(DB):
 	command = None
 	
 	# check for a command form the DB
-	dBCommand = DB.getNextCommand()
-	if(dBCommand != None):
-		command = deviceCommand(dBCommand)
+	dbCommand = DB.getNextCommand()
+	if(dbCommand != None):
+		command = deviceCommand(dbCommand)
 		print "running method {0} on device {1}".format(command.deviceCommand, command.deviceName)
 		try:
 			dbDevice = DB.getDevice(command.iddevice)
@@ -190,7 +190,7 @@ def processCommand(DB):
 				if(paramLength == 0):
 					result = methodPointer()
 				elif(paramLength == 1):
-					result = methodPointer(command.args[0])
+					result = methodPointer(command.args)
 				
 			else:
 				print "failed to run method {0} on device {1}".format(command.deviceCommand, command.deviceName)
