@@ -21,16 +21,16 @@ class heaterSimulator:
 		# over power cycles.
 		self._DB = SQLInterface(host, user, passwd, dataBase)
 	
-	def _setState(state):
+	def _setState(self, state):
 		self._DB.setDeviceStatus(self.iddevice, state)
 		self.status = state
 		return self.status
 		
 	def turnOn(self):
-		print self._name +': Turning heater on'
-		return self._setStatus(1)
+		print self.deviceName +': Turning heater on'
+		return self._setState(1)
 	
 	def turnOff(self):
-		print self._name + ': Turning heater off'
-		return self._setStatus(0)
+		print self.deviceName + ': Turning heater off'
+		return self._setState(0)
 		

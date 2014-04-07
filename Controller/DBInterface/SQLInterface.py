@@ -173,6 +173,15 @@ class SQLInterface:
 			cur = con.cursor()    
 			cur.execute("SELECT * FROM device AS D INNER JOIN deviceType AS DT ON D.iddeviceType = DT.iddeviceType")
 			return cur.fetchall()
+	
+	def getDevice(self, iddevice):
+		con = self._connect()
+		with con:
+			cur = con.cursor()    
+			cur.execute("SELECT * FROM device AS D \
+						INNER JOIN deviceType AS DT ON D.iddeviceType = DT.iddeviceType \
+						WHERE D.iddevice = %s", (iddevice,))
+			return cur.fetchone()
 			
 	def getAllSensors(self):
 		con = self._connect()

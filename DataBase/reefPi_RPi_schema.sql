@@ -342,6 +342,7 @@ CREATE TABLE IF NOT EXISTS `reefPi_RPi_schema`.`sensorAction` (
   `idsensorActionType` INT NOT NULL,
   `iddevice` INT NOT NULL,
   `iddeviceCommand` INT NOT NULL,
+  `parameterList` VARCHAR(255) NULL,
   PRIMARY KEY (`idsensorAction`),
   CONSTRAINT `FK_SensorAction_Device`
     FOREIGN KEY (`iddevice`)

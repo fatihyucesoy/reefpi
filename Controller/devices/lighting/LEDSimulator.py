@@ -1,11 +1,5 @@
-import web
-import time
+from DBInterface.SQLInterface import *
 
-
-from DBInterface.SQLiteInterface import *
-from sensors.tempSensor.tempSensorSimulator import *
-from sensors.tempSensor.DS18B20Interface import *
-from devices.heater.heaterSimulator import *
 
 
 class LEDSimulator:
@@ -27,25 +21,23 @@ class LEDSimulator:
 		# TODO: reaffirm the state on start up.  This makes sure things stay in sync
 		# over power cycles.
 		self._DB = SQLInterface(host, user, passwd, dataBase)
+		self._setState(self.status)
 	
-	def _setState(state):
+	def _setState(self, state):
 		self._DB.setDeviceStatus(self.iddevice, state)
 		self.status = state
 		return self.status
 		
 	def turnOn(self):
 		print self.deviceName +': Turning LED on'
-		return self._setStatus(1)
+		return self._setState(1)
 	
 	def turnOff(self):
 		print self.deviceName + ': Turning LED off'
-		return self._setStatus(0)
+		return self._setState(0)
 	
-	def setIntensity(self, level):
+	def setOutput(self, level):
 		print self.deviceName + ': setting LED intensity to ' + str(level)
 		self._DB.setDeviceLevel(self.deviceName, level)
 		self.level = level
 		return self.level	
-		
-	def getId(self):
-		return self._Id

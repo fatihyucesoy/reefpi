@@ -1,6 +1,7 @@
 import web
 import time
 import datetime
+import inspect
 
 from DBInterface.SQLInterface import *
 
@@ -167,7 +168,7 @@ def getLEDIntensity():
 # db and decodes it.  It then calls the command
 # on the selected device	
 #
-def processCommand(devices, DB):
+def processCommand(DB):
 	result = None
 	command = None
 	
@@ -176,16 +177,26 @@ def processCommand(devices, DB):
 	if(dBCommand != None):
 		command = deviceCommand(dBCommand)
 		print "running method {0} on device {1}".format(command.deviceCommand, command.deviceName)
-		for device in devices:
-			if(device.getId() == command.iddevice):
+		try:
+			dbDevice = DB.getDevice(command.iddevice)
+			device = createDevice(dbDevice)
 			#we have found the device now check it has the correct method
-				methodPointer = getattr(device, command.action, None)
-				if(methodpointer):
-					#call the method
+			methodPointer = getattr(device, command.deviceCommand, None)
+			if(methodPointer):
+				# we need to check for parameters and call the method
+				# with the correct parameter list. There must be a more
+				# generic way of doing this... methodpointer(*command.args) maybe
+				paramLength = len(inspect.getargspec(methodPointer)[0])-1
+				if(paramLength == 0):
 					result = methodPointer()
-				else:
-					print "failed to run method {0} on device {1}".format(command.command, command.device)
-			break
+				elif(paramLength == 1):
+					result = methodPointer(command.args[0])
+				
+			else:
+				print "failed to run method {0} on device {1}".format(command.deviceCommand, command.deviceName)
+			
+		except Exception, e:
+			print "failed to run method {0} on device {1}: {2}".format(command.deviceCommand, command.deviceName, e)
 			
 	return result
 
@@ -236,7 +247,9 @@ def main():
 	# for now its easier to limit number of loops
 	while(1):
 	#for loop in range(1,100):
-		processCommand(devices, DB)
+		while(processCommand(DB)):
+			pass
+			
 		#TODO scan the db for changes such as new devices or events
 		checkForSystemUpdates(sensors, sensorPool,  devices, scheduledEvents, DB)
 		time.sleep(1)
