@@ -39,7 +39,9 @@ Defined Sensor Actions
 	$resultSensorTypes = mysqli_query($con, "SELECT * FROM sensorAction AS SA
 												INNER JOIN sensor AS S ON SA.idsensor = S.idsensor
 												INNER JOIN device AS D ON SA.iddevice = D.iddevice
-												INNER JOIN deviceCommand AS DC ON SA.iddeviceCommand = DC.iddeviceCommand");
+												INNER JOIN deviceCommand AS DC ON SA.iddeviceCommand = DC.iddeviceCommand
+												INNER JOIN sensorActionType AS SAT ON SA.idsensoractiontype = SAT.idsensoractiontype
+												INNER JOIN sensorActionRelation AS R ON SA.idsensoractionrelation = R.idsensoractionrelation");
 
 	echo "<table border='1'>
 	<tr>
@@ -58,8 +60,8 @@ Defined Sensor Actions
 		echo "<td>" . $rowSensorType['sensorName'] . "</td>";
 		echo "<td>" . $rowSensorType['deviceName'] . "</td>";
 		echo "<td>" . $rowSensorType['deviceCommand'] . "</td>";
-		echo "<td>" . $rowSensorType['type'] . "</td>";
-		echo "<td>" . $rowSensorType['relation'] . "</td>";
+		echo "<td>" . $rowSensorType['sensorActionType'] . "</td>";
+		echo "<td>" . $rowSensorType['sensorActionRelation'] . "</td>";
 		echo "<td>" . $rowSensorType['value'] . "</td>";
 		echo "<td>" . $rowSensorType['units'] . "</td>";
 		echo "</tr>";
