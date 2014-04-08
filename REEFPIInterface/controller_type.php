@@ -59,18 +59,37 @@ Create Controller Types
 </p>
 
 <?PHP
+function redirect($url) {
+    if(!headers_sent()) {
+        //If headers not sent yet... then do php redirect
+        header('Location: '.$url);
+        exit;
+    } else {
+        //If headers are sent... do javascript redirect... if javascript disabled, do html redirect.
+        echo '<script type="text/javascript">';
+        echo 'window.location.href="'.$url.'";';
+        echo '</script>';
+        echo '<noscript>';
+        echo '<meta http-equiv="refresh" content="0;url='.$url.'" />';
+        echo '</noscript>';
+        exit;
+    }
+}
+
 if(isset($_POST['addDeviceType']))
 {
 	$controllerTypeName = ($_POST['controllerTypeName']);
 	$description = ($_POST['controllerTypeDescription']);
 	$addDeviceType = mysqli_query($con, "INSERT INTO controllertype ". "(controllerTypeName, controllerTypeDescription)". "VALUES ('$controllerTypeName', '$description')");
-		$result = ($addDeviceType);
-		if(!$result)
-		echo "Sorry, cannot submit your request";
+	$result = ($addDeviceType);
+	if(!$result)
+	{
+		echo ("Sorry, cannot submit your request: " . mysqli_error($con));
+	}
 	else
-		{
-		header("Location: ".$_SERVER['REQUEST_URI']); //which will just reload the page
-		}
+	{
+		redirect($_SERVER['PHP_SELF']);
+	}
 }
 ?>
 
