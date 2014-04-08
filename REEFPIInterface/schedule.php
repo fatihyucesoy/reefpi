@@ -112,6 +112,23 @@ function convertToDBValue($string)
 	return $returnValue;
 }
 
+function redirect($url) {
+    if(!headers_sent()) {
+        //If headers not sent yet... then do php redirect
+        header('Location: '.$url);
+        exit;
+    } else {
+        //If headers are sent... do javascript redirect... if javascript disabled, do html redirect.
+        echo '<script type="text/javascript">';
+        echo 'window.location.href="'.$url.'";';
+        echo '</script>';
+        echo '<noscript>';
+        echo '<meta http-equiv="refresh" content="0;url='.$url.'" />';
+        echo '</noscript>';
+        exit;
+    }
+}
+
 if(isset($_POST['addSchedule']))
 {
 	$jobName = convertToDBValue($_POST['jobName']);
@@ -136,12 +153,14 @@ if(isset($_POST['addSchedule']))
 	//echo $query;
 	$addScheduledEvent = mysqli_query($con, $query) or die(mysqli_error($con));
 	$result = ($addScheduledEvent);
-	//if(!$result)
-	//	echo "Sorry, cannot submit your request";
-	//else
-	//	{
-	//	header("Location: ".$_SERVER['REQUEST_URI']); //which will just reload the page
-	//	}
+	if(!$result)
+	{
+		echo ("Sorry, cannot submit your request: " . mysqli_error($con));
+	}
+	else
+	{
+		redirect($_SERVER['PHP_SELF']);
+	}
 }
 ?>
 
