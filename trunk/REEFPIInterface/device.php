@@ -30,52 +30,71 @@
 
 <div id="content">
 
-
-<p>
-Available Devices
-</p>
-
+<p>Available Devices</p>
 <?php
-			$resultAvailableDevices = mysqli_query($con, "SELECT * FROM device");
+function redirect($url) {
+    if(!headers_sent()) {
+        //If headers not sent yet... then do php redirect
+        header('Location: '.$url);
+        exit;
+    } else {
+        //If headers are sent... do javascript redirect... if javascript disabled, do html redirect.
+        echo '<script type="text/javascript">';
+        echo 'window.location.href="'.$url.'";';
+        echo '</script>';
+        echo '<noscript>';
+        echo '<meta http-equiv="refresh" content="0;url='.$url.'" />';
+        echo '</noscript>';
+        exit;
+    }
+}
 
-		echo "<table border='1'>
+	if(isset($_POST['addDevices']))
+	{
+		$deviceName = ($_POST['deviceName']);
+		$deviceType = ($_POST['deviceType']);
+		$address = ($_POST['address']);
+		$controller = ($_POST['controller']);
+		$addDevice = mysqli_query($con, "INSERT INTO device ". "(deviceName, iddeviceType, address, idcontroller)". "VALUES ('$deviceName', '$deviceType', '$address', $controller)");
+		$result = ($addDevice);
+		if(!$result)
+		{
+			echo ("Sorry, cannot submit your request: " . mysqli_error($con));
+		}
+		else
+		{
+			redirect($_SERVER['PHP_SELF']);
+		}
+	}
+
+	$resultAvailableDevices = mysqli_query($con, "SELECT * FROM device AS D
+													INNER JOIN deviceType AS DT ON D.iddeviceType = DT.iddeviceType
+													INNER JOIN controller AS C on D.idcontroller = C.idcontroller");
+
+	echo "<table border='1'>
 	<tr>
 		<th>Device Name</th>
+		<th>Type</th>
 		<th>Address</th>
+		<th>Controller</th>
 		<th>Status</th>
+		<th>level</th>
 	</tr>";
-
-			while($rowAvailableDevice = mysqli_fetch_array($resultAvailableDevices))
-				{
-					echo "<tr>";
-					echo "<td>" . $rowAvailableDevice['deviceName'] . "</td>";
-					echo "<td>" . $rowAvailableDevice['address'] . "</td>";
-					echo "<td>" . $rowAvailableDevice['status'] . "</td>";
-					echo "</tr>";
-				}
-		echo "</table>"
+	while($rowAvailableDevice = mysqli_fetch_array($resultAvailableDevices))
+	{
+		echo "<tr>";
+		echo "<td>" . $rowAvailableDevice['deviceName'] . "</td>";
+		echo "<td>" . $rowAvailableDevice['deviceTypeName'] . "</td>";
+		echo "<td>" . $rowAvailableDevice['address'] . "</td>";
+		echo "<td>" . $rowAvailableDevice['controllerName'] . "</td>";
+		echo "<td>" . $rowAvailableDevice['status'] . "</td>";
+		echo "<td>" . $rowAvailableDevice['level'] . "</td>";
+		echo "</tr>";
+	}
+	echo "</table>"
 ?>
-<p>
-Add a Device
-</p>
-<?PHP
-if(isset($_POST['addDevices']))
-{
-	$deviceName = ($_POST['deviceName']);
-	$deviceType = (int)($_POST['deviceType']);
-	$address = ($_POST['address']);
-	$status = ($_POST['status']);
-	$addDevice = mysqli_query($con, "INSERT INTO device ". "(deviceName, iddeviceType, address, status)". "VALUES ('$deviceName', '$deviceType', '$address', $status)");
-	$result = ($addDevice);
-			if(!$result)
-		echo "Sorry, cannot submit your request";
-	else
-		{
-		header("Location: ".$_SERVER['REQUEST_URI']); //which will just reload the page
-		}
-}
-?>
-
+<BR>
+<p>Add a Device</p>
 <form method="post" action="<?php $_PHP_SELF ?>">
 	<table width="400" border="0" cellspacing="1" cellpadding="2">
 		<tr>
@@ -98,12 +117,23 @@ if(isset($_POST['addDevices']))
 			</td>
 		</tr>
 		<tr>
-			<td width="100">Address</td>
-			<td><input name="address" type="text" id="address"></td>
+			<td width="100">Controller</td>
+			<td>
+				<select name="controller" id="controller" style="width: 200px" >
+   	   				<?php
+   	   					$deviceTypes= mysqli_query($con, 'select * from controller') or die (mysql_error()); 
+       
+      					while($deviceType = mysqli_fetch_array($deviceTypes))
+      					{
+        					echo "<option value=".$deviceType['idcontroller']."> ".$deviceType['controllerName']." </option>";
+      					}
+      				?>
+				</select>
+			</td>
 		</tr>
 		<tr>
-			<td width="100">Status</td>
-			<td><input name="status" type="text" id="status"></td>
+			<td width="100">Address</td>
+			<td><input name="address" type="text" id="address"></td>
 		</tr>		
 		<tr>
 			<td width="100"> </td>
@@ -123,7 +153,7 @@ if(isset($_POST['addDevices']))
 </div> <!-- end #sidebar -->
 
 <div id="footer">
-	<p>Copyright &copy Bigguy 2014 <a href="#">REEFPI</a></p>
+	<p> <a href="#">REEFPI</a></p>
 </div> <!-- end #footer -->
 
 		</div> <!-- End #wrapper -->

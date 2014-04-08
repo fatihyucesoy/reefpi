@@ -81,7 +81,7 @@ if(isset($_POST['addDeviceType']))
 	$result = ($addDeviceType);
 	if(!$result)
 	{
-		echo "Sorry, cannot submit your request";
+		echo ("Sorry, cannot submit your request: " . mysqli_error($con));
 	}
 	else
 	{
