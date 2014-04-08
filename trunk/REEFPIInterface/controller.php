@@ -60,19 +60,38 @@ Available Controllers
 Add a Controller
 </p>
 <?PHP
+function redirect($url) {
+    if(!headers_sent()) {
+        //If headers not sent yet... then do php redirect
+        header('Location: '.$url);
+        exit;
+    } else {
+        //If headers are sent... do javascript redirect... if javascript disabled, do html redirect.
+        echo '<script type="text/javascript">';
+        echo 'window.location.href="'.$url.'";';
+        echo '</script>';
+        echo '<noscript>';
+        echo '<meta http-equiv="refresh" content="0;url='.$url.'" />';
+        echo '</noscript>';
+        exit;
+    }
+}
+
 if(isset($_POST['addDevices']))
 {
 	$Name = ($_POST['Name']);
 	$idcontrollerType = ($_POST['controllerType']);
 	$description = ($_POST['description']);
-	$addDevice = mysqli_query($con, "INSERT INTO controller ". "(Name, description, idcontrollerType)". "VALUES ('$Name', '$description', $idcontrollerType)");
+	$addDevice = mysqli_query($con, "INSERT INTO controller ". "(controllerName, controllerdescription, idcontrollerType)". "VALUES ('$Name', '$description', $idcontrollerType)");
 	$result = ($addDevice);
-			if(!$result)
-		echo "Sorry, cannot submit your request";
+	if(!$result)
+	{
+		echo ("Sorry, cannot submit your request: ". mysqli_error($con));
+	}
 	else
-		{
-		header("Location: ".$_SERVER['REQUEST_URI']); //which will just reload the page
-		}
+	{
+		redirect($_SERVER['PHP_SELF']);
+	}
 }
 ?>
 

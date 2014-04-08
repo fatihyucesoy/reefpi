@@ -50,25 +50,43 @@ Available Device Types
 					echo "<td>" . $rowDeviceType['busType'] . "</td>";
 					echo "</tr>";
 				}
-		echo "</table>"
-?>
-<p>
-Add a Device Type
-</p>
+		echo "</table>";
 
-<?PHP
+echo "<p>";
+echo "Add a Device Type";
+echo "</p>";
+
+function redirect($url) {
+    if(!headers_sent()) {
+        //If headers not sent yet... then do php redirect
+        header('Location: '.$url);
+        exit;
+    } else {
+        //If headers are sent... do javascript redirect... if javascript disabled, do html redirect.
+        echo '<script type="text/javascript">';
+        echo 'window.location.href="'.$url.'";';
+        echo '</script>';
+        echo '<noscript>';
+        echo '<meta http-equiv="refresh" content="0;url='.$url.'" />';
+        echo '</noscript>';
+        exit;
+    }
+}
+
 if(isset($_POST['addDeviceType']))
 {
 	$deviceName = ($_POST['deviceTypeName']);
 	$busType = ($_POST['busType']);
 	$addDeviceType = mysqli_query($con, "INSERT INTO devicetype ". "(deviceTypeName, busType)". "VALUES ('$deviceName', '$busType')");
 	$result = ($addDeviceType);
-			if(!$result)
+	if(!$result)
+	{
 		echo "Sorry, cannot submit your request";
+	}
 	else
-		{
-		header("Location: ".$_SERVER['REQUEST_URI']); //which will just reload the page
-		}
+	{
+		redirect($_SERVER['PHP_SELF']);
+	}
 }
 ?>
 <p></p>
@@ -101,7 +119,7 @@ if(isset($_POST['addDeviceType']))
 </div> <!-- end #sidebar -->
 
 <div id="footer">
-	<p>Copyright &copy Bigguy 2014 <a href="#">REEFPI</a></p>
+	<p><a href="#">REEFPI</a></p>
 </div> <!-- end #footer -->
 
 		</div> <!-- End #wrapper -->
