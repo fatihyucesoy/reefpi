@@ -16,6 +16,16 @@
 
 <title>REEFPI Home Page</title>
 
+<script language="javascript" type="text/javascript" src="datetimepicker.js">
+
+//Date Time Picker script- by TengYong Ng of http://www.rainforestnet.com
+//Script featured on JavaScript Kit (http://www.javascriptkit.com)
+//For this script, visit http://www.javascriptkit.com 
+
+</script>
+
+
+
 </head>
 
 	<body>
@@ -163,6 +173,8 @@ if(isset($_POST['addSchedule']))
 	}
 }
 ?>
+<input id="demo3" type="text" size="25"><a href="javascript:NewCal('demo3','ddmmmyyyy',true,24)">
+	<img src="images/cal.gif" width="16" height="16" border="0" alt="Pick a date"></a>
 
 <form method="post" action="<?php $_PHP_SELF ?>">
 	<table width="400" border="0" cellspacing="1" cellpadding="2">
