@@ -37,14 +37,9 @@ def createSensor(sensorInfo, DB):
 	for action in DB.getAllSensorActions(sensorInfo['idsensor']):
 		actionList.append(sensorAction(action))
 	
-	
-	#create a sensor object of the correct type
-	#need to figure out how to make this more generic
-	if(sensorInfo['sensorTypeName'] == 'tempSimulator'):
-		sensor = tempSimulator(sensorInfo, actionList, host, user, passwd, dataBase)
-	elif(sensor['sensorTypeName'] == 'DS18B20'):
-		sensor  = DS1882Interface(sensor[1])
-		
+	sensorClass = globals()[sensorInfo['sensorTypeName']]
+	sensor = sensorClass(sensorInfo, actionList, host, user, passwd, dataBase)
+	#create a sensor object of the correct type		
 	return sensor
 			
 	
@@ -60,39 +55,45 @@ def getAllSensors(DB):
 	
 	return sensorList
 
-def createDevice(deviceInfo):
+def createDevice(deviceInfo, DB):
+	#get a list of all of the actions for this sensor.  This could be empty
+	actionList = []
 	device = None
-	if(deviceInfo['deviceTypeName'] == 'heaterSimulator'):
-			device = heaterSimulator(deviceInfo, host, user, passwd, dataBase)
-	elif(deviceInfo['deviceTypeName'] == 'LEDSimulator'):
-			device = LEDSimulator(deviceInfo, host, user, passwd, dataBase)
+	
+	
+	# get the actions for this sensor
+	for action in DB.getAllDeviceCommandActions(sensorInfo['idsensor']):
+		actionList.append(sensorAction(action))
+	
+	devieClass = globals()[deviceInfo['deviceTypeName']]
+	device = deviceClass(deviceInfo, DB)
+	#create a sensor object of the correct type		
 	return device
 
 def getAllDevices(DB):
 	deviceList = []
 	dbDeviceList = DB.getAllDevices()
 	for dbDevice in dbDeviceList:
-		deviceList.append(createDevice(dbDevice))
+		deviceList.append(createDevice(dbDevice, DB))
 	return deviceList
 		
 		
 	
 		
-def init(sensors, sensorPool, devices, scheduledEvents, DB, host, user, passwd, dataBase):
-	
-	# This should be removed when we get up and running as it
-	# recreates the DB
-	addTestData(DB)
-	
+def initDevices(DB):
 	devices = getAllDevices(DB)
-	sensors = getAllSensors(DB)
-	#Start the sensors and create the sensorPool
-	for sensor in sensors: 
-		sensorPool.append(sensor.run())	
-		
+	for device in devices:
+		deivce.init()
+
+def init(DB):	
+	addTestData(DB)
+	initDevices(DB)
+	scheduledEvents = []
 	dbEventList = DB.getAllScheduledEvents()
 	for dbEvent in dbEventList:
 		scheduledEvents.append(scheduledEvent(dbEvent))
+	
+	return scheduledEvents
 			
 
 
@@ -103,16 +104,24 @@ def init(sensors, sensorPool, devices, scheduledEvents, DB, host, user, passwd, 
 #
 def addTestData(DB):
 	DB.configure()
-	DB.addControllerType('PCA thingy', 'this is the type to represent the PCA I2C type controller')
+	DB.addControllerType('PCAType', 'this is the type to represent the PCA I2C type controller')
 	DB.addController('PCA', 'this is the type to represnt the PCA I2C type controller', 1)
+	DB.addControllerType('OneWireBus', 'this is the type to represent the one wire bus')
+	DB.addController('DIO', 'this is the type to represnt the PCA I2C type controller', 2)
+	
 	
 	DB.addDeviceCommand('turnOn', 'turn the device on')
 	DB.addDeviceCommand('turnOff', 'turn the device off')
 	DB.addDeviceCommand('setOutput', 'set the output value to that given (uses the value entry)')
-	
+	DB.addDeviceCommand('getReading', 'get the reading from a sensor type device.  Will automatically \
+						 trigger any actions linked to the device depending on the coditions set in the action')	
 	
 	DB.addDeviceType('heaterSimulator', 'I2C')
 	DB.addDeviceType('LEDSimulator', 'I2C')
+	
+	DB.addDeviceType('tempSimulator', 'SW')
+	
+	
 	DB.addDevice('heater1', 1, '0x40', 0, 1, 0)
 	DB.addDevice('LEDFAN', 1, '0x48', 0, 1, 0)
 	DB.addDevice('LEDChannel1', 2, '0x4A', 0, 1, 0)
@@ -120,7 +129,6 @@ def addTestData(DB):
 	DB.addDevice('LEDChannel3', 2, '0x50', 0, 1, 0)
 	
 	
-	DB.addSensorType('tempSimulator', 'SW')
 	DB.addSensorActionType('crossing', 'Run the action only once when the condition is met')
 	DB.addSensorActionType('cont', 'Call the action continuously (every period) is the condition is met')
 	DB.addSensorActionRelation('lt', '<', "less than")
@@ -128,7 +136,7 @@ def addTestData(DB):
 	DB.addSensorActionRelation('eq', '=', "equal to")
 	DB.addSensorActionRelation('neq', '!-', "lnot equal to")
 	# create a temp sensor simulator to represent a tank heater
-	DB.addSensor('tempSensor1', 1, 'SW', 'degrees', 3)
+	DB.addDevice('tempSensor1', 3, 'SW', 0, 2, 0)
 	DB.addSensorAction(1, 25, 1, 1, 1, 1)
 	DB.addSensorAction(1, 25, 2, 1, 1, 2)
 	
@@ -224,20 +232,9 @@ def checkForSystemUpdates(sensors, sensorPool,  devices, scheduledEvents, DB):
 	sensor = sensors
 	
 def main():
-
-	sensors = []
-	devices = []
-	sensorPool = []
 	scheduledEvents = []
 	DB = SQLInterface(host, user, passwd, dataBase)
-	#I am not sure about this anymore... I might just create instances when I need them
-	#this might avoid the need to resync with the DB to check for changes........
-	# will have to do lot more error checking on the calls.. also wonder if its worth just 
-	#setting up an interval event to cover the sensors
-	#we probably just want to use the init to set everything to the state defined in the DB.
-	#this takes care of initial state
-	init(sensors, sensorPool,  devices, scheduledEvents, DB, host, user, passwd, dataBase)
-
+	init(DB)
 	scheduler = ReefPI_Scheduler(host, user, passwd, dataBase)
 	addScheduledEvents(scheduler, scheduledEvents)
 	scheduler.Run()
