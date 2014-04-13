@@ -39,6 +39,7 @@ class SQLInterface:
 					if(not statement.isspace()):
 						cursor.execute(statement)
 				except Exception as e:
+					print 'Failed to run statement {0} due to error {1}'.format(statement, e)
 					exit(0)
 				statement = ''
 
