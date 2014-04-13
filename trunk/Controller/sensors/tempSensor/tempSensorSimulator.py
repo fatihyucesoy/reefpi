@@ -24,7 +24,7 @@ class tempSimulator:
 	_DB = None
 	reading = None
 	
-	def __init__(self, probeInfo, actionList, host, user, passwd, dataBase):
+	def __init__(self, probeInfo, actionList, database):
 		print probeInfo 
 		self.idsensor = probeInfo['idsensor']
 		self.sensorName = probeInfo['sensorName']
@@ -35,7 +35,7 @@ class tempSimulator:
 		self.units = probeInfo['units']
 		self.period = probeInfo['period']
 		self.actionList = actionList
-		self._DB = SQLInterface(host, user, passwd, dataBase)
+		self._DB = dataBase
 		
 	def _processNewReading(self):
 		# TODO: add error checking as if this fails things might be bad.
@@ -43,19 +43,7 @@ class tempSimulator:
 		for action in self.actionList:
 			if(action.checkValue(self.reading)):
 				self._DB.addCommand(action.iddevice, action.iddeviceCommand, [action.value])
-	
-	def _run(self):
-		while(self._active):
-			self.takeNewReading()
-			print 'Sensor:' + str(self.sensorName) + ' current temp is:' + str(self.reading)	 	
-			time.sleep(self.period)
 		
-	def run(self):
-		self._active = True;
-		process = Process(target=self._run, args=())
-		process.start()
-		return Process
-	
 	def stop (self):
 		self._active = False;
 	
