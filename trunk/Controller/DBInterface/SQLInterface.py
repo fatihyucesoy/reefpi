@@ -49,6 +49,13 @@ class SQLInterface:
 			cur = con.cursor()
 			self.execSqlFile(cur, "../DataBase/"+self._dataBase+".sql")
 
+	def addBusType(self, name, desc):
+		con = self._connect()
+		with con:
+			cur = con.cursor()
+			test = cur.execute("""INSERT INTO busType (busTypeName, busTypeDescription)
+									VALUES(%s, %s)""", (name, desc))
+			con.commit()
 
 	def addControllerType(self, name, desc):
 		con = self._connect()
@@ -67,20 +74,20 @@ class SQLInterface:
 							VALUES(%s, %s, %s)""", (name, type, desc))
 			con.commit()
 
-	def addSensorActionType(self, name, desc):
+	def addDeviceActionType(self, name, desc):
 		con = self._connect()
 		with con:
 			cur = con.cursor()
-			cur.execute("""INSERT INTO sensorActionType (sensorActionType, sensorActionTypeDescription)
+			cur.execute("""INSERT INTO deviceActionType (deviceActionType, deviceActionTypeDescription)
 							VALUES (%s, %s)""", (name, desc))
 			con.commit()
 
-	def addSensorActionRelation(self, relation, symbol, desc):
+	def addDeviceActionRelation(self, relation, symbol, desc):
 		con = self._connect()
 		with con:
 			cur = con.cursor()
-			cur.execute("""INSERT INTO sensorActionRelation
-							(sensorActionRelation, sensorActionRelationSymbol, sensorActionRelationDescription)
+			cur.execute("""INSERT INTO deviceActionRelation
+							(deviceActionRelation, deviceActionRelationSymbol, deviceActionRelationDescription)
 							VALUES (%s, %s, %s)""", (relation, symbol, desc))
 			con.commit()
 
@@ -88,7 +95,7 @@ class SQLInterface:
 		con = self._connect()
 		with con:
 			cur = con.cursor()
-			cur.execute("""INSERT INTO deviceType (deviceTypeName, busType)
+			cur.execute("""INSERT INTO deviceType (deviceTypeName, idbusType)
 							VALUES (%s, %s)""", (name, busType))
 			con.commit()
 
@@ -100,28 +107,12 @@ class SQLInterface:
 							VALUES (%s, %s)""", (command, description))
 			con.commit()
 
-
-	def addSensorType(self, type, busType):
-		con = self._connect()
-		with con:
-			cur = con.cursor()
-			cur.execute("""INSERT INTO sensorType (sensorTypeName, busType)
-							VALUES(%s, %s)""", (type, busType))
-			con.commit()
-
-	def addSensor(self, sensorID, type, address, units, period):
-		con = self._connect()
-		with con:
-			cur = con.cursor()
-			cur.execute("""INSERT INTO sensor (sensorName, idsensorType, address, units, period)
-							VALUES(%s, %s, %s, %s, %s)""", (sensorID, type, address, units, period))
-			con.commit()
-
 	def addDevice(self, deviceName, type, address, defaultState, idController, level):
 		con = self._connect()
 		with con:
 			cur = con.cursor()
-			cur.execute("""INSERT INTO device (deviceName, iddeviceType, idcontroller, address, status, level)
+			cur.execute("""INSERT INTO device (deviceName, iddeviceType,
+											   idcontroller, deviceAddress, deviceStatus, deviceLevel)
 							VALUES(%s, %s, %s, %s, %s, %s)""", \
 			(deviceName, type, idController, address, defaultState, level))
 			con.commit()
@@ -148,20 +139,22 @@ class SQLInterface:
 							hour, minute, second))
 			con.commit()
 
-	def addSensorAction(self, idSensor, value, relation, type, iddevice, action):
+	def addDeviceAction(self, value, relation, type, iddevice, action, param):
 		con = self._connect()
 		with con:
 			cur = con.cursor()
-			cur.execute("""INSERT INTO sensorAction (idsensor, value, idsensorActionRelation, idsensorActionType, iddevice, iddeviceCommand)
+			cur.execute("""INSERT INTO deviceAction (deviceActionValue, iddeviceActionRelation,
+													 iddeviceActionType, iddevice,
+													 iddeviceCommand, deviceCommandParam)
 							VALUES (%s, %s, %s, %s, %s, %s)""",\
-							(idSensor, value, relation, type, iddevice, action))
+							(value, relation, type, iddevice, action, param))
 			con.commit()
 
-	def insertSensorReading(self, idsensor, reading):
+	def insertDeviceReading(self, iddevice, reading):
 		con = self._connect()
 		with con:
 			cur = con.cursor()
-			cur.execute("""INSERT INTO sensorReadings (idsensor, reading) VALUES(%s, %s)""", (idsensor, reading))
+			cur.execute("""INSERT INTO deviceReading(iddevice, deviceReading) VALUES(%s, %s)""", (iddevice, reading))
 			con.commit()
 
 
@@ -169,7 +162,7 @@ class SQLInterface:
 		con = self._connect()
 		with con:
 			cur = con.cursor()
-			cur.execute("""UPDATE device SET Status=%s
+			cur.execute("""UPDATE device SET deviceStatus=%s
 							WHERE iddevice=%s """
 							,(status, deviceId))
 			con.commit()
@@ -178,7 +171,7 @@ class SQLInterface:
 		con = self._connect()
 		with con:
 			cur = con.cursor()
-			cur.execute("""UPDATE device SET level=%s
+			cur.execute("""UPDATE device SET deviceLevel=%s
 							WHERE iddevice=%s """
 							,(level, deviceId))
 
@@ -200,19 +193,12 @@ class SQLInterface:
 						WHERE D.iddevice = %s", (iddevice,))
 			return cur.fetchone()
 
-	def getAllSensors(self):
+
+	def getAllDeviceReadings(self):
 		con = self._connect()
 		with con:
 			cur = con.cursor()
-    		cur.execute("SELECT * FROM sensor AS S INNER JOIN sensorType AS ST ON S.idsensorType = ST.idsensorType")
-    		return cur.fetchall()
-
-
-	def getAllSensorReadings(self):
-		con = self._connect()
-		with con:
-			cur = con.cursor()
-    		cur.execute("SELECT * FROM sensorReadings")
+    		cur.execute("SELECT * FROM deviceReading")
     		return cur.fetchall()
 
 	def getNextCommand(self):
@@ -231,16 +217,6 @@ class SQLInterface:
 
 		return command
 
-	def getSensorType(self, sensorTypeId):
-		type = None
-		con = self._connect()
-		with con:
-			cur = con.cursor()
-    		cur.execute("""SELECT sensorTypeName FROM sensorType where idsensorType = %s""", (sensorTypeId, ))
-    		type = cur.fetchone()
-
-		return type[0]
-
 	def getAllScheduledEvents(self):
 		con = self._connect()
 		with con:
@@ -251,16 +227,16 @@ class SQLInterface:
 							INNER join deviceCommand AS DC on SE.iddeviceCommand = DC.iddeviceCommand")
     		return cur.fetchall()
 
-	def getAllSensorActions(self, idSensor):
+	def getAllDeviceActions(self, iddevice):
 		con = self._connect()
 		with con:
 			cur = con.cursor()
-    		cur.execute("SELECT * FROM sensorAction AS SA INNER JOIN device AS D ON SA.iddevice = D.iddevice 	\
-							INNER join deviceCommand AS DC ON SA.iddeviceCommand = DC.iddeviceCommand 			\
-							INNER JOIN sensor AS S ON SA.idsensor = S.idsensor									\
-							INNER JOIN sensorActionType AS SAT ON SA.idsensorActionType = SAT.idsensorActionType \
-							INNER JOIN sensorActionRelation AS SAR on SA.idsensorActionRelation = SAR.idsensorActionRelation \
-							WHERE SA.iddevice = %s", (idSensor, ))
+    		cur.execute("SELECT * FROM deviceAction AS DA \
+				INNER JOIN device AS D ON DA.iddevice = D.iddevice \
+				INNER JOIN deviceActionRelation AS DAR ON DA.iddeviceActionRelation = DAR.iddeviceActionRelation \
+				INNER JOIN deviceCommand AS DC ON DA.iddeviceCommand = DC.iddeviceCommand \
+				INNER JOIN deviceActionType AS DAT ON DA.iddeviceActionType = DAT.iddeviceActionType \
+				where DA.iddevice = %s", (iddevice, ))
     		return cur.fetchall()
 
 

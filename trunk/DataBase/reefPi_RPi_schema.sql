@@ -8,67 +8,17 @@ SHOW WARNINGS;
 USE `reefPi_RPi_schema` ;
 
 -- -----------------------------------------------------
--- Table `reefPi_RPi_schema`.`sensorType`
+-- Table `reefPi_RPi_schema`.`busType`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `reefPi_RPi_schema`.`sensorType` ;
+DROP TABLE IF EXISTS `reefPi_RPi_schema`.`busType` ;
 
 SHOW WARNINGS;
-CREATE TABLE IF NOT EXISTS `reefPi_RPi_schema`.`sensorType` (
-  `idsensorType` INT NOT NULL AUTO_INCREMENT,
-  `sensorTypeName` VARCHAR(45) NOT NULL,
-  `busType` VARCHAR(45) NOT NULL,
-  PRIMARY KEY (`idsensorType`))
+CREATE TABLE IF NOT EXISTS `reefPi_RPi_schema`.`busType` (
+  `idbusType` INT NOT NULL AUTO_INCREMENT,
+  `busTypeName` VARCHAR(45) NOT NULL,
+  `busTypeDescription` VARCHAR(255) NULL,
+  PRIMARY KEY (`idbusType`))
 ENGINE = InnoDB;
-
-SHOW WARNINGS;
-
--- -----------------------------------------------------
--- Table `reefPi_RPi_schema`.`sensor`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `reefPi_RPi_schema`.`sensor` ;
-
-SHOW WARNINGS;
-CREATE TABLE IF NOT EXISTS `reefPi_RPi_schema`.`sensor` (
-  `idsensor` INT NOT NULL AUTO_INCREMENT,
-  `sensorName` VARCHAR(45) NOT NULL,
-  `idsensorType` INT NOT NULL,
-  `address` VARCHAR(45) NULL,
-  `units` VARCHAR(45) NULL DEFAULT 'celsius',
-  `period` INT NULL,
-  PRIMARY KEY (`idsensor`),
-  CONSTRAINT `type`
-    FOREIGN KEY (`idsensorType`)
-    REFERENCES `reefPi_RPi_schema`.`sensorType` (`idsensorType`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
-
-SHOW WARNINGS;
-CREATE INDEX `type_idx` ON `reefPi_RPi_schema`.`sensor` (`idsensorType` ASC);
-
-SHOW WARNINGS;
-
--- -----------------------------------------------------
--- Table `reefPi_RPi_schema`.`sensorReadings`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `reefPi_RPi_schema`.`sensorReadings` ;
-
-SHOW WARNINGS;
-CREATE TABLE IF NOT EXISTS `reefPi_RPi_schema`.`sensorReadings` (
-  `timeStamp` TIMESTAMP NULL DEFAULT now(),
-  `idSensorReadings` INT NOT NULL AUTO_INCREMENT,
-  `idsensor` INT NOT NULL,
-  `reading` DOUBLE NOT NULL,
-  PRIMARY KEY (`idSensorReadings`),
-  CONSTRAINT `sensor`
-    FOREIGN KEY (`idsensor`)
-    REFERENCES `reefPi_RPi_schema`.`sensor` (`idsensor`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
-
-SHOW WARNINGS;
-CREATE INDEX `sensor_idx` ON `reefPi_RPi_schema`.`sensorReadings` (`idsensor` ASC);
 
 SHOW WARNINGS;
 
@@ -81,9 +31,17 @@ SHOW WARNINGS;
 CREATE TABLE IF NOT EXISTS `reefPi_RPi_schema`.`deviceType` (
   `iddeviceType` INT NOT NULL AUTO_INCREMENT,
   `deviceTypeName` VARCHAR(45) NOT NULL,
-  `busType` VARCHAR(45) NOT NULL,
-  PRIMARY KEY (`iddeviceType`))
+  `idbusType` INT NOT NULL,
+  PRIMARY KEY (`iddeviceType`),
+  CONSTRAINT `FK_deviceType_busType`
+    FOREIGN KEY (`idbusType`)
+    REFERENCES `reefPi_RPi_schema`.`busType` (`idbusType`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
 ENGINE = InnoDB;
+
+SHOW WARNINGS;
+CREATE INDEX `FK_deviceType_busType_idx` ON `reefPi_RPi_schema`.`deviceType` (`idbusType` ASC);
 
 SHOW WARNINGS;
 
@@ -137,9 +95,9 @@ CREATE TABLE IF NOT EXISTS `reefPi_RPi_schema`.`device` (
   `deviceName` VARCHAR(45) NOT NULL,
   `iddeviceType` INT NOT NULL,
   `idcontroller` INT NOT NULL,
-  `address` VARCHAR(45) NOT NULL,
-  `status` TINYINT(1) NULL,
-  `level` INT NULL,
+  `deviceAddress` VARCHAR(45) NOT NULL,
+  `deviceStatus` TINYINT(1) NULL,
+  `deviceLevel` INT NULL,
   PRIMARY KEY (`iddevice`),
   CONSTRAINT `FK_deviceType`
     FOREIGN KEY (`iddeviceType`)
@@ -158,6 +116,30 @@ CREATE INDEX `deviceType_idx` ON `reefPi_RPi_schema`.`device` (`iddeviceType` AS
 
 SHOW WARNINGS;
 CREATE INDEX `FK_contoller_idx` ON `reefPi_RPi_schema`.`device` (`idcontroller` ASC);
+
+SHOW WARNINGS;
+
+-- -----------------------------------------------------
+-- Table `reefPi_RPi_schema`.`deviceReading`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `reefPi_RPi_schema`.`deviceReading` ;
+
+SHOW WARNINGS;
+CREATE TABLE IF NOT EXISTS `reefPi_RPi_schema`.`deviceReading` (
+  `iddeviceReading` INT NOT NULL AUTO_INCREMENT,
+  `deviceReading` DOUBLE NOT NULL,
+  `deviceReadingTimeStamp` TIMESTAMP NULL DEFAULT now(),
+  `iddevice` INT NOT NULL,
+  PRIMARY KEY (`iddeviceReading`),
+  CONSTRAINT `FK_deviceReading_device`
+    FOREIGN KEY (`iddevice`)
+    REFERENCES `reefPi_RPi_schema`.`device` (`iddevice`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+SHOW WARNINGS;
+CREATE INDEX `FK_deviceReading_device_idx` ON `reefPi_RPi_schema`.`deviceReading` (`iddevice` ASC);
 
 SHOW WARNINGS;
 
@@ -186,7 +168,7 @@ CREATE TABLE IF NOT EXISTS `reefPi_RPi_schema`.`command` (
   `idcommand` INT NOT NULL AUTO_INCREMENT,
   `iddevice` INT NOT NULL,
   `iddeviceCommand` INT NOT NULL,
-  `parameterList` VARCHAR(255) NULL,
+  `CommandParam` VARCHAR(255) NULL,
   PRIMARY KEY (`idcommand`, `iddeviceCommand`),
   CONSTRAINT `FK_command_device`
     FOREIGN KEY (`iddevice`)
@@ -298,93 +280,115 @@ CREATE INDEX `FK_scheduleEvent_scheduleTypeCommand_idx` ON `reefPi_RPi_schema`.`
 SHOW WARNINGS;
 
 -- -----------------------------------------------------
--- Table `reefPi_RPi_schema`.`sensorActionRelation`
+-- Table `reefPi_RPi_schema`.`deviceActionRelation`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `reefPi_RPi_schema`.`sensorActionRelation` ;
+DROP TABLE IF EXISTS `reefPi_RPi_schema`.`deviceActionRelation` ;
 
 SHOW WARNINGS;
-CREATE TABLE IF NOT EXISTS `reefPi_RPi_schema`.`sensorActionRelation` (
-  `idsensorActionRelation` INT NOT NULL AUTO_INCREMENT,
-  `sensorActionRelation` VARCHAR(45) NOT NULL,
-  `sensorActionRelationSymbol` VARCHAR(45) NULL,
-  `sensorActionRelationDescription` VARCHAR(45) NULL,
-  PRIMARY KEY (`idsensorActionRelation`))
+CREATE TABLE IF NOT EXISTS `reefPi_RPi_schema`.`deviceActionRelation` (
+  `iddeviceActionRelation` INT NOT NULL AUTO_INCREMENT,
+  `deviceActionRelation` VARCHAR(45) NOT NULL,
+  `deviceActionRelationSymbol` VARCHAR(45) NULL,
+  `deviceActionRelationDescription` VARCHAR(45) NULL,
+  PRIMARY KEY (`iddeviceActionRelation`))
 ENGINE = InnoDB;
 
 SHOW WARNINGS;
 
 -- -----------------------------------------------------
--- Table `reefPi_RPi_schema`.`sensorActionType`
+-- Table `reefPi_RPi_schema`.`deviceActionType`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `reefPi_RPi_schema`.`sensorActionType` ;
+DROP TABLE IF EXISTS `reefPi_RPi_schema`.`deviceActionType` ;
 
 SHOW WARNINGS;
-CREATE TABLE IF NOT EXISTS `reefPi_RPi_schema`.`sensorActionType` (
-  `idsensorActionType` INT NOT NULL AUTO_INCREMENT,
-  `sensorActionType` VARCHAR(45) NOT NULL,
-  `sensorActionTypeDescription` BLOB NULL,
-  PRIMARY KEY (`idsensorActionType`))
+CREATE TABLE IF NOT EXISTS `reefPi_RPi_schema`.`deviceActionType` (
+  `iddeviceActionType` INT NOT NULL AUTO_INCREMENT,
+  `deviceActionType` VARCHAR(45) NOT NULL,
+  `deviceActionTypeDescription` BLOB NULL,
+  PRIMARY KEY (`iddeviceActionType`))
 ENGINE = InnoDB;
 
 SHOW WARNINGS;
 
 -- -----------------------------------------------------
--- Table `reefPi_RPi_schema`.`sensorAction`
+-- Table `reefPi_RPi_schema`.`deviceAction`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `reefPi_RPi_schema`.`sensorAction` ;
+DROP TABLE IF EXISTS `reefPi_RPi_schema`.`deviceAction` ;
 
 SHOW WARNINGS;
-CREATE TABLE IF NOT EXISTS `reefPi_RPi_schema`.`sensorAction` (
-  `idsensorAction` INT NOT NULL AUTO_INCREMENT,
-  `idsensor` INT NOT NULL,
-  `value` DOUBLE NOT NULL,
-  `idsensorActionRelation` INT NOT NULL,
-  `idsensorActionType` INT NOT NULL,
+CREATE TABLE IF NOT EXISTS `reefPi_RPi_schema`.`deviceAction` (
+  `iddeviceAction` INT NOT NULL AUTO_INCREMENT,
+  `deviceActionValue` DOUBLE NOT NULL,
+  `iddeviceActionRelation` INT NOT NULL,
+  `iddeviceActionType` INT NOT NULL,
   `iddevice` INT NOT NULL,
   `iddeviceCommand` INT NOT NULL,
-  `parameterList` VARCHAR(255) NULL,
-  PRIMARY KEY (`idsensorAction`),
-  CONSTRAINT `FK_SensorAction_Device`
+  `deviceCommandParam` VARCHAR(255) NULL,
+  PRIMARY KEY (`iddeviceAction`),
+  CONSTRAINT `FK_DeviceAction_DeviceOutput`
     FOREIGN KEY (`iddevice`)
     REFERENCES `reefPi_RPi_schema`.`device` (`iddevice`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `FK_SensorSction_deviceCommand`
+  CONSTRAINT `FK_DeviceAction_deviceCommand`
     FOREIGN KEY (`iddeviceCommand`)
     REFERENCES `reefPi_RPi_schema`.`deviceCommand` (`iddeviceCommand`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `FK_SensorAction_actionRelation`
-    FOREIGN KEY (`idsensorActionRelation`)
-    REFERENCES `reefPi_RPi_schema`.`sensorActionRelation` (`idsensorActionRelation`)
+  CONSTRAINT `FK_DeviceAction_actionRelation`
+    FOREIGN KEY (`iddeviceActionRelation`)
+    REFERENCES `reefPi_RPi_schema`.`deviceActionRelation` (`iddeviceActionRelation`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `FK_SensorAction_actionType`
-    FOREIGN KEY (`idsensorActionType`)
-    REFERENCES `reefPi_RPi_schema`.`sensorActionType` (`idsensorActionType`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `FK_SensorAction_sensor`
-    FOREIGN KEY (`idsensor`)
-    REFERENCES `reefPi_RPi_schema`.`sensor` (`idsensor`)
+  CONSTRAINT `FK_DeviceAction_actionType`
+    FOREIGN KEY (`iddeviceActionType`)
+    REFERENCES `reefPi_RPi_schema`.`deviceActionType` (`iddeviceActionType`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 SHOW WARNINGS;
-CREATE INDEX `FK_SensorAction_Device_idx` ON `reefPi_RPi_schema`.`sensorAction` (`iddevice` ASC);
+CREATE INDEX `FK_SensorAction_Device_idx` ON `reefPi_RPi_schema`.`deviceAction` (`iddevice` ASC);
 
 SHOW WARNINGS;
-CREATE INDEX `FK_SensorSction_deviceCommand_idx` ON `reefPi_RPi_schema`.`sensorAction` (`iddeviceCommand` ASC);
+CREATE INDEX `FK_SensorSction_deviceCommand_idx` ON `reefPi_RPi_schema`.`deviceAction` (`iddeviceCommand` ASC);
 
 SHOW WARNINGS;
-CREATE INDEX `FK_SensorAction_actionRelation_idx` ON `reefPi_RPi_schema`.`sensorAction` (`idsensorActionRelation` ASC);
+CREATE INDEX `FK_SensorAction_actionRelation_idx` ON `reefPi_RPi_schema`.`deviceAction` (`iddeviceActionRelation` ASC);
 
 SHOW WARNINGS;
-CREATE INDEX `FK_SensorAction_actionType_idx` ON `reefPi_RPi_schema`.`sensorAction` (`idsensorActionType` ASC);
+CREATE INDEX `FK_SensorAction_actionType_idx` ON `reefPi_RPi_schema`.`deviceAction` (`iddeviceActionType` ASC);
 
 SHOW WARNINGS;
-CREATE INDEX `FK_SensorAction_sensor_idx` ON `reefPi_RPi_schema`.`sensorAction` (`idsensor` ASC);
+
+-- -----------------------------------------------------
+-- Table `reefPi_RPi_schema`.`link_device_deviceAction`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `reefPi_RPi_schema`.`link_device_deviceAction` ;
+
+SHOW WARNINGS;
+CREATE TABLE IF NOT EXISTS `reefPi_RPi_schema`.`link_device_deviceAction` (
+  `idlink_device_deviceAction` INT NOT NULL AUTO_INCREMENT,
+  `iddevice` INT NOT NULL,
+  `iddeviceAction` INT NOT NULL,
+  PRIMARY KEY (`idlink_device_deviceAction`),
+  CONSTRAINT `FK_device_deviceAction`
+    FOREIGN KEY (`iddevice`)
+    REFERENCES `reefPi_RPi_schema`.`device` (`iddevice`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_deviceAction_device`
+    FOREIGN KEY (`iddeviceAction`)
+    REFERENCES `reefPi_RPi_schema`.`deviceAction` (`iddeviceAction`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+SHOW WARNINGS;
+CREATE INDEX `FK_device_deviceAction_idx` ON `reefPi_RPi_schema`.`link_device_deviceAction` (`iddevice` ASC);
+
+SHOW WARNINGS;
+CREATE INDEX `FK_deviceAction_device_idx` ON `reefPi_RPi_schema`.`link_device_deviceAction` (`iddeviceAction` ASC);
 
 SHOW WARNINGS;
 
