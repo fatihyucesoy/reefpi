@@ -3,6 +3,7 @@ import MySQLdb as sql
 import MySQLdb.cursors
 import os
 import re
+import datetime
 
 class SQLInterface:
 
@@ -139,22 +140,24 @@ class SQLInterface:
 							hour, minute, second))
 			con.commit()
 
-	def addDeviceAction(self, value, relation, type, iddevice, action, param):
+	def addDeviceAction(self, idTargetDevice, value, relation, type, idOutputDevice, action, param):
 		con = self._connect()
 		with con:
 			cur = con.cursor()
-			cur.execute("""INSERT INTO deviceAction (deviceActionValue, iddeviceActionRelation,
-													 iddeviceActionType, iddevice,
+			cur.execute("""INSERT INTO deviceAction (idTargetDevice, deviceActionValue, iddeviceActionRelation,
+													 iddeviceActionType, idOutputdevice,
 													 iddeviceCommand, deviceCommandParam)
-							VALUES (%s, %s, %s, %s, %s, %s)""",\
-							(value, relation, type, iddevice, action, param))
+							VALUES (%s, %s, %s, %s, %s, %s, %s)""",\
+							(idTargetDevice, value, relation, type, idOutputDevice, action, param))
 			con.commit()
 
 	def insertDeviceReading(self, iddevice, reading):
 		con = self._connect()
 		with con:
 			cur = con.cursor()
-			cur.execute("""INSERT INTO deviceReading(iddevice, deviceReading) VALUES(%s, %s)""", (iddevice, reading))
+			cur.execute("""INSERT INTO deviceReading(iddevice, deviceReading, deviceReadingTimeStamp)
+						VALUES(%s, %s, %s)
+						""", (iddevice, reading, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
 			con.commit()
 
 
@@ -232,11 +235,11 @@ class SQLInterface:
 		with con:
 			cur = con.cursor()
     		cur.execute("SELECT * FROM deviceAction AS DA \
-				INNER JOIN device AS D ON DA.iddevice = D.iddevice \
+				INNER JOIN device AS D ON DA.idTargetDevice = D.iddevice \
 				INNER JOIN deviceActionRelation AS DAR ON DA.iddeviceActionRelation = DAR.iddeviceActionRelation \
 				INNER JOIN deviceCommand AS DC ON DA.iddeviceCommand = DC.iddeviceCommand \
 				INNER JOIN deviceActionType AS DAT ON DA.iddeviceActionType = DAT.iddeviceActionType \
-				where DA.iddevice = %s", (iddevice, ))
+				where DA.idTargetDevice = %s", (iddevice, ))
     		return cur.fetchall()
 
 
@@ -254,7 +257,7 @@ class SQLInterface:
 		con = self._connect()
 		with con:
 			cur = con.cursor()
-			cur.execute("""INSERT INTO command (iddevice, iddeviceCommand, parameterlist)VALUES(%s, %s, %s)""", (deviceId, command, args))
+			cur.execute("""INSERT INTO command (iddevice, iddeviceCommand, CommandParam) VALUES(%s, %s, %s)""", (deviceId, command, args))
 			con.commit()
 
 

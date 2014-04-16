@@ -17,7 +17,7 @@ class scheduledEvent:
 	hour = None
 	minute = None
 	second = None
-	
+
 	def __init__(self, event):
 		self.idscheduledEvent = event['idscheduledEvent']
 		self.jobName = event['jobName']
@@ -37,28 +37,6 @@ class scheduledEvent:
 		self.hour = event['hour']
 		self.minute = event['minute']
 		self.second = event['second']
-		#self._printParameters()
-		
-	def _printParameters(self):
-		print '''				id 		={0},
-				name		={1},
-				type		={2}, 
-				deviceId	={3}, 
-				command		={4}, 
-				startDate	={5}, 
-				value		={6}, 
-				year		={7},
-				month		={8},
-				day		={9}, 
-				week		={10},
-				day_of_week	={11}, 
-				hour		={12},
-				min		={13}, 
-				sec		={14}'''\
-				.format(self.Id, self.name, self.type, self.deviceId, \
-				self.command, self.startDate, self.value, self.year, \
-				self.month, self.day, self.week, self.day_of_week, \
-				self.hour, self.minute, self.second)
-		
-	
+
+
 
