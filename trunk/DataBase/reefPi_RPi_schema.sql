@@ -168,7 +168,7 @@ CREATE TABLE IF NOT EXISTS `reefPi_RPi_schema`.`command` (
   `idcommand` INT NOT NULL AUTO_INCREMENT,
   `iddevice` INT NOT NULL,
   `iddeviceCommand` INT NOT NULL,
-  `CommandParam` VARCHAR(255) NULL,
+  `commandParam` VARCHAR(255) NULL,
   PRIMARY KEY (`idcommand`, `iddeviceCommand`),
   CONSTRAINT `FK_command_device`
     FOREIGN KEY (`iddevice`)
@@ -318,15 +318,16 @@ DROP TABLE IF EXISTS `reefPi_RPi_schema`.`deviceAction` ;
 SHOW WARNINGS;
 CREATE TABLE IF NOT EXISTS `reefPi_RPi_schema`.`deviceAction` (
   `iddeviceAction` INT NOT NULL AUTO_INCREMENT,
+  `idTargetDevice` INT NOT NULL,
   `deviceActionValue` DOUBLE NOT NULL,
   `iddeviceActionRelation` INT NOT NULL,
   `iddeviceActionType` INT NOT NULL,
-  `iddevice` INT NOT NULL,
+  `idOutputDevice` INT NOT NULL,
   `iddeviceCommand` INT NOT NULL,
   `deviceCommandParam` VARCHAR(255) NULL,
   PRIMARY KEY (`iddeviceAction`),
   CONSTRAINT `FK_DeviceAction_DeviceOutput`
-    FOREIGN KEY (`iddevice`)
+    FOREIGN KEY (`idOutputDevice`)
     REFERENCES `reefPi_RPi_schema`.`device` (`iddevice`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
@@ -348,7 +349,7 @@ CREATE TABLE IF NOT EXISTS `reefPi_RPi_schema`.`deviceAction` (
 ENGINE = InnoDB;
 
 SHOW WARNINGS;
-CREATE INDEX `FK_SensorAction_Device_idx` ON `reefPi_RPi_schema`.`deviceAction` (`iddevice` ASC);
+CREATE INDEX `FK_SensorAction_Device_idx` ON `reefPi_RPi_schema`.`deviceAction` (`idOutputDevice` ASC);
 
 SHOW WARNINGS;
 CREATE INDEX `FK_SensorSction_deviceCommand_idx` ON `reefPi_RPi_schema`.`deviceAction` (`iddeviceCommand` ASC);
@@ -358,37 +359,6 @@ CREATE INDEX `FK_SensorAction_actionRelation_idx` ON `reefPi_RPi_schema`.`device
 
 SHOW WARNINGS;
 CREATE INDEX `FK_SensorAction_actionType_idx` ON `reefPi_RPi_schema`.`deviceAction` (`iddeviceActionType` ASC);
-
-SHOW WARNINGS;
-
--- -----------------------------------------------------
--- Table `reefPi_RPi_schema`.`link_device_deviceAction`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `reefPi_RPi_schema`.`link_device_deviceAction` ;
-
-SHOW WARNINGS;
-CREATE TABLE IF NOT EXISTS `reefPi_RPi_schema`.`link_device_deviceAction` (
-  `idlink_device_deviceAction` INT NOT NULL AUTO_INCREMENT,
-  `iddevice` INT NOT NULL,
-  `iddeviceAction` INT NOT NULL,
-  PRIMARY KEY (`idlink_device_deviceAction`),
-  CONSTRAINT `FK_device_deviceAction`
-    FOREIGN KEY (`iddevice`)
-    REFERENCES `reefPi_RPi_schema`.`device` (`iddevice`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `FK_deviceAction_device`
-    FOREIGN KEY (`iddeviceAction`)
-    REFERENCES `reefPi_RPi_schema`.`deviceAction` (`iddeviceAction`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
-
-SHOW WARNINGS;
-CREATE INDEX `FK_device_deviceAction_idx` ON `reefPi_RPi_schema`.`link_device_deviceAction` (`iddevice` ASC);
-
-SHOW WARNINGS;
-CREATE INDEX `FK_deviceAction_device_idx` ON `reefPi_RPi_schema`.`link_device_deviceAction` (`iddeviceAction` ASC);
 
 SHOW WARNINGS;
 

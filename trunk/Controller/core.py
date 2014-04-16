@@ -59,14 +59,12 @@ def createDevice(deviceInfo, DB):
 	#get a list of all of the actions for this sensor.  This could be empty
 	actionList = []
 	device = None
-
-
 	# get the actions for this sensor
 	for action in DB.getAllDeviceActions(deviceInfo['iddevice']):
 		actionList.append(deviceAction(action))
 
+
 	deviceClass = globals()[deviceInfo['deviceTypeName']]
-	print deviceClass
 	device = deviceClass(deviceInfo, actionList, DB)
 	#create a sensor object of the correct type
 	return device
@@ -92,6 +90,7 @@ def init(DB):
 	scheduledEvents = []
 	dbEventList = DB.getAllScheduledEvents()
 	for dbEvent in dbEventList:
+		print "adding event {0}".format(dbEvent)
 		scheduledEvents.append(scheduledEvent(dbEvent))
 
 	return scheduledEvents
@@ -123,7 +122,7 @@ def addTestData(DB):
 	DB.addDeviceType('heaterSimulator', 1)
 	DB.addDeviceType('LEDSimulator', 2)
 
-	DB.addDeviceType('tempSimulator', 2)
+	DB.addDeviceType('tempSensorSimulator', 2)
 
 
 	DB.addDevice('heater1', 1, '0x40', 0, 1, 0)
@@ -138,18 +137,18 @@ def addTestData(DB):
 	DB.addDeviceActionRelation('lt', '<', "less than")
 	DB.addDeviceActionRelation('gt', '>', "greater than")
 	DB.addDeviceActionRelation('eq', '=', "equal to")
-	DB.addDeviceActionRelation('neq', '!-', "lnot equal to")
+	DB.addDeviceActionRelation('neq', '!-', "not equal to")
 
 
 	# create a temp sensor simulator to represent a tank heater
-	DB.addDevice('tempSensor1', 3, 'SW', 0, 1, 0)
-	DB.addDeviceAction(25, 1, 1, 1, 1, '')
-	DB.addDeviceAction(25, 2, 1, 1, 2, '')
+	DB.addDevice('tempSensor1', 3, 'SW', 1, 1, 0)
+	DB.addDeviceAction(6, 25, 1, 1, 1, 1, '')
+	DB.addDeviceAction(6, 25, 2, 1, 1, 2, '')
 
 	# create a temp sensor simulator to represent the LED fans
-	DB.addDevice('tempSensor2', 3, 'SW', 0, 1, 0)
-	DB.addDeviceAction(27, 2, 1, 2, 1, '')
-	DB.addDeviceAction(27, 1, 2, 2, 2, '')
+	DB.addDevice('tempSensor2', 3, 'SW', 1, 1, 0)
+	DB.addDeviceAction(7, 27, 2, 1, 2, 1, '')
+	DB.addDeviceAction(7, 27, 1, 2, 2, 2, '')
 
 	DB.addScheduleType("crone", "crone task based on standard crone syntax")
 	DB.addScheduleType("interval", "task will run at regular intervals with period defined here")
@@ -193,26 +192,26 @@ def processCommand(DB):
 	if(dbCommand != None):
 		command = deviceCommand(dbCommand)
 		print "running method {0} on device {1}".format(command.deviceCommand, command.deviceName)
-		try:
-			dbDevice = DB.getDevice(command.iddevice)
-			device = createDevice(dbDevice)
-			#we have found the device now check it has the correct method
-			methodPointer = getattr(device, command.deviceCommand, None)
-			if(methodPointer):
-				# we need to check for parameters and call the method
-				# with the correct parameter list. There must be a more
-				# generic way of doing this... methodpointer(*command.args) maybe
-				paramLength = len(inspect.getargspec(methodPointer)[0])-1
-				if(paramLength == 0):
-					result = methodPointer()
-				elif(paramLength == 1):
-					result = methodPointer(command.args)
+		#try:
+		dbDevice = DB.getDevice(command.iddevice)
+		device = createDevice(dbDevice, DB)
+		#we have found the device now check it has the correct method
+		methodPointer = getattr(device, command.deviceCommand, None)
+		if(methodPointer):
+			# we need to check for parameters and call the method
+			# with the correct parameter list. There must be a more
+			# generic way of doing this... methodpointer(*command.args) maybe
+			paramLength = len(inspect.getargspec(methodPointer)[0])-1
+			if(paramLength == 0):
+				result = methodPointer()
+			elif(paramLength == 1):
+				result = methodPointer(command.args)
 
-			else:
-				print "failed to run method {0} on device {1}".format(command.deviceCommand, command.deviceName)
+		else:
+			print "failed to run method {0} on device {1}".format(command.deviceCommand, command.deviceName)
 
-		except Exception, e:
-			print "failed to run method {0} on device {1}: {2}".format(command.deviceCommand, command.deviceName, e)
+		#except Exception, e:
+		#	print "failed to run method {0} on device {1}: {2}".format(command.deviceCommand, command.deviceName, e)
 
 	return result
 
@@ -236,7 +235,7 @@ def addScheduledEvents(scheduler, scheduledEvents):
 def main():
 	scheduledEvents = []
 	DB = SQLInterface(host, user, passwd, dataBase)
-	init(DB)
+	scheduledEvents = init(DB)
 	scheduler = ReefPI_Scheduler(host, user, passwd, dataBase)
 	addScheduledEvents(scheduler, scheduledEvents)
 	scheduler.Run()
@@ -248,7 +247,6 @@ def main():
 	#for loop in range(1,100):
 		while(processCommand(DB)):
 			pass
-		print"looping"
 		time.sleep(1)
 
 
