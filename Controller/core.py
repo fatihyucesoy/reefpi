@@ -2,17 +2,12 @@ import web
 import time
 import datetime
 import inspect
-
+import os
+import imp
+import importlib
 from DBInterface.SQLInterface import *
-
-from devices.tempSensor.tempSensorSimulator import *
-from devices.tempSensor.DS18B20Interface import *
-
-from devices.heater.heaterSimulator import *
-from devices.lighting.LEDSimulator import *
-
+from devices import *
 from scheduler.reefPI_Scheduler import *
-
 from lib.LEDIntensityCalculator import *
 from lib.scheduledEvent import *
 from lib.deviceAction import *
@@ -20,40 +15,35 @@ from lib.command import *
 
 latitude = -19.770621   # + to N  Defualt - (-19.770621) Heart Reef, Great Barrier Reef, QLD, Australia
 longitude = 149.238532  # + to E  Defualt - (149.238532)
-TimeZone = 10             # + to E  Defulat - (10)
+TimeZone = 10			 # + to E  Defulat - (10)
 
 host = "localhost"
 user = "root"
 passwd = ""
 dataBase = "reefPi_RPi_schema"
 
-def createSensor(sensorInfo, DB):
-	#get a list of all of the actions for this sensor.  This could be empty
-	actionList = []
-	sensor = None
 
 
-	# get the actions for this sensor
-	for action in DB.getAllSensorActions(sensorInfo['idsensor']):
-		actionList.append(sensorAction(action))
+def findPythonFile(className, rootDir, searchDir):
+	relFile = None
+	for dirName, subdirList, fileList in os.walk(searchDir):
+		print('Found directory: %s' % dirName)
+		for fileName in fileList:
+			print "findPythonFile: checking {0} against {1}".format(os.path.splitext(fileName)[0], className)
+			if(os.path.splitext(fileName)[0] == className):
+				print "findPythonFile: found {0} in {1}".format(fileName, dirName)
+				relDir = os.path.relpath(dirName, rootDir)
+				relFile = os.path.join(relDir, fileName)
+				break
 
-	sensorClass = globals()[sensorInfo['sensorTypeName']]
-	sensor = sensorClass(sensorInfo, actionList, host, user, passwd, dataBase)
-	#create a sensor object of the correct type
-	return sensor
+		if(relFile != None):
+			break
 
-
-def getAllSensors(DB):
-	sensorList = []
-	# get all sensors from the DB
-	dBSensors = DB.getAllSensors()
-	# create a sensor object for each DB entry
-	for dbSensor in dBSensors:
-		sensor = createSensor(dbSensor, DB)
-		if(sensor):
-			sensorList.append(sensor)
-
-	return sensorList
+	print "found relfile = {0} relpath = {1}".format(relFile, relDir)
+	importPath = os.path.splitext(relFile)[0].replace('/', '.')
+	print importPath
+	loaded_mod = __import__(importPath, fromlist=[className])
+	return getattr(loaded_mod, className)
 
 def createDevice(deviceInfo, DB):
 	#get a list of all of the actions for this sensor.  This could be empty
@@ -63,11 +53,13 @@ def createDevice(deviceInfo, DB):
 	for action in DB.getAllDeviceActions(deviceInfo['iddevice']):
 		actionList.append(deviceAction(action))
 
+	loadedClass = findPythonFile( deviceInfo['deviceTypeName'], '.', './devices')
+	print "cretaedevice: pyfile = ",loadedClass
 
-	deviceClass = globals()[deviceInfo['deviceTypeName']]
-	device = deviceClass(deviceInfo, actionList, DB)
-	#create a sensor object of the correct type
-	return device
+
+	return loadedClass
+
+
 
 def getAllDevices(DB):
 	deviceList = []
@@ -75,9 +67,6 @@ def getAllDevices(DB):
 	for dbDevice in dbDeviceList:
 		deviceList.append(createDevice(dbDevice, DB))
 	return deviceList
-
-
-
 
 def initDevices(DB):
 	devices = getAllDevices(DB)
@@ -196,6 +185,7 @@ def processCommand(DB):
 		dbDevice = DB.getDevice(command.iddevice)
 		device = createDevice(dbDevice, DB)
 		#we have found the device now check it has the correct method
+		print "processCommand: device = {0}".format(device)
 		methodPointer = getattr(device, command.deviceCommand, None)
 		if(methodPointer):
 			# we need to check for parameters and call the method
@@ -255,4 +245,4 @@ def main():
 		process.terminate()
 
 if __name__ == "__main__":
-    main()
+	main()
