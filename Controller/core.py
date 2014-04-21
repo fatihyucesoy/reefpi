@@ -12,6 +12,7 @@ from lib.LEDIntensityCalculator import *
 from lib.scheduledEvent import *
 from lib.deviceAction import *
 from lib.command import *
+import logging
 
 latitude = -19.770621   # + to N  Defualt - (-19.770621) Heart Reef, Great Barrier Reef, QLD, Australia
 longitude = 149.238532  # + to E  Defualt - (149.238532)
@@ -27,11 +28,11 @@ dataBase = "reefPi_RPi_schema"
 def findPythonFile(className, rootDir, searchDir):
 	relFile = None
 	for dirName, subdirList, fileList in os.walk(searchDir):
-		print('Found directory: %s' % dirName)
+		#print('Found directory: %s' % dirName)
 		for fileName in fileList:
-			print "findPythonFile: checking {0} against {1}".format(os.path.splitext(fileName)[0], className)
+			#print "findPythonFile: checking {0} against {1}".format(os.path.splitext(fileName)[0], className)
 			if(os.path.splitext(fileName)[0] == className):
-				print "findPythonFile: found {0} in {1}".format(fileName, dirName)
+				#print "findPythonFile: found {0} in {1}".format(fileName, dirName)
 				relDir = os.path.relpath(dirName, rootDir)
 				relFile = os.path.join(relDir, fileName)
 				break
@@ -57,7 +58,7 @@ def createDevice(deviceInfo, DB):
 	print "cretaedevice: pyfile = ",loadedClass
 
 
-	return loadedClass
+	return loadedClass(deviceInfo, actionList, DB)
 
 
 
