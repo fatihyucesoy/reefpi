@@ -1,0 +1,27 @@
+<html>
+<header>
+<title>ReefPi</title>
+</header>
+<body>
+<?php
+            $mysqlserver="localhost";
+            $mysqlusername="repi01_reefpi";
+            $mysqlpassword="pxlBlo0M";
+            $dbname = 'repi01_reefpi';			
+            $link=mysql_connect(localhost, $mysqlusername, $mysqlpassword) or die ("Error connecting to mysql server: ".mysql_error());
+?>
+<form>
+Temperature: <input type="text" name="temp">
+</form>
+
+<?php
+            mysql_select_db($dbname, $link);
+			
+			$TEMP="SELECT * FROM sensorReadings
+			WHERE probeId= tempProbe
+			ORDER BY timestamp DESC
+			LIMIT 1;"
+?>
+
+</body>
+</html>
