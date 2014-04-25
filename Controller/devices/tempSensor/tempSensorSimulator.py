@@ -4,8 +4,8 @@ import random
 class tempSensorSimulator(deviceBase):
 	reading = None
 
-	def __init__(self, deviceInfo, actionList, DB):
-		deviceBase.__init__(self, deviceInfo, actionList, DB)
+	def __init__(self, deviceInfo, actionList, DB, logger):
+		deviceBase.__init__(self, deviceInfo, actionList, DB, logger)
 
 	def _processNewReading(self):
 		self._DB.insertDeviceReading(self.iddevice, self.reading)
@@ -19,9 +19,9 @@ class tempSensorSimulator(deviceBase):
 			self.reading = random.uniform(23, 28)
 			self._processNewReading()
 			returnValue = self.reading
-			print "deviceId: {0}, deviceName: {1}, reading: {2}".format(self.iddevice, self.deviceName, self.reading)
+			self._logger.info( "deviceId: {0}, deviceName: {1}, reading: {2}".format(self.iddevice, self.deviceName, self.reading))
 
 		else:
-			print "{0}:{1}:Unable to take reading as sensor it turned off".format(self.iddevice, self.deviceName)
+			self._logger.error( "{0}:{1}:Unable to take reading as sensor it turned off".format(self.iddevice, self.deviceName))
 
 		return returnValue

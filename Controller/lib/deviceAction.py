@@ -13,7 +13,6 @@ class deviceAction:
 
 
 	def __init__(self, action):
-		print action
 		self.iddeviceAction = action['iddeviceAction']
 		self.iddevice = action['idTargetDevice']
 		self.idOutputDevice = action['idOutputDevice']

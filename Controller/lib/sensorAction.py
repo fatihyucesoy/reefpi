@@ -10,7 +10,7 @@ class sensorAction:
 	iddeviceCommand = None
 	command = None
 
-	
+
 	def __init__(self, action):
 		self.idsensorAction = action['idsensorAction']
 		self.idsensor = action['idsensor']
@@ -22,25 +22,8 @@ class sensorAction:
 		self.deviceName = action['deviceName']
 		self.iddeviceCommand = action['iddeviceCommand']
 		self.command= action['deviceCommand']
-		#self._printParameters()
-		
-	def _printParameters(self):
-		print """idSensorAction		={0},
-				idsensor		={1}, 
-				idSsensosrName = {2},
-				value	={3}, 
-				relation		={4}, 
-				type		={5},
-				iddevice		={6}, 
-				command		={7},
-				deviecName = {8},
-				iddeviceCommand= {9}""".format(self.idsensorAction,  \
-				self.idsensor, self.sensorName, self.value, self.relation, \
-				self.type, self.iddevice, self.command, self.deviceName, self.iddeviceCommand)
-		
-	
-	def checkValue(self, value):
 
+	def checkValue(self, value):
 		result = False
 		if(self.relation == 'lt'):
 			if(value < self.value):
@@ -54,5 +37,5 @@ class sensorAction:
 		elif(self.relation == 'neq'):
 			if(value != self.value):
 				result = True
-				
+
 		return result
