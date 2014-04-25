@@ -4,6 +4,7 @@ import MySQLdb.cursors
 import os
 import re
 import datetime
+import logging
 
 class SQLInterface:
 
@@ -11,6 +12,7 @@ class SQLInterface:
 	_user = "root"
 	_passwd = ""
 	_dataBase = "reefPi_RPi_schema"
+	_logger = None
 
 	def _connect(self):
 		return sql.connect(host=self._host,
@@ -19,15 +21,16 @@ class SQLInterface:
 							db=self._dataBase,
 							cursorclass=MySQLdb.cursors.DictCursor)
 
-	def __init__(self, host, user, passwd, dataBase):
+	def __init__(self, host, user, passwd, dataBase, logger):
 
 		self._host = host
 		self._user = user
 		self._passwd = passwd
 		self._dataBase = dataBase
+		self._logger = logger
 
 	def execSqlFile(self, cursor, sql_file):
-		print "\n[INFO] Executing SQL script file: '%s'" % (sql_file)
+		self._logger.info( "Executing SQL script file: '%s'" % (sql_file))
 		statement =''
 		for line in open(sql_file):
 			if re.match(r'--', line):  # ignore sql comment lines
@@ -40,7 +43,7 @@ class SQLInterface:
 					if(not statement.isspace()):
 						cursor.execute(statement)
 				except Exception as e:
-					print 'Failed to run statement {0} due to error {1}'.format(statement, e)
+					self._logger.error( 'Failed to run statement {0} due to error {1}'.format(statement, e))
 					exit(0)
 				statement = ''
 

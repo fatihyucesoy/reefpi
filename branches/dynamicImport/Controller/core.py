@@ -13,6 +13,9 @@ from lib.scheduledEvent import *
 from lib.deviceAction import *
 from lib.command import *
 import logging
+import logging.handlers
+
+
 
 latitude = -19.770621   # + to N  Defualt - (-19.770621) Heart Reef, Great Barrier Reef, QLD, Australia
 longitude = 149.238532  # + to E  Defualt - (149.238532)
@@ -23,16 +26,25 @@ user = "root"
 passwd = ""
 dataBase = "reefPi_RPi_schema"
 
+logger = logging.getLogger(__name__)
 
+def initLogger(logFile):
+	logger.setLevel(logging.DEBUG)
+	ch = logging.handlers.RotatingFileHandler(
+	              logFile, maxBytes=20000, backupCount=5)
+	ch.setLevel(logging.DEBUG)
+	formatter = logging.Formatter('%(asctime)s:%(filename)25s:%(levelname)7s:%(message)s')
+	ch.setFormatter(formatter)
+	logger.addHandler(ch)
 
 def findPythonFile(className, rootDir, searchDir):
 	relFile = None
 	for dirName, subdirList, fileList in os.walk(searchDir):
 		#print('Found directory: %s' % dirName)
 		for fileName in fileList:
-			#print "findPythonFile: checking {0} against {1}".format(os.path.splitext(fileName)[0], className)
+			#logger.info "findPythonFile: checking {0} against {1}".format(os.path.splitext(fileName)[0], className)
 			if(os.path.splitext(fileName)[0] == className):
-				#print "findPythonFile: found {0} in {1}".format(fileName, dirName)
+				#logger.info "findPythonFile: found {0} in {1}".format(fileName, dirName)
 				relDir = os.path.relpath(dirName, rootDir)
 				relFile = os.path.join(relDir, fileName)
 				break
@@ -40,9 +52,8 @@ def findPythonFile(className, rootDir, searchDir):
 		if(relFile != None):
 			break
 
-	print "found relfile = {0} relpath = {1}".format(relFile, relDir)
+	logger.info("found file = {0} with path = {1}".format(relFile, relDir))
 	importPath = os.path.splitext(relFile)[0].replace('/', '.')
-	print importPath
 	loaded_mod = __import__(importPath, fromlist=[className])
 	return getattr(loaded_mod, className)
 
@@ -55,12 +66,7 @@ def createDevice(deviceInfo, DB):
 		actionList.append(deviceAction(action))
 
 	loadedClass = findPythonFile( deviceInfo['deviceTypeName'], '.', './devices')
-	print "cretaedevice: pyfile = ",loadedClass
-
-
-	return loadedClass(deviceInfo, actionList, DB)
-
-
+	return loadedClass(deviceInfo, actionList, DB, logger)
 
 def getAllDevices(DB):
 	deviceList = []
@@ -75,12 +81,13 @@ def initDevices(DB):
 		device.init()
 
 def init(DB):
+
 	addTestData(DB)
 	#initDevices(DB)
 	scheduledEvents = []
 	dbEventList = DB.getAllScheduledEvents()
 	for dbEvent in dbEventList:
-		print "adding event {0}".format(dbEvent)
+		logger.info("adding event {0}".format(dbEvent))
 		scheduledEvents.append(scheduledEvent(dbEvent))
 
 	return scheduledEvents
@@ -181,36 +188,35 @@ def processCommand(DB):
 	dbCommand = DB.getNextCommand()
 	if(dbCommand != None):
 		command = deviceCommand(dbCommand)
-		print "running method {0} on device {1}".format(command.deviceCommand, command.deviceName)
-		#try:
-		dbDevice = DB.getDevice(command.iddevice)
-		device = createDevice(dbDevice, DB)
-		#we have found the device now check it has the correct method
-		print "processCommand: device = {0}".format(device)
-		methodPointer = getattr(device, command.deviceCommand, None)
-		if(methodPointer):
-			# we need to check for parameters and call the method
-			# with the correct parameter list. There must be a more
-			# generic way of doing this... methodpointer(*command.args) maybe
-			paramLength = len(inspect.getargspec(methodPointer)[0])-1
-			if(paramLength == 0):
-				result = methodPointer()
-			elif(paramLength == 1):
-				result = methodPointer(command.args)
+		logger.info( "running method {0} on device {1}".format(command.deviceCommand, command.deviceName))
+		try:
+			dbDevice = DB.getDevice(command.iddevice)
+			device = createDevice(dbDevice, DB)
+			#we have found the device now check it has the correct method
+			logger.info( "processCommand: device = {0}".format(device))
+			methodPointer = getattr(device, command.deviceCommand, None)
+			if(methodPointer):
+				# we need to check for parameters and call the method
+				# with the correct parameter list. There must be a more
+				# generic way of doing this... methodpointer(*command.args) maybe
+				paramLength = len(inspect.getargspec(methodPointer)[0])-1
+				if(paramLength == 0):
+					result = methodPointer()
+				elif(paramLength == 1):
+					result = methodPointer(command.args)
 
-		else:
-			print "failed to run method {0} on device {1}".format(command.deviceCommand, command.deviceName)
+			else:
+				logger.error( "failed to run method {0} on device {1}".format(command.deviceCommand, command.deviceName))
 
-		#except Exception, e:
-		#	print "failed to run method {0} on device {1}: {2}".format(command.deviceCommand, command.deviceName, e)
+		except Exception, e:
+			logger.error( "failed to run method {0} on device {1}: {2}".format(command.deviceCommand, command.deviceName, e))
 
 	return result
 
 
 def decodeSchedulerEvent(deviceId, probeID, command, level):
-	print datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + \
-			":Scheduled event running: " + str(command) +' ' + str(deviceId)
-	DB = SQLInterface(host, user, passwd, dataBase)
+	logger.info(":Scheduled event running: " + str(command) +' ' + str(deviceId))
+	DB = SQLInterface(host, user, passwd, dataBase, logger)
 	DB.addCommand(deviceId, command, [level])
 
 
@@ -225,7 +231,7 @@ def addScheduledEvents(scheduler, scheduledEvents):
 
 def main():
 	scheduledEvents = []
-	DB = SQLInterface(host, user, passwd, dataBase)
+	DB = SQLInterface(host, user, passwd, dataBase, logger)
 	scheduledEvents = init(DB)
 	scheduler = ReefPI_Scheduler(host, user, passwd, dataBase)
 	addScheduledEvents(scheduler, scheduledEvents)
@@ -241,9 +247,10 @@ def main():
 		time.sleep(1)
 
 
-	print 'Going to sleep'
+	logger.info( 'Going to sleep')
 	for process in sensorPool:
 		process.terminate()
 
 if __name__ == "__main__":
+	initLogger('test.log')
 	main()

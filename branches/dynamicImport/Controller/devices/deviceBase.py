@@ -15,8 +15,9 @@ class deviceBase:
 	level = None
 	_DB = None
 	_actionList = None
+	_logger = None
 
-	def __init__(self, deviceInfo, actionList, DB):
+	def __init__(self, deviceInfo, actionList, DB, logger):
 		self.iddevice = deviceInfo['iddevice']
 		self.deviceName = deviceInfo['deviceName']
 		self.iddeviceType = deviceInfo['iddeviceType']
@@ -28,6 +29,7 @@ class deviceBase:
 		self._DB = DB
 		self._setState(self.status)
 		self.level = deviceInfo['deviceLevel']
+		self._logger = logger
 
 	def init(self):
 		self._setState(self.status)
@@ -39,9 +41,9 @@ class deviceBase:
 		return self.status
 
 	def turnOn(self):
-		print "Turning {0} On".format(self.deviceName,)
+		self._logger.info("Turning {0} On".format(self.deviceName,))
 		return self._setState(1)
 
 	def turnOff(self):
-		print "Turning {0} Off".format(self.deviceName,)
+		slef._logger("Turning {0} Off".format(self.deviceName,))
 		return self._setState(0)
